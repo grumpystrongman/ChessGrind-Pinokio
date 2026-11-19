@@ -143,8 +143,8 @@ UNITS=[
 
 # Extra positions are constructed from verified original examples, then individually
 # checked for legality and for the claimed chess pattern. Original question IDs persist.
-SESSION_SIZE=8
-BANK_TARGET=40
+SESSION_SIZE=12
+BANK_TARGET=100
 def _shift(square,dx,dy,flip=False):
     f=chess.square_file(chess.parse_square(square))
     r=chess.square_rank(chess.parse_square(square))
@@ -202,7 +202,7 @@ def _expand_banks():
         results=[]
         # Chess-relevant geometric shifts first, then add unobtrusive context pieces
         # if needed (especially central pawn lessons, whose destination is fixed).
-        for attempt in range(12000):
+        for attempt in range(90000):
             seed=original[attempt%len(original)]
             dx=rng.randint(-5,5);dy=rng.randint(-5,5);flip=bool(rng.randrange(2))
             extras=()
@@ -340,7 +340,7 @@ def status(unit,events):
         if row["challenge_id"] in checks:first_by_challenge.setdefault(row["challenge_id"],row["at"][:10])
     legacy_day=max(first_by_challenge.values()) if len(first_by_challenge)==len(checks) else None
     all_correct={r["challenge_id"]:r["at"][:10] for r in fresh}
-    # Preserve early beta achievements, but new learners need eight distinct boards.
+    # Preserve early beta achievements, but new learners need twelve distinct boards.
     first_day=legacy_day or (max(all_correct.values()) if len(all_correct)>=SESSION_SIZE else None)
     # Do not confuse learned-on-retry with unseen first-try recognition.
     first_attempts={}
@@ -373,7 +373,7 @@ def overview():
         return {"units":results,"total":len(UNITS),
              "completed":sum(x["state"] in ("practice-complete","retained") for x in results),
              "retained":sum(x["confirmed"] for x in results),
-              "method":"Eight distinct independently correct boards earn a new practice milestone. Existing beta milestones are preserved. Every session brings less-practiced positions; delayed checks are tracked separately."}
+              "method":"Twelve distinct independently correct boards earn a new practice milestone. Existing beta milestones are preserved. Every session brings less-practiced positions; delayed checks are tracked separately."}
     finally:con.close()
 
 def _presentation(item,kind,reveal=False):

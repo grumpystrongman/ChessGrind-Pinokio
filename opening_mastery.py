@@ -17,7 +17,7 @@ from game_analysis import find_engine
 from engine_grade import engine_gap
 from opening_coach import snapshot,_explain_move,changes
 from opening_theory_cards import theory,FAMILIES
-from opening_repertoire import USER
+from opening_repertoire import current_username
 
 def ensure(con):
  con.executescript("""CREATE TABLE IF NOT EXISTS opening_course_progress(
@@ -126,10 +126,10 @@ def lesson(opening_id,color="White"):
 
 def _progress(con,opening_id,color):
  row=con.execute("""SELECT * FROM opening_course_progress WHERE
- username=? AND color=? AND opening_id=?""",(USER,color,opening_id)).fetchone()
+ username=? AND color=? AND opening_id=?""",(current_username(),color,opening_id)).fetchone()
  x=dict(row) if row else None
  attempts=con.execute("""SELECT role,accepted,assisted,created_at FROM opening_course_attempts
- WHERE username=? AND color=? AND opening_id=? ORDER BY id""",(USER,color,opening_id)).fetchall()
+ WHERE username=? AND color=? AND opening_id=? ORDER BY id""",(current_username(),color,opening_id)).fetchall()
  kinds=Counter(a["role"] for a in attempts)
  correct_transfer=sum(a["accepted"] and not a["assisted"] for a in attempts if a["role"]=="transfer")
  transfer_attempts=sum(a["role"]=="transfer" for a in attempts)
@@ -160,7 +160,7 @@ def dashboard():
   result={}
   for color in ("White","Black"):
    rows=con.execute("""SELECT opening_id FROM opening_course_progress
-    WHERE username=? AND color=?""",(USER,color)).fetchall()
+    WHERE username=? AND color=?""",(current_username(),color)).fetchall()
    stats=[_progress(con,r["opening_id"],color) for r in rows]
    result[color]={"studying":len(rows),"due":sum(x["due"] for x in stats),
     "transferDemonstrated":sum(x["stage"]=="transfer-demonstrated" for x in stats),
@@ -172,7 +172,7 @@ def dashboard():
 def _round(con,opening_id,color,role,fen):
  token=secrets.token_hex(14)
  con.execute("INSERT INTO opening_course_rounds VALUES(?,?,?,?,?,?,0,0,?)",
-             (token,USER,color,int(opening_id),role,_key(fen),_iso()))
+             (token,current_username(),color,int(opening_id),role,_key(fen),_iso()))
  con.commit()
  return token
 
@@ -181,7 +181,7 @@ def _get_round(con,token,opening_id,color,role,fen):
  if not isinstance(token,str) or not re.fullmatch("[a-f0-9]{28}",token):
   raise ValueError("Invalid study question")
  row=con.execute("SELECT * FROM opening_course_rounds WHERE round_id=? AND username=? AND opening_id=? AND color=? AND role=? AND position_key=?",
-  (token,USER,int(opening_id),color,role,_key(fen))).fetchone()
+  (token,current_username(),int(opening_id),color,role,_key(fen))).fetchone()
  if row is None:raise ValueError("Study question does not match this position")
  if row["finished"]:raise ValueError("This question is completed. Begin a new one.")
  return row
@@ -195,7 +195,7 @@ def review_question(opening_id,color="White"):
  try:
   attempted=con.execute("""SELECT position_key FROM opening_course_attempts
   WHERE username=? AND color=? AND opening_id=? AND role='recall'""",
-  (USER,color,int(opening_id))).fetchall()
+  (current_username(),color,int(opening_id))).fetchall()
   used={r[0] for r in attempted}
  finally:con.close()
  choice=next((d for d in choices if d["key"] not in used),choices[len(used)%len(choices)])
@@ -232,11 +232,11 @@ def _write_attempt(con,opening_id,color,role,fen,uci,accepted,assisted,gap):
  con.execute("""INSERT INTO opening_course_attempts
  (username,color,opening_id,role,position_key,uci,accepted,assisted,regret_cp,created_at)
  VALUES(?,?,?,?,?,?,?,?,?,?)""",
- (USER,color,int(opening_id),role,_key(fen),uci,int(accepted),int(assisted),gap,_iso()))
+ (current_username(),color,int(opening_id),role,_key(fen),uci,int(accepted),int(assisted),gap,_iso()))
 
 def _update_schedule(con,opening_id,color,grade,knowledge=False):
  entry=con.execute("""SELECT * FROM opening_course_progress
- WHERE username=? AND color=? AND opening_id=?""",(USER,color,int(opening_id))).fetchone()
+ WHERE username=? AND color=? AND opening_id=?""",(current_username(),color,int(opening_id))).fetchone()
  old=dict(entry) if entry else None
  quality=int(grade);previous=old["repetitions"] if old else 0
  ease=old["ease"] if old else 2.5
@@ -260,7 +260,7 @@ def _update_schedule(con,opening_id,color,grade,knowledge=False):
  review_due=excluded.review_due,interval_days=excluded.interval_days,ease=excluded.ease,
  repetitions=excluded.repetitions,knowledge_passes=excluded.knowledge_passes,
  last_grade=excluded.last_grade,last_review=excluded.last_review""",
- (USER,color,int(opening_id),due,days,ease,repetitions,passes,quality,_iso()))
+ (current_username(),color,int(opening_id),due,days,ease,repetitions,passes,quality,_iso()))
  return {"due":due,"intervalDays":days,"repetitions":repetitions}
 
 def submit(opening_id,color,role,fen,uci,assisted=False,explain_choice=None,round_id=None):
@@ -320,12 +320,12 @@ def submit(opening_id,color,role,fen,uci,assisted=False,explain_choice=None,roun
         "piece development. "+str(3-attempts)+" attempt(s) remain. No solution revealed.")
   else:
    reserved=con.execute("""SELECT position_key,fen,target_uci FROM opening_course_transfer_reservations
-     WHERE username=? AND color=? AND opening_id=?""",(USER,color,int(opening_id))).fetchone()
+     WHERE username=? AND color=? AND opening_id=?""",(current_username(),color,int(opening_id))).fetchone()
    if reserved is None or reserved["position_key"]!=_key(board.fen()):
     raise ValueError("No matching held-out transfer position assigned")
    already=con.execute("""SELECT 1 FROM opening_course_attempts
     WHERE username=? AND color=? AND opening_id=? AND role='transfer' AND position_key=?""",
-     (USER,color,int(opening_id),_key(board.fen()))).fetchone()
+     (current_username(),color,int(opening_id),_key(board.fen()))).fetchone()
    if already and active is None:raise ValueError("This board has already been tested as transfer")
    score=_engine_score(board,move)
    accepted=bool(score["accepted"] and not assisted)
@@ -357,7 +357,7 @@ def submit(opening_id,color,role,fen,uci,assisted=False,explain_choice=None,roun
        str(3-attempts)+" attempt(s) remain. The solution is hidden.")
    if finished:
     con.execute("DELETE FROM opening_course_transfer_reservations WHERE username=? AND color=? AND opening_id=?",
-      (USER,color,int(opening_id)))
+      (current_username(),color,int(opening_id)))
   con.commit()
   result["progress"]=_progress(con,int(opening_id),color)
   return result
@@ -374,11 +374,11 @@ def knowledge(opening_id,color,answer):
  con=db();ensure(con)
  try:
   current=con.execute("""SELECT 1 FROM opening_course_progress
-    WHERE username=? AND color=? AND opening_id=?""",(USER,color,int(opening_id))).fetchone()
+    WHERE username=? AND color=? AND opening_id=?""",(current_username(),color,int(opening_id))).fetchone()
   if not current:
    con.execute("""INSERT INTO opening_course_progress
     (username,color,opening_id,review_due,interval_days,ease,repetitions,knowledge_passes)
-    VALUES(?,?,?,?,?,?,?,?)""",(USER,color,int(opening_id),_iso(),0,2.5,0,0))
+    VALUES(?,?,?,?,?,?,?,?)""",(current_username(),color,int(opening_id),_iso(),0,2.5,0,0))
   _write_attempt(con,opening_id,color,"syntax",question["fen"],answer,correct,False,None)
   con.commit()
   return {"correct":correct,"answer":question["san"],
@@ -398,16 +398,16 @@ def transfer_question(opening_id,color):
  con=db();ensure(con)
  try:
   existing=con.execute("""SELECT position_key,fen FROM opening_course_transfer_reservations
-  WHERE username=? AND color=? AND opening_id=?""",(USER,color,int(opening_id))).fetchone()
+  WHERE username=? AND color=? AND opening_id=?""",(current_username(),color,int(opening_id))).fetchone()
   if existing:
    token=_round(con,opening_id,color,"transfer",existing["fen"])
    return {"roundId":token,"maxAttempts":3,"fen":existing["fen"],"color":color,"openingId":int(opening_id),
       "role":"transfer","prompt":"An unrehearsed branch in the same opening family. Choose the strongest continuation without help.",
       "disclosure":"This position is held out from this course's worked example, but may resemble positions seen elsewhere."}
   attempted={row[0] for row in con.execute("""SELECT position_key FROM opening_course_attempts
-   WHERE username=?""",(USER,))}
+   WHERE username=?""",(current_username(),))}
   reserved={row[0] for row in con.execute("""SELECT position_key FROM opening_course_transfer_reservations
-   WHERE username=?""",(USER,))}
+   WHERE username=?""",(current_username(),))}
   candidates=[]
   for sibling in eco.database()[0]:
    if sibling["id"]==entry["id"] or sibling["eco"][:2]!=entry["eco"][:2]:continue
@@ -422,7 +422,7 @@ def transfer_question(opening_id,color):
    return {"fen":None,"role":"transfer","reason":"No independent same-family variation is currently available for this ECO entry. This is not a transfer pass."}
   sibling,chosen=candidates[0]
   con.execute("""INSERT INTO opening_course_transfer_reservations
-  VALUES(?,?,?,?,?,?)""",(USER,color,int(opening_id),chosen["key"],chosen["fen"],chosen["uci"]))
+  VALUES(?,?,?,?,?,?)""",(current_username(),color,int(opening_id),chosen["key"],chosen["fen"],chosen["uci"]))
   con.commit()
   return {"roundId":_round(con,opening_id,color,"transfer",chosen["fen"]),
     "maxAttempts":3,"fen":chosen["fen"],"color":color,"openingId":int(opening_id),
@@ -497,20 +497,20 @@ def concept_grade(opening_id,color,choice,assisted=False,round_id=None):
   # A repeated answer cannot multiply knowledge credits.
   existing=con.execute("""SELECT 1 FROM opening_course_attempts
   WHERE username=? AND color=? AND opening_id=? AND role='concept'
-  AND accepted=1 AND assisted=0 LIMIT 1""",(USER,color,int(opening_id))).fetchone()
+  AND accepted=1 AND assisted=0 LIMIT 1""",(current_username(),color,int(opening_id))).fetchone()
   fen=_my_decisions(entry,color)[0]["fen"]
   _write_attempt(con,opening_id,color,"concept",fen,str(choice),passed,assisted,None)
   current=con.execute("""SELECT 1 FROM opening_course_progress
-  WHERE username=? AND color=? AND opening_id=?""",(USER,color,int(opening_id))).fetchone()
+  WHERE username=? AND color=? AND opening_id=?""",(current_username(),color,int(opening_id))).fetchone()
   if not current:
    con.execute("""INSERT INTO opening_course_progress
      (username,color,opening_id,review_due,interval_days,ease,repetitions,knowledge_passes)
      VALUES(?,?,?,?,?,?,?,?)""",
-     (USER,color,int(opening_id),_iso(),0,2.5,0,0))
+     (current_username(),color,int(opening_id),_iso(),0,2.5,0,0))
   if passed and not assisted and not existing:
    con.execute("""UPDATE opening_course_progress
     SET knowledge_passes=knowledge_passes+1
-    WHERE username=? AND color=? AND opening_id=?""",(USER,color,int(opening_id)))
+    WHERE username=? AND color=? AND opening_id=?""",(current_username(),color,int(opening_id)))
   con.commit()
   return {"correct":passed,"assisted":assisted,
     "correctPlan":choices[correct],"yourChoice":choices[choice],

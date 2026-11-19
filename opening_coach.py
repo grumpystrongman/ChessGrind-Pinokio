@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections import Counter
 import chess
 import chess.engine
-from opening_repertoire import position,board_key,_data,USER
+from opening_repertoire import position,board_key,_data,current_username
 from chess_grind import db
 from game_analysis import find_engine
 from lesson_explainer import variation,move_reasons

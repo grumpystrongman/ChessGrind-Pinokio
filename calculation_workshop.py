@@ -18,7 +18,9 @@ from motifs import classify
 from lesson_explainer import move_reasons,variation
 from learning_lab import WEIGHT
 
-USER="player"
+def current_username():
+    from account_settings import username
+    return username() or "player"
 MAX_DEPTH=11
 def ensure(con):
     con.executescript("""CREATE TABLE IF NOT EXISTS workshop_trials(
@@ -36,7 +38,7 @@ def ensure(con):
     con.commit()
 
 def _games(con):
-    rows=con.execute("SELECT data FROM game_analysis WHERE username=?",(USER,)).fetchall()
+    rows=con.execute("SELECT data FROM game_analysis WHERE username=?",(current_username(),)).fetchall()
     return [json.loads(r[0]) for r in rows]
 
 def _mistakes(con):
@@ -82,7 +84,7 @@ def profile():
               "phase":phase,"timeClass":tc,"fen":m["fen"],
               "played":m["move"],"best":m["best"]})
         trials=[dict(r) for r in con.execute("""SELECT game_id,ply,correct,assisted,regret_cp
-            FROM workshop_trials WHERE username=? ORDER BY id DESC""",(USER,))]
+            FROM workshop_trials WHERE username=? ORDER BY id DESC""",(current_username(),))]
         independent=[x for x in trials if not x["assisted"]]
         tried={(x["game_id"],x["ply"]) for x in trials}
         topic_rows=[]
@@ -112,14 +114,14 @@ def profile():
           "note":"Counts describe flagged decisions in analyzed games, not error rates per game, probability of future mistakes, or proof of improvement over time."}
     finally:con.close()
 
-def positions(topic=None,phase=None,limit=14):
+def positions(topic=None,phase=None,limit=60):
     if topic is not None and (not isinstance(topic,str) or len(topic)>80):raise ValueError("Invalid topic")
     if phase is not None and phase not in ("Opening","Middlegame","Endgame"):raise ValueError("Invalid phase")
-    limit=max(1,min(int(limit),25))
+    limit=max(1,min(int(limit),100))
     con=db();ensure(con)
     try:
         attempted={(r["game_id"],r["ply"]) for r in con.execute(
-          "SELECT game_id,ply FROM workshop_trials WHERE username=?",(USER,))}
+          "SELECT game_id,ply FROM workshop_trials WHERE username=?",(current_username(),))}
         entries=[]
         for g,m in _mistakes(con):
             if not m.get("fen") or not m.get("best") or not m.get("move"):continue
@@ -152,7 +154,7 @@ def get_position(game_id,ply):
     if not isinstance(ply,int) or not 0<=ply<=400:raise ValueError("Invalid move number")
     con=db()
     try:
-        row=con.execute("SELECT data FROM game_analysis WHERE username=? AND game_id=?",(USER,game_id)).fetchone()
+        row=con.execute("SELECT data FROM game_analysis WHERE username=? AND game_id=?",(current_username(),game_id)).fetchone()
         if not row:raise ValueError("Analyzed game not found")
         g=json.loads(row[0])
         m=next((x for x in g.get("mistakes",[]) if x["ply"]==ply),None)
@@ -251,7 +253,7 @@ def submit(game_id,ply,chosen_uci,predicted_reply="",assisted=False):
     con=db();ensure(con)
     con.execute("""INSERT INTO workshop_trials(username,game_id,ply,fen,chosen_uci,
         suggested_reply,best_uci,correct,regret_cp,assisted,at) VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
-        (USER,game_id,ply,board.fen(),chosen.uci(),predicted_reply,best["uci"],
+        (current_username(),game_id,ply,board.fen(),chosen.uci(),predicted_reply,best["uci"],
          int(correct),regret,int(assisted),
          dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")))
     con.commit();con.close()

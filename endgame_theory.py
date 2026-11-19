@@ -88,7 +88,7 @@ def geometry(board):
 def teach(lesson_id):
  original=base_lesson(lesson_id)
  board=chess.Board(original["fen"])
- kind=lesson_id.removesuffix("-mirror")
+ kind=lesson_id.split("-variation-")[0].removesuffix("-mirror")
  topic=TOPICS[kind];metrics=geometry(board)
  pieces=metrics["pieces"];side=metrics["side"]
  observed=["It is "+side+"'s turn, with "+str(pieces)+" pieces on the board.",

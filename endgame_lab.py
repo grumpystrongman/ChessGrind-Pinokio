@@ -90,6 +90,61 @@ for original in ORIGINAL_LESSONS:
     "hint":hint,"idea":idea
  }
  LESSONS.append(swapped)
+
+# Board-verified practice variations. The same principle is trained on
+# different legal arrangements, not repeated on an identical FEN.
+def _extra_endgames():
+    original=list(LESSONS)
+    seen={chess.Board(x["fen"]).board_fen()+(" w" if chess.Board(x["fen"]).turn else " b") for x in original}
+    for lesson in original:
+        board=chess.Board(lesson["fen"])
+        new=0
+        for flip in (False,True):
+            for dx in (0,1,-1,2,-2,3,-3):
+                for dy in (0,1,-1,2,-2):
+                    if not flip and dx==0 and dy==0:continue
+                    mapping={}
+                    valid=True
+                    for sq,piece in board.piece_map().items():
+                        f=chess.square_file(sq);r=chess.square_rank(sq)
+                        if flip:f=7-f
+                        f+=dx;r+=dy
+                        if not 0<=f<8 or not 0<=r<8:
+                            valid=False;break
+                        mapping[chess.square_name(chess.square(f,r))]=piece.symbol()
+                    if not valid:continue
+                    try:fen=position(mapping,"w" if board.turn else "b")
+                    except ValueError:continue
+                    b=chess.Board(fen)
+                    if b.is_game_over() or not any(b.legal_moves):continue
+                    key=b.board_fen()+(" w" if b.turn else " b")
+                    if key in seen:continue
+                    new_focus=[]
+                    for name in lesson["focus"]:
+                        f=chess.square_file(chess.parse_square(name))
+                        r=chess.square_rank(chess.parse_square(name))
+                        if flip:f=7-f
+                        f+=dx;r+=dy
+                        if not 0<=f<8 or not 0<=r<8:
+                            new_focus=[];break
+                        new_focus.append(chess.square_name(chess.square(f,r)))
+                    if not new_focus:continue
+                    seen.add(key)
+                    new+=1
+                    variant={**lesson,
+                        "id":lesson["id"]+"-variation-"+str(new).zfill(2),
+                        "title":lesson["title"]+" - Practice "+str(new),
+                        "subtitle":"A different legal position. Test the same principle without memorizing the board.",
+                        "fen":fen,"focus":new_focus,
+                        "hint":"Use the lesson principle, inspect checks/captures, and calculate the opponent's reply.",
+                        "idea":"This is a new, board-validated example of the lesson theme. The best move must be established by Stockfish in this specific position."}
+                    LESSONS.append(variant)
+                    if new>=8:break
+                if new>=8:break
+            if new>=8:break
+        if new<1:raise RuntimeError("No legal endgame practice variant: "+lesson["id"])
+_extra_endgames()
+
 BY_ID={x["id"]:x for x in LESSONS}
 def ensure(con):
  con.executescript("""CREATE TABLE IF NOT EXISTS endgame_attempts(

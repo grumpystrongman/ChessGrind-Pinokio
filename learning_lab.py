@@ -24,7 +24,12 @@ def ensure(c):
  CREATE TABLE IF NOT EXISTS lab_mastery(username TEXT,game_id TEXT,ply INTEGER,topic TEXT,seen INTEGER DEFAULT 0,correct INTEGER DEFAULT 0,streak INTEGER DEFAULT 0,due TEXT,last_seen TEXT,PRIMARY KEY(username,game_id,ply));
  CREATE TABLE IF NOT EXISTS lab_notes(username TEXT,session_id TEXT,game_id TEXT,ply INTEGER,note TEXT,at TEXT,PRIMARY KEY(username,session_id,game_id,ply));""");c.commit()
 def stamp():return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
-def items(c,user="player"):
+def current_username():
+ from account_settings import username
+ return username() or "player"
+
+def items(c,user=None):
+ user=user or current_username()
  ensure(c)
  progress={(r["game_id"],r["ply"]):dict(r) for r in c.execute("SELECT * FROM lab_mastery WHERE username=?",(user,))}
  out=[];today=dt.date.today().isoformat()
@@ -62,18 +67,18 @@ def pick(c,topic=None,count=5):
 def session_start(topic=None,mode="guided",count=5):
  if topic and topic not in THEMES:raise ValueError("Unknown skill")
  if mode not in ("guided","micro","campaign","assessment"):raise ValueError("Unknown session mode")
- c=db();ensure(c);count=1 if mode=="micro" else max(1,min(int(count),12))
+ c=db();ensure(c);count=1 if mode=="micro" else max(1,min(int(count),30))
  selected=pick(c,topic,count);sid=secrets.token_urlsafe(18)
  ids=[{"gameId":m["gameId"],"ply":m["ply"]} for m in selected]
- c.execute("INSERT INTO lab_sessions VALUES(?,?,?,?,?,0,?)",(sid,"player",topic or "mixed",mode,json.dumps(ids),stamp()));c.commit()
+ c.execute("INSERT INTO lab_sessions VALUES(?,?,?,?,?,0,?)",(sid,current_username(),topic or "mixed",mode,json.dumps(ids),stamp()));c.commit()
  return {"sessionId":sid,"topic":topic or "mixed","mode":mode,"total":len(ids),"exercise":exercise(sid)}
 def context(c,sid):
- r=c.execute("SELECT * FROM lab_sessions WHERE id=? AND username='player'",(sid,)).fetchone()
+ r=c.execute("SELECT * FROM lab_sessions WHERE id=? AND username=?",(sid,current_username())).fetchone()
  if r is None:raise ValueError("Unknown learning session")
  r=dict(r);ids=json.loads(r["ids"])
  if r["current"]>=len(ids):return r,None
  key=ids[r["current"]]
- g=c.execute("SELECT data FROM game_analysis WHERE game_id=? AND username='player'",(key["gameId"],)).fetchone()
+ g=c.execute("SELECT data FROM game_analysis WHERE game_id=? AND username=?",(key["gameId"],current_username())).fetchone()
  if not g:raise ValueError("Game is no longer available")
  data=json.loads(g[0]);m=next((m for m in data["mistakes"] if m["ply"]==key["ply"]),None)
  if not m:raise ValueError("Position missing")
@@ -157,16 +162,16 @@ def legal_move(fen,uci):
  return b,mv
 def record(c,sid,m,stage_name,correct,assisted,seconds=0,detail=None):
  c.execute("INSERT INTO lab_events(username,session_id,game_id,ply,topic,stage,correct,assisted,seconds,at,details) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
- ("player",sid,m["gameId"],m["ply"],m["topic"],stage_name,int(bool(correct)),int(bool(assisted)),
+ (current_username(),sid,m["gameId"],m["ply"],m["topic"],stage_name,int(bool(correct)),int(bool(assisted)),
  max(0,min(float(seconds or 0),3600)),stamp(),json.dumps(detail or {})))
  if stage_name in ("move","prove"):
-  old=c.execute("SELECT * FROM lab_mastery WHERE username='player' AND game_id=? AND ply=?",(m["gameId"],m["ply"])).fetchone()
+  old=c.execute("SELECT * FROM lab_mastery WHERE username=? AND game_id=? AND ply=?",(current_username(),m["gameId"],m["ply"])).fetchone()
   old=dict(old) if old else {};streak=old.get("streak",0)+1 if correct and not assisted else 0
   due=(dt.date.today()+dt.timedelta(days=(2**min(streak,4)) if streak else 1)).isoformat()
   c.execute("""INSERT INTO lab_mastery VALUES(?,?,?,?,?,?,?, ?,?) ON CONFLICT(username,game_id,ply) DO UPDATE SET
   seen=lab_mastery.seen+1,correct=lab_mastery.correct+excluded.correct,
   streak=excluded.streak,due=excluded.due,last_seen=excluded.last_seen""",
-  ("player",m["gameId"],m["ply"],m["topic"],1,int(correct and not assisted),streak,due,stamp()))
+  (current_username(),m["gameId"],m["ply"],m["topic"],1,int(correct and not assisted),streak,due,stamp()))
  c.commit()
 def advance(c,sid,sess):
  c.execute("UPDATE lab_sessions SET current=? WHERE id=?",(sess["current"]+1,sid));c.commit()
@@ -217,7 +222,7 @@ def act(sid,action,payload):
   from contextual_reading import position_reading,position_concepts
   # Don't recycle the same passage throughout a learner's recent exercises.
   recent=c.execute("""SELECT details FROM lab_events
-      WHERE username='player' AND stage='learn' ORDER BY id DESC LIMIT 20""").fetchall()
+      WHERE username=? AND stage='learn' ORDER BY id DESC LIMIT 20""",(current_username(),)).fetchall()
   previously_shown=set()
   for r in recent:
    try:
@@ -307,7 +312,7 @@ def positional(fen):
    add("king exposure",king,"White" if color else "Black","No adjacent friendly pawn shelter; examine forcing checks.")
  return {"fen":fen,"features":feats[:80],"note":"Geometric strategic clues, not a complete engine evaluation."}
 def skills():
- c=db();ensure(c);rows=c.execute("SELECT * FROM lab_events WHERE username='player'").fetchall()
+ c=db();ensure(c);rows=c.execute("SELECT * FROM lab_events WHERE username=?",(current_username(),)).fetchall()
  result=[]
  for topic in THEMES:
   a=[r for r in rows if r["topic"]==topic and r["stage"] in ("spot","move","predict","prove") and not r["assisted"]]
@@ -391,5 +396,5 @@ def save_note(sid,note):
  if not m:raise ValueError("Session completed")
  c.execute("""INSERT INTO lab_notes VALUES(?,?,?,?,?,?) ON CONFLICT(username,session_id,game_id,ply)
  DO UPDATE SET note=excluded.note,at=excluded.at""",
- ("player",sid,m["gameId"],m["ply"],note,stamp()));c.commit()
+ (current_username(),sid,m["gameId"],m["ply"],note,stamp()));c.commit()
  return {"saved":True}

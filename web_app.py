@@ -271,7 +271,7 @@ class Handler(BaseHTTPRequestHandler):
                 from urllib.parse import parse_qs
                 args=parse_qs(urlparse(self.path).query)
                 self.respond(positions(args.get("topic",[None])[0],args.get("phase",[None])[0],
-                                       int(args.get("limit",["14"])[0])))
+                                       int(args.get("limit",["60"])[0])))
             elif path=="/api/academy":
                 from academy_curriculum import overview
                 self.respond(overview())

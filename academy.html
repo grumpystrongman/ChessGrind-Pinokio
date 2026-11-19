@@ -141,7 +141,7 @@ aside{padding:23px 17px 40px 25px;border-right:1px solid var(--rim);background:#
     <div class="stat"><b id="stat-retained">—</b><small>Delayed recalls confirmed</small></div>
    </div>
    <div class="plan"><span class="avatar">♞</span><div><h3>Your Academy coach</h3>
-    <p id="academy-plan">We will start with a tactical pattern, show how it works, and let you find it yourself in eight changing positions. If you need a hint, you can have one—but assisted work is recorded honestly.</p>
+    <p id="academy-plan">We will start with a tactical pattern, show how it works, and let you find it yourself in twelve changing positions. If you need a hint, you can have one—but assisted work is recorded honestly.</p>
    </div></div>
    <div class="course-grid" id="course-grid" aria-label="Available lessons"></div>
   </div>
@@ -301,7 +301,7 @@ function updateOverview(){
    overview.units.find(u=>u.state==="not-started")||
    overview.units.find(u=>u.state==="practice-complete")||overview.units[0];
  $("academy-plan").textContent=candidate?
-  "Next up: "+candidate.title+". We'll demonstrate one specific idea and let you recognize it on eight rotating boards. A correct answer after a hint is still useful practice—but it isn't counted as independent first-try recognition.":
+  "Next up: "+candidate.title+". We'll demonstrate one specific idea and let you recognize it on twelve rotating boards. A correct answer after a hint is still useful practice—but it isn't counted as independent first-try recognition.":
   "Let's choose your first lesson and learn to see the board one pattern at a time.";
  $("unit-nav").innerHTML=overview.units.map((u,i)=>
   '<button class="course" data-unit="'+esc(u.id)+'" type="button"><span class="course-icon">'+esc(u.symbol)+'</span>'+
