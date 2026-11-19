@@ -1,4 +1,4 @@
-﻿module.exports = {
+module.exports = {
   version: "3.1",
   title: "Chess Grind",
   description: "A local-first chess school: play, analyze your games, master openings, and study historic masters.",

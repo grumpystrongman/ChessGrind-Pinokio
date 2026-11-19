@@ -1,4 +1,4 @@
-﻿module.exports = {
+module.exports = {
  run:[{method:"shell.run",params:{
    path:".",venv:".venv",
    message:["python -m pip install --upgrade pip",
