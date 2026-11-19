@@ -145,6 +145,44 @@ def _extra_endgames():
         if new<1:raise RuntimeError("No legal endgame practice variant: "+lesson["id"])
 _extra_endgames()
 
+# Four additional legal practice positions per previously published lesson.
+# Existing 66 identifiers and user progress are kept unchanged.
+def _extend_endgame_bank():
+ import random
+ source=list(LESSONS)
+ existing={chess.Board(x["fen"]).board_fen()+(" w" if chess.Board(x["fen"]).turn else " b") for x in source}
+ for item in source:
+  seed=chess.Board(item["fen"])
+  rng=random.Random("ChessGrind-Endgame-5x-"+item["id"])
+  built=0
+  for attempt in range(6000):
+   layout={chess.square_name(i):p.symbol() for i,p in seed.piece_map().items()}
+   # Keep tactical geometry intact. Add realistic-looking pawn context away from
+   # existing pieces and occupied squares; recheck entire resulting board.
+   squares=[chess.square_name(chess.square(f,r)) for r in range(1,7) for f in range(8)]
+   rng.shuffle(squares)
+   count=1+attempt%3
+   for square in squares[:count]:
+    if square not in layout:layout[square]="P" if rng.randrange(2)==0 else "p"
+   try:fen=position(layout,"w" if seed.turn else "b")
+   except ValueError:continue
+   board=chess.Board(fen)
+   if board.is_game_over():continue
+   key=board.board_fen()+(" w" if board.turn else " b")
+   if key in existing:continue
+   existing.add(key)
+   built+=1
+   LESSONS.append({**item,
+     "id":item["id"]+"-extension-"+str(built).zfill(2),
+     "title":item["title"]+" - Extra drill "+str(built),
+     "subtitle":"New, legal endgame configuration. Calculate from the board rather than reuse a memorized move.",
+     "fen":fen,
+     "hint":"Identify forcing moves, opponent replies, pawn threats and king activity.",
+     "idea":"This verified position trains the same broad theme. Stockfish compares legal candidate moves; exact tablebase outcomes are not claimed."})
+   if built==4:break
+  if built!=4:raise RuntimeError("Could not extend endgame: "+item["id"])
+_extend_endgame_bank()
+
 BY_ID={x["id"]:x for x in LESSONS}
 def ensure(con):
  con.executescript("""CREATE TABLE IF NOT EXISTS endgame_attempts(

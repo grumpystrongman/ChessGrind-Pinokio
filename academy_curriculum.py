@@ -9,6 +9,7 @@ import datetime as dt
 import json
 import random
 import hashlib
+from pathlib import Path
 import sqlite3
 import chess
 from chess_grind import db
@@ -144,7 +145,7 @@ UNITS=[
 # Extra positions are constructed from verified original examples, then individually
 # checked for legality and for the claimed chess pattern. Original question IDs persist.
 SESSION_SIZE=12
-BANK_TARGET=100
+BANK_TARGET=500
 def _shift(square,dx,dy,flip=False):
     f=chess.square_file(chess.parse_square(square))
     r=chess.square_rank(chess.parse_square(square))
@@ -195,6 +196,15 @@ def _variation(unit,seed,dx,dy,flip,extras=()):
     return entry
 
 def _expand_banks():
+    packaged=Path(__file__).resolve().parent/"data"/"academy_practice_bank_v4.json"
+    if packaged.is_file():
+        bank=json.loads(packaged.read_text(encoding="utf8"))
+        for unit in UNITS:
+            rows=bank[unit["id"]]
+            if len(rows)!=BANK_TARGET-2:raise ValueError("Incomplete Academy bank: "+unit["id"])
+            unit["checks"].extend(rows)
+        return
+    # Source-checkout fallback (deterministic; slow). Distribution includes packaged data.
     for unit in UNITS:
         original=list(unit["checks"])
         occupied={x["fen"].split(" ")[0] for x in [unit["demo"]]+original}
@@ -202,7 +212,7 @@ def _expand_banks():
         results=[]
         # Chess-relevant geometric shifts first, then add unobtrusive context pieces
         # if needed (especially central pawn lessons, whose destination is fixed).
-        for attempt in range(90000):
+        for attempt in range(260000):
             seed=original[attempt%len(original)]
             dx=rng.randint(-5,5);dy=rng.randint(-5,5);flip=bool(rng.randrange(2))
             extras=()
@@ -210,7 +220,16 @@ def _expand_banks():
                 options=[("a2","P"),("b2","P"),("g2","P"),("h2","P"),
                          ("a7","p"),("b7","p"),("g7","p"),("h7","p")]
                 rng.shuffle(options)
-                extras=tuple(options[:rng.randint(1,3)])
+                if len(results)>=98:
+                    # Broad context: pawn clutter throughout legal ranks creates genuinely
+                    # different visual scenes, with every answer revalidated afterward.
+                    options=[(chess.square_name(chess.square(file,rank)),symbol)
+                             for file in range(8) for rank in range(1,7)
+                             for symbol in ("P","p")]
+                    rng.shuffle(options)
+                    extras=tuple(options[:rng.randint(1,5)])
+                else:
+                    extras=tuple(options[:rng.randint(1,3)])
             item=_variation(unit,seed,dx,dy,flip,extras)
             if item is None:continue
             placement=item["fen"].split(" ")[0]
