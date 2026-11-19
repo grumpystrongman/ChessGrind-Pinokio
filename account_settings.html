@@ -1,0 +1,92 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Account Settings — Chess Grind</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,"Segoe UI",sans-serif;color:#e8f2ed;background:#101b1b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(900px 580px at 90% -200px,#42634b,transparent 85%),#101b1b;min-height:100vh}
+header{background:#192b2a;border-bottom:1px solid #4b685e;padding:17px clamp(15px,4vw,50px);display:flex;align-items:center;justify-content:space-between}
+a{color:#d9edb6;text-decoration:none}header strong{font-size:20px;letter-spacing:-.5px}header span{color:#d9edb6}
+main{max-width:850px;padding:30px 17px 90px;margin:0 auto}
+h1{font-size:clamp(29px,4vw,43px);letter-spacing:-.8px;margin:10px 0}h2{margin:0 0 12px;font-size:21px}
+p{line-height:1.65}small,.muted{color:#b7cabc} .tag{display:inline-block;background:#334d3e;color:#e4efbf;border:1px solid #688773;border-radius:100px;padding:6px 11px;font-weight:800;font-size:11px}
+.card{background:#1c3030;border:1px solid #547366;border-radius:16px;padding:clamp(18px,3vw,26px);margin-top:17px}
+label{display:block;font-weight:800;margin:16px 0 7px}input[type=text]{font:inherit;background:#263f3d;border:1px solid #6a887a;border-radius:10px;padding:14px;width:100%;color:#fff;min-height:48px}
+button{font:inherit;padding:11px 17px;border:1px solid #d6e9b3;border-radius:10px;background:#d6e9b3;color:#1b2d20;cursor:pointer;min-height:45px;font-weight:850}
+button.alt{background:#2d473e;color:#e4f2e0;border-color:#678374}button:disabled{opacity:.55;cursor:wait}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.note{border:1px solid #59746a;background:#263d37;padding:14px;border-radius:11px;margin-top:14px;line-height:1.6}
+.note.error{border-color:#ac7970;background:#473735;color:#f6c9bf}
+.note.good{border-color:#7da482;background:#2d483a;color:#e7f2cb}
+.profile{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.checkbox{display:flex;align-items:flex-start;gap:10px;margin:16px 0}.checkbox input{width:19px;height:19px;accent-color:#d6e9b3;margin-top:3px}.checkbox label{margin:0;font-weight:500}
+ol{line-height:1.85;padding-left:23px}.small{font-size:13px}
+@media(max-width:500px){.profile{grid-template-columns:1fr}header{padding:15px}main{padding-top:17px}}
+</style></head><body>
+<header><a href="/" aria-label="Chess Grind home"><strong>CHESS<span>GRIND</span></strong></a><a href="/">← Back to Chess Grind</a></header>
+<main>
+<div class="tag">PERSONAL ACCOUNT SETUP</div><h1>Make Chess Grind your chess school.</h1>
+<p class="muted">Connect your own Chess.com public profile to build lessons from your actual games. Your saved games, coaching history and training progress stay on this computer.</p>
+<div class="card">
+ <div class="row profile">
+  <div><h2>Your Chess.com account</h2><p class="muted small">Only the public username is needed. Never enter your Chess.com password.</p></div>
+  <span class="tag" id="connected-state">Checking…</span>
+ </div>
+ <label for="username">Chess.com username or member profile address</label>
+ <input id="username" type="text" placeholder="your-chess-username" maxlength="110" spellcheck="false" autocomplete="username" aria-describedby="username-help">
+ <p id="username-help" class="small muted">Examples: <code>mychessname</code> or <code>https://www.chess.com/member/mychessname</code></p>
+ <div class="checkbox"><input id="consent" type="checkbox"><label for="consent">Import my public Chess.com games and build coaching lessons using this account. I understand the import contacts Chess.com's public API.</label></div>
+ <div class="row"><button id="save">Connect my account</button><button id="disable" class="alt" type="button">Pause future sync</button></div>
+ <div id="save-message" class="note" role="status" aria-live="polite">Choose your account and confirm to get started. No Chess.com data is imported until you connect.</div>
+</div>
+<div class="card"><h2>How it works</h2>
+<ol>
+ <li><strong>You choose the account.</strong> We check that the username exists in Chess.com's public profile directory.</li>
+ <li><strong>Import your games.</strong> Chess Grind fetches publicly accessible games tied to the username you entered—not anyone else's.</li>
+ <li><strong>Study your decisions.</strong> Stockfish reviews the positions and the coach creates individualized learning material.</li>
+</ol>
+<p class="small muted">You can pause future syncing at any time. Existing locally saved games remain in your database and are not deleted when syncing is paused. Online invitations and public sharing remain disabled.</p>
+<div class="row"><a href="/" class="tag">Back to the dashboard</a><a href="/arena" class="tag">Play the local AI</a><a href="/masters" class="tag">Study the Masters</a></div>
+</div></main>
+<script>
+const $=id=>document.getElementById(id);
+async function call(url,payload){
+ const res=await fetch(url,payload?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}:{});
+ const out=await res.json();
+ if(!res.ok)throw new Error(out.error||"Request failed");
+ return out;
+}
+function state(account){
+ $("connected-state").textContent=account.configured?
+   (account.syncEnabled?"Connected · sync enabled":"Connected · sync paused"):"Not connected";
+ $("username").value=account.username||"";
+ $("consent").checked=!!account.syncEnabled;
+ $("disable").disabled=!account.configured||!account.syncEnabled;
+}
+async function load(){
+ try{state(await call("/api/settings/chesscom"))}
+ catch(error){$("save-message").textContent="Cannot load settings: "+error.message}
+}
+$("save").onclick=async()=>{
+ const name=$("username").value.trim();
+ if(!name){$("save-message").textContent="Enter your Chess.com username.";return}
+ if(!$("consent").checked){$("save-message").textContent="Tick the confirmation to import this account's public game history.";return}
+ const btn=$("save");btn.disabled=true;
+ $("save-message").className="note";$("save-message").textContent="Checking your Chess.com public profile…";
+ try{
+  const saved=await call("/api/settings/chesscom",{username:name,syncEnabled:true});
+  state(saved);$("save-message").className="note good";
+  $("save-message").textContent="Connected to "+saved.username+". Your games will be imported when you choose Sync on the dashboard.";
+ }catch(error){$("save-message").className="note error";$("save-message").textContent=error.message}
+ finally{btn.disabled=false}
+};
+$("disable").onclick=async()=>{
+ const btn=$("disable");btn.disabled=true;
+ try{
+  const saved=await call("/api/settings/chesscom",{disableSync:true});
+  state(saved);$("save-message").className="note good";
+  $("save-message").textContent="Future Chess.com syncing is paused. Your existing local training history remains saved.";
+ }catch(error){$("save-message").className="note error";$("save-message").textContent=error.message}
+ finally{btn.disabled=false}
+};
+load();
+</script></body></html>

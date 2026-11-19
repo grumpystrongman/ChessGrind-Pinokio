@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111c21"><title>Coach Arena · Chess Grind</title>
+<style>
+:root{color-scheme:dark;--bg:#10191e;--surface:#1b2b2f;--raised:#263b3d;--line:#415f58;--ink:#f0f5ed;--secondary:#b8cbc1;--mint:#d3eba1;--gold:#f3cf85;--red:#f1a39a;--dark:#162c30}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1000px 510px at 83% -280px,#3e6351 0%,transparent 85%),var(--bg);color:var(--ink);font:15px/1.55 "Segoe UI",Inter,Arial,sans-serif}
+h1,h2,h3,p{margin:0}h1{font-size:clamp(30px,4vw,45px);line-height:1.12;letter-spacing:-1px}h2{font-size:22px;letter-spacing:-.45px}h3{font-size:16px}
+a{color:var(--mint);text-decoration:none}button,select{font:inherit;touch-action:manipulation}button{cursor:pointer}button:disabled{opacity:.45;cursor:default}
+button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid var(--mint);outline-offset:3px}
+header{height:68px;padding:0 clamp(14px,3vw,36px);display:flex;align-items:center;gap:15px;background:#142529;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+.brand{font-size:20px;letter-spacing:-.8px;font-weight:900;white-space:nowrap}.brand b{color:var(--mint)}
+.header-label{font-size:12px;border-left:1px solid #47625b;padding-left:15px;color:var(--secondary)}
+.header-actions{margin-left:auto;display:flex;gap:9px}
+.header-actions a{font-size:12px;font-weight:800;background:#2a4141;padding:9px 12px;border:1px solid #4d6961;border-radius:10px}
+main{max-width:1470px;padding:26px clamp(13px,3vw,42px) 68px;margin:0 auto}
+.hero{position:relative;overflow:hidden;border:1px solid #597964;border-radius:20px;padding:26px 30px;background:linear-gradient(112deg,#2c4b3d,#1d3a3c 73%,#173337)}
+.hero>*{position:relative;z-index:1}.hero:after{position:absolute;content:"♞";font-size:220px;top:-50px;right:20px;opacity:.06;pointer-events:none}
+.hero p{color:#d3e5d6;margin-top:12px;max-width:730px}
+.kicker{color:#c7e2a2;font-weight:850;text-transform:uppercase;font-size:11px;letter-spacing:1.5px}
+.tabs{display:flex;flex-wrap:wrap;gap:7px;margin:19px 0}
+.tab{border:1px solid #55716b;background:#263c3c;color:#e0eae2;border-radius:10px;min-height:46px;padding:10px 17px;font-weight:800}
+.tab.active{background:var(--mint);border-color:var(--mint);color:#192b1d}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:19px;min-width:0}
+.panel+.panel{margin-top:13px}
+.layout{display:grid;grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:19px;align-items:start}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.row.between{justify-content:space-between}
+.btn{background:var(--mint);border:1px solid var(--mint);color:#1b311d;border-radius:10px;min-height:45px;padding:11px 15px;font-weight:850}
+.btn.alt{background:#304a45;border-color:#54726a;color:#eef6e9}
+.btn.warning{background:#563c32;border-color:#916454;color:#f0d3c9}
+.btn:hover:not(:disabled),.tab:hover{filter:brightness(1.09)}
+select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radius:9px;padding:10px;min-height:45px;max-width:100%}
+.hidden{display:none!important}
+.muted{color:var(--secondary)}.small{font-size:12px}.tiny{font-size:11px}
+.gridstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:15px 0}
+.stat{background:#213833;border:1px solid #436156;border-radius:12px;padding:14px}
+.stat strong{display:block;font-size:25px;line-height:1.25}.stat span{display:block;font-size:11px;color:#b9cec0;margin-top:4px}
+.coach{display:flex;gap:14px;align-items:flex-start;border:1px solid #557c5f;background:linear-gradient(118deg,#294737,#233d3e);padding:17px;border-radius:14px;margin:16px 0}
+.avatar{display:grid;place-items:center;flex:none;width:43px;height:43px;font-size:28px;border-radius:12px;background:#466c52;color:#fff4dc}
+.coach h3{color:#e4f3ca;margin:2px 0 6px}.coach p{color:#d2e4d6;font-size:13px}
+.tasklist{display:grid;gap:10px}
+.task{border:1px solid #49695c;border-radius:13px;background:#213734;padding:16px}
+.task-top{display:flex;gap:12px;align-items:start}.num{background:#385744;border:1px solid #69876a;border-radius:10px;width:36px;height:36px;flex:none;display:grid;place-items:center;font-weight:850;color:#e6efd4}
+.task h3{margin-bottom:4px}.task p{font-size:13px;color:#c6d7cb;line-height:1.6}
+.task-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:13px}
+.task small{font-size:11px;color:#aecbb5}
+.tag{font-size:11px;font-weight:800;border-radius:99px;padding:5px 11px;background:#385741;color:#e2eed7}
+.evidence{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:15px}
+.evidence div{border:1px solid #425f57;border-radius:12px;padding:13px;background:#213333}
+.evidence b{display:block;font-size:21px}.evidence small{display:block;color:#a9c5b4;font-size:11px}
+.caution{font-size:12px;color:#dfcba1;background:#3b372b;border:1px solid #796646;border-radius:10px;padding:11px 13px;margin-top:14px}
+.formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 16px}
+.formfield{display:grid;gap:6px}.formfield label{font-size:12px;font-weight:800;color:#c1d5c8}
+.formfield select{width:100%}
+.boardwrap{background:#2d4843;border:1px solid #5b7b6d;padding:9px;border-radius:13px}
+.board{aspect-ratio:1/1;width:100%;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border:4px solid #49645b;border-radius:8px;overflow:hidden;position:relative;isolation:isolate}
+.square{aspect-ratio:1;position:relative;padding:0;min-width:0;border:0;display:grid;place-items:center}
+.square.light{background:#e1e8d9;color:#49695b}.square.dark{background:#7f9a95;color:#ecf3e7}
+.square.selected{box-shadow:inset 0 0 0 5px #caed96}.square.last{box-shadow:inset 0 0 0 5px #f7d588}
+.piece{font:clamp(24px,3.8vw,55px)/1 "Segoe UI Symbol","DejaVu Sans",serif}
+.piece.white{color:#fffef5;text-shadow:0 2px 3px #24443e,-1px -1px 2px #24443e}
+.piece.black{color:#13272b;text-shadow:0 1px 1px #fff9e6}
+.coord{position:absolute;top:2px;left:3px;font-size:10px;font-weight:850;opacity:.7}
+.board svg{position:absolute;inset:0;width:100%;height:100%;z-index:6;pointer-events:none}
+.boardmeta{display:flex;justify-content:space-between;gap:9px;flex-wrap:wrap;color:#adc8b9;font-size:12px;margin:10px 1px}
+.movehistory{display:flex;flex-wrap:wrap;gap:5px;max-height:145px;overflow:auto;margin-top:12px}
+.movetag{font-size:12px;border:1px solid #537168;border-radius:7px;background:#2a4641;padding:5px 9px;color:#e0f0df}
+.pill{background:#385941;color:#e4f4d8;border-radius:99px;padding:6px 11px;font-size:11px;font-weight:850}
+.notice{padding:13px 14px;border-radius:11px;border:1px solid #4f755c;background:#29463a;color:#e4f0dc;font-size:13px;line-height:1.6}
+.notice.error{background:#493634;border-color:#99665f;color:#f6cdc5}
+.notice.gold{background:#453d30;border-color:#91774a;color:#f4e0b0}
+#game-history{display:grid;gap:8px;margin-top:12px;max-height:315px;overflow:auto}
+.savedgame{background:#233b3a;color:var(--ink);border:1px solid #4a6b61;border-radius:11px;width:100%;text-align:left;padding:12px}
+.savedgame:hover{border-color:#c6e39f}.savedgame strong,.savedgame small{display:block}.savedgame small{font-size:11px;color:#b7c9bd;margin-top:3px}
+#review-moments{display:grid;gap:9px;margin-top:13px}
+.moment{border:1px solid #4b6e61;background:#263e38;border-radius:11px;padding:13px;text-align:left;color:#e7efe5}
+.moment:hover{border-color:#d2e99c}.moment strong{display:block}.moment small{display:block;color:#b5cdc0}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:13px 0}
+@media(max-width:990px){.layout{grid-template-columns:1fr}}
+@media(max-width:680px){
+ header{height:60px;padding:0 12px}.header-label{display:none}.header-actions a{font-size:11px;padding:8px}
+ main{padding:14px 10px 65px}.hero{padding:20px 16px}.hero:after{font-size:150px}
+ .panel{padding:14px}.boardwrap{padding:5px}.board{border-width:3px}.piece{font-size:clamp(27px,10vw,48px)}
+ .formgrid{grid-template-columns:1fr;gap:9px}.formfield{grid-template-columns:100px 1fr;align-items:center}
+ .gridstats{gap:6px}.stat{padding:10px}.stat strong{font-size:21px}.stat span{font-size:10px}
+ .evidence{gap:6px}.evidence div{padding:9px}.evidence b{font-size:17px}.evidence small{font-size:10px}
+ .tab{font-size:12px;padding:9px 12px}.btn{min-height:46px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+.archive-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.archive-filters select{min-width:0;width:100%;font:inherit;padding:9px;background:#243b39;color:#e9f2e5;border:1px solid #597466;border-radius:8px}
+#game-history{max-height:370px;overflow:auto;display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:7px}
+#game-history .savedgame{width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere}
+#game-move-list .movetag{cursor:pointer}
+#game-move-list .movetag.active{background:#d7e9aa;color:#1c3025}
+@media(max-width:520px){.archive-filters{grid-template-columns:minmax(0,1fr)}}
+</style></head>
+<body>
+<header><a class="brand" href="/learn">CHESS<b>GRIND</b></a><span class="header-label">Your personal Coach Arena</span><div class="header-actions"><a href="/workshop">Calculation Workshop</a><a href="/learn">← Learning Lab</a></div></header>
+<main>
+ <div class="hero"><div class="kicker">Practice with purpose · Batch 5</div>
+  <h1>Make better decisions, one game at a time.</h1>
+  <p>Play against a real local chess engine, learn from your own decisions, and follow a training plan built from your actual patterns. During the game, the coach stays out of your way. Afterward, it helps you understand.</p>
+ </div>
+ <div class="tabs" role="tablist">
+  <button class="tab active" id="tab-plan" role="tab" aria-selected="true">◎ My coach's plan</button>
+  <button class="tab" id="tab-play" role="tab" aria-selected="false">♞ Play & review</button>
+ </div>
+ <section id="plan-view">
+  <div class="gridstats"><div class="stat"><strong id="plan-history">—</strong><span>Analyzed game decisions flagged</span></div>
+  <div class="stat"><strong id="plan-completed">—</strong><span>Academy lessons practiced</span></div>
+  <div class="stat"><strong id="plan-reviewed">—</strong><span>Practice games reviewed</span></div></div>
+  <div class="coach"><div class="avatar">♞</div><div><div class="kicker">Coach's assessment</div><h3 id="plan-headline">I’m looking at your games.</h3><p id="plan-message">The goal is to recommend the next skill you can actually practice, not to guess your rating.</p></div></div>
+  <div class="layout">
+   <div class="panel"><div class="section-head"><h2>Today's training</h2>
+      <select id="daily-minutes" aria-label="Daily training time"><option value="15">15 minutes</option><option value="20" selected>20 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option></select></div>
+    <p class="muted small">A short, deliberate sequence: recognize a pattern, calculate it, and apply it without assistance.</p><div id="daily-tasks" class="tasklist" style="margin-top:14px"></div></div>
+   <div><div class="panel"><div class="kicker">What the evidence supports</div><h2 style="margin-top:7px">Your current focus</h2>
+    <div id="focus-detail" class="notice" style="margin:14px 0">Loading current analysis…</div>
+    <div class="evidence" id="plan-evidence"></div>
+    <div id="plan-boundary" class="caution"></div></div>
+    <div class="panel"><h3>Play → review → train</h3><p class="muted small" style="margin:8px 0 13px">Finish a local practice game. The coach will add verified decisions to your training record and adjust the next plan.</p>
+     <button class="btn" id="plan-to-game">Start a training game →</button></div>
+   </div>
+  </div>
+ </section>
+ <section id="play-view" class="hidden">
+  <div class="layout">
+   <div>
+    <div class="panel" id="play-setup"><div class="kicker">A practice opponent, not a rating test</div><h2 style="margin-top:7px">Set up your training game.</h2>
+     <p class="muted small" style="margin-top:8px">The local Stockfish opponent uses adjustable skill settings. Labels describe practice difficulty, not guaranteed Elo ratings.</p>
+     <div class="formgrid">
+      <div class="formfield"><label for="game-color">Play as</label><select id="game-color"><option>White</option><option>Black</option></select></div>
+      <div class="formfield"><label for="game-difficulty">Difficulty</label><select id="game-difficulty"><option value="beginner">Beginner</option><option value="casual" selected>Casual</option><option value="club">Club</option><option value="advanced">Advanced</option></select></div>
+      <div class="formfield"><label for="game-style">Style</label><select id="game-style"><option value="balanced">Balanced</option><option value="active">Active / tactical</option><option value="solid">Solid / quiet</option></select></div>
+     </div>
+     <div class="notice" id="adaptive-note" style="margin-bottom:12px">Start with Casual difficulty. After several analyzed games, your coach may suggest adjusting it.</div>
+     <button class="btn" id="start-game">Start a new game →</button>
+     <div id="start-error" class="muted small" role="status" style="margin-top:9px"></div></div>
+    <div class="panel hidden" id="game-board-panel">
+     <div class="row between"><h2 id="game-title">Your training game</h2><span id="game-state-pill" class="pill">Playing</span></div>
+     <div class="boardwrap" style="margin-top:12px"><div class="board" id="arena-board" aria-label="Clickable game chessboard"></div></div>
+     <div class="boardmeta"><span id="board-side">White to move</span><span id="board-move-count">Move 1</span></div>
+     <div class="movehistory" id="game-move-list" aria-label="Moves played"></div>
+     <div class="row" style="margin-top:9px">
+       <button class="btn alt" id="replay-start" aria-label="First position">|←</button>
+       <button class="btn alt" id="replay-back" aria-label="Previous move">←</button>
+       <button class="btn alt" id="replay-forward" aria-label="Next move">→</button>
+       <button class="btn alt" id="replay-end" aria-label="Latest position">→|</button>
+       <span class="small muted" id="replay-position">Latest position</span>
+     </div>
+     <div class="row" style="margin-top:9px"><button class="btn alt" id="export-game-pgn">Export game PGN ↓</button></div>
+     <div class="notice" id="move-status" role="status" style="margin-top:13px">Select your piece, then its destination.</div>
+     <div class="row" style="margin-top:13px">
+      <button class="btn alt" id="view-last">Return to current board</button>
+      <button class="btn alt hidden" id="continue-bot">Let Stockfish move →</button>
+      <button class="btn alt hidden" id="claim-draw">Claim a draw</button>
+      <button class="btn warning" id="resign-game">Resign game</button>
+      <button class="btn hidden" id="review-game">Review my decisions →</button>
+     </div>
+    </div>
+   </div>
+   <div>
+    <div class="panel"><div class="row"><div class="avatar">♞</div><div><div class="kicker">Your local chess coach</div><h2>Play, then understand.</h2></div></div>
+     <p class="muted small" style="margin-top:13px">I won't reveal the engine's preferred move while you're deciding. After the game, we'll review what you chose, your opponent's replies, and any missed opportunities.</p>
+     <div id="coach-live" class="notice" style="margin-top:15px">Start a game when you're ready. You can choose a gentler difficulty and change the setting in your next game.</div>
+    </div>
+    <div class="panel">
+      <div class="section-head"><h2>My saved games</h2><button class="btn alt" id="refresh-games">Refresh</button></div>
+      <p class="muted small" style="margin:8px 0 12px">Every move is saved automatically. Resume games or replay them later with Stockfish coaching.</p>
+      <div class="archive-filters">
+        <select id="history-state" aria-label="Saved game status"><option value="all">All games</option><option value="active">In progress</option><option value="finished">Finished</option></select>
+        <select id="history-color" aria-label="Saved game color"><option value="all">Both colors</option><option value="White">Playing White</option><option value="Black">Playing Black</option></select>
+      </div>
+      <div id="history-summary" class="muted small" style="margin:10px 0"></div>
+      <div id="game-history"></div>
+      <div class="row between" style="margin-top:11px">
+       <button class="btn alt" id="history-prev" disabled>← Previous</button>
+       <span class="muted small" id="history-page">Page 1</span>
+       <button class="btn alt" id="history-next" disabled>Next →</button>
+      </div>
+    </div>
+    <div class="panel hidden" id="review-panel"><div class="kicker">Post-game coaching · Stockfish depth 9</div>
+     <h2 id="review-title" style="margin:8px 0">Your learning moments</h2><p id="review-summary" class="muted small" style="margin:9px 0"></p>
+     <div class="row between" style="margin:12px 0"><strong class="small">Inspect any move</strong>
+       <select id="review-all-moves" aria-label="Choose a move to review">
+        <option value="">Choose your decision…</option>
+       </select>
+     </div>
+     <div id="review-moments"></div>
+     <div id="review-detail" class="notice hidden" style="margin-top:13px"></div>
+     <button class="btn alt" id="review-chat" style="margin-top:13px">Discuss a position with my AI coach ↗</button>
+     <button class="btn" id="review-plan" style="margin-top:13px">Update my training plan →</button>
+    </div>
+   </div>
+  </div>
+ </section>
+ <footer class="muted small" style="margin-top:23px">Games and analyses are stored on this PC. Opponent strength and style are approximations, not human rating guarantees. Engine results are limited-depth assessments; a single practice game does not establish a new playing level.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id),esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const glyph={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+let game=null,review=null,selected=null,busy=false,reviewMoment=null,orientation="White",tabName="plan",difficultyTouched=false;
+let historyOffset=0,historyTotal=0,replayPly=null;const HISTORY_PAGE=15;
+async function api(url,data){const res=await fetch(url,data===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+ const obj=await res.json();if(!res.ok)throw Error(obj.error||"The request could not be completed");return obj}
+function pieces(fen){const arr=[];for(const row of fen.split(" ")[0].split("/"))for(const c of row){if(/[1-8]/.test(c))for(let i=0;i<Number(c);i++)arr.push("");else arr.push(c)}return arr}
+function square(i,side){const f=i%8,r=Math.floor(i/8);return side==="White"?String.fromCharCode(97+f)+(8-r):String.fromCharCode(104-f)+(r+1)}
+function point(sq,side){const f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;return side==="White"?[f*100+50,(7-r)*100+50]:[(7-f)*100+50,r*100+50]}
+function pieceAt(fen,sq){const p=pieces(fen),f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;return p[(7-r)*8+f]}
+function drawBoard(fen,arrow=null,mark=null){
+ if(!fen)return;const arr=pieces(fen),cells=[];
+ if(arr.length!==64){$("arena-board").textContent="Invalid saved chessboard";return}
+ for(let i=0;i<64;i++){const sq=square(i,orientation),f=sq.charCodeAt(0)-97,r=Number(sq[1])-1,
+  pc=arr[(7-r)*8+f],dark=(f+r)%2===1;
+  cells.push('<button type="button" class="square '+(dark?'dark':'light')+(selected===sq?' selected':'')+
+   (mark===sq?' last':'')+'" data-square="'+sq+'" aria-label="'+sq+(pc?' '+pc:' empty')+'">'+
+   (pc?'<span class="piece '+(pc===pc.toUpperCase()?'white':'black')+'">'+glyph[pc]+'</span>':'')+
+   (i%8===0?'<span class="coord">'+sq[1]+'</span>':'')+'</button>');
+ }
+ $("arena-board").innerHTML=cells.join("");
+ if(arrow?.from&&arrow?.to){
+  const [x,y]=point(arrow.from,orientation),[u,v]=point(arrow.to,orientation),
+   dx=u-x,dy=v-y,l=Math.hypot(dx,dy);
+  if(l>10){
+   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+   svg.setAttribute("viewBox","0 0 800 800");svg.setAttribute("aria-hidden","true");
+   svg.innerHTML='<defs><marker id="gameArrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5Z" fill="#d0eda2"/></marker></defs>'+
+   '<line x1="'+(x+dx*24/l)+'" y1="'+(y+dy*24/l)+'" x2="'+(u-dx*28/l)+'" y2="'+(v-dy*28/l)+'" stroke="#d0eda2" stroke-width="11" marker-end="url(#gameArrow)"/>';
+   $("arena-board").append(svg);
+  }
+ }
+}
+function chooseTab(which){
+ tabName=which;const play=which==="play";
+ $("play-view").classList.toggle("hidden",!play);$("plan-view").classList.toggle("hidden",play);
+ $("tab-play").classList.toggle("active",play);$("tab-plan").classList.toggle("active",!play);
+ $("tab-play").setAttribute("aria-selected",String(play));$("tab-plan").setAttribute("aria-selected",String(!play));
+ if(play)refreshGames();
+}
+$("tab-play").onclick=()=>chooseTab("play");$("tab-plan").onclick=()=>chooseTab("plan");
+$("plan-to-game").onclick=()=>chooseTab("play");
+$("review-plan").onclick=()=>{chooseTab("plan");loadPlan()};
+async function loadPlan(){
+ const minutes=$("daily-minutes").value;
+ try{
+  const p=await api("/api/skill-plan?minutes="+minutes);
+  $("plan-history").textContent=p.evidence.historicalFlagged.toLocaleString();
+  $("plan-completed").textContent=p.evidence.academyCompleted+"/"+p.evidence.academyTotal;
+  $("plan-reviewed").textContent=p.evidence.practiceGamesReviewed;
+  $("plan-headline").textContent="Let's focus on "+p.focus.topic+".";
+  $("adaptive-note").textContent="Coach's opponent suggestion: "+p.recommendedDifficulty+". "+p.difficultyExplanation+
+    " This is based on reviewed move choices, not a predicted chess rating.";
+  if(!difficultyTouched&&p.recommendedDifficulty)$("game-difficulty").value=p.recommendedDifficulty;
+  $("plan-message").textContent=p.coachNote;
+  $("focus-detail").textContent=p.focus.evidence+". "+p.focus.next;
+  $("daily-tasks").innerHTML=p.tasks.map((t,i)=>'<div class="task"><div class="task-top"><span class="num">'+(i+1)+'</span>'+
+   '<div><h3>'+esc(t.title)+'</h3><p>'+esc(t.why)+'</p></div></div><div class="task-foot">'+
+   '<small>'+t.minutes+' minutes</small><a class="btn alt" href="'+encodeURI(t.url)+'">'+esc(t.action)+' ↗</a></div></div>').join("");
+  const data=p.evidence;
+  $("plan-evidence").innerHTML=[["Flagged in history",data.historicalFlagged],["Independent Workshop",data.workshopIndependentAccuracy===null?"New":data.workshopIndependentAccuracy+"%"],
+   ["Sparring decisions reviewed",data.reviewedMoves]].map(x=>'<div><b>'+x[1]+'</b><small>'+esc(x[0])+'</small></div>').join("");
+  $("plan-boundary").textContent=p.boundary;
+ }catch(error){$("plan-message").textContent="I couldn't load your training plan: "+error.message}
+}
+$("daily-minutes").onchange=loadPlan;
+$("game-difficulty").onchange=()=>{difficultyTouched=true};
+function setMessage(message,error=false){$("move-status").textContent=message;$("move-status").classList.toggle("error",error)}
+function setCoach(message){$("coach-live").textContent=message}
+function renderGame(g){
+ game=g;orientation=g.color;selected=null;replayPly=null;
+ $("game-board-panel").classList.remove("hidden");
+ $("game-title").textContent="Playing "+g.color+" · "+g.difficulty;
+ $("game-state-pill").textContent=g.state==="active"?"In progress":"Finished";
+ $("resign-game").classList.toggle("hidden",g.state!=="active");
+ $("claim-draw").classList.toggle("hidden",!g.canClaimDraw||!g.yourTurn||g.state!=="active");
+ $("continue-bot").classList.toggle("hidden",g.yourTurn||g.state!=="active");
+ $("review-game").classList.toggle("hidden",g.state==="active");
+ $("board-side").textContent=g.turn+" to move";
+ $("board-move-count").textContent=Math.ceil((g.moves.length+1)/2)+" · "+g.moves.length+" half-moves";
+ const last=g.moves[g.moves.length-1];
+ drawBoard(g.fen,last?{from:last.uci.slice(0,2),to:last.uci.slice(2,4)}:null,last?.uci.slice(2,4));
+ $("game-move-list").innerHTML=g.moves.map((m,i)=>'<button type="button" class="movetag" data-replay="'+(i+1)+'">'+(i%2===0?(Math.floor(i/2)+1)+'. ':'')+esc(m.san)+'</button>').join("");
+ $("replay-position").textContent="Latest position · "+g.moves.length+" half-moves";
+ const list=$("game-move-list");list.scrollTop=list.scrollHeight;
+ if(g.state!=="active"){
+  setMessage(g.outcome||"Game finished.");
+  setCoach("Good work completing the game. Now let's examine the real decision points, not just the final result.");
+ }else if(g.yourTurn){
+  const report=g.detail?.opponentMove?
+    "You played "+g.detail.yourMove+"; Stockfish responded "+g.detail.opponentMove+". ":
+    "";
+  setMessage(report+"Your turn. Click a piece, then its destination.");
+  setCoach("Before you choose: what changed after that last move? Scan checks, captures, threats, then pick a plan. I won't give away the engine's answer.");
+ }else{
+  setMessage("Stockfish is thinking…");
+  setCoach("The opponent is selecting a legal move.");
+ }
+}
+function selectGame(id){
+ return api("/api/sparring/game?id="+encodeURIComponent(id)).then(g=>{review=null;
+ $("review-panel").classList.add("hidden");renderGame(g);chooseTab("play");return g});
+}
+async function refreshGames(){
+ try{
+  const query=new URLSearchParams({offset:String(historyOffset),limit:String(HISTORY_PAGE),
+    state:$("history-state").value,color:$("history-color").value});
+  const result=await api("/api/sparring/recent?"+query);
+  historyTotal=result.total;
+  if(historyOffset>0&&!result.games.length){historyOffset=Math.max(0,historyOffset-HISTORY_PAGE);return refreshGames()}
+  $("game-history").innerHTML=result.games.map(r=>
+    '<button type="button" class="savedgame" data-id="'+esc(r.id)+'"><strong>'+
+     esc(r.color)+' · '+esc(r.difficulty)+' · '+esc(r.state)+'</strong><small>'+
+     esc((r.createdAt||"").replace("T"," ").slice(0,16))+
+     ' · '+r.moves+' half-moves · '+esc(r.outcome||"Unfinished")+
+     (r.reviewAvailable?' · Reviewed':'')+'</small></button>').join("")||
+    '<div class="muted small">No saved games match these filters.</div>';
+  $("history-summary").textContent=result.total+" saved games match these filters";
+  $("history-page").textContent="Page "+(Math.floor(historyOffset/HISTORY_PAGE)+1)+
+    " of "+Math.max(1,Math.ceil(result.total/HISTORY_PAGE));
+  $("history-prev").disabled=historyOffset===0;
+  $("history-next").disabled=!result.hasMore;
+ }catch(e){$("game-history").textContent=e.message}
+}
+$("history-prev").onclick=()=>{historyOffset=Math.max(0,historyOffset-HISTORY_PAGE);refreshGames()};
+$("history-next").onclick=()=>{historyOffset+=HISTORY_PAGE;refreshGames()};
+["history-state","history-color"].forEach(id=>$(id).onchange=()=>{historyOffset=0;refreshGames()});
+$("game-history").onclick=async e=>{
+ const r=e.target.closest("[data-id]");if(!r)return;
+ try{await selectGame(r.dataset.id)}catch(error){setCoach(error.message)}
+};
+$("refresh-games").onclick=refreshGames;
+$("start-game").onclick=async()=>{
+ const btn=$("start-game");btn.disabled=true;btn.textContent="Starting the local opponent…";
+ try{
+  const g=await api("/api/sparring/start",{color:$("game-color").value,
+   difficulty:$("game-difficulty").value,style:$("game-style").value});
+  review=null;$("review-panel").classList.add("hidden");renderGame(g);refreshGames();
+  $("game-board-panel").scrollIntoView({behavior:"smooth",block:"nearest"});
+  $("start-error").textContent="";
+ }catch(e){$("start-error").textContent=e.message}
+ finally{btn.disabled=false;btn.textContent="Start a new game →"}
+};
+$("arena-board").onclick=async event=>{
+ const b=event.target.closest("[data-square]");if(!b||!game||busy||game.state!=="active"||!game.yourTurn)return;
+ const sq=b.dataset.square,pc=pieceAt(game.fen,sq),own=game.color==="White";
+ if(!selected){
+  if(!pc||(own?pc!==pc.toUpperCase():pc!==pc.toLowerCase())){setMessage("Choose one of your pieces.",true);return}
+  selected=sq;drawBoard(game.fen);setMessage("Now choose the destination for "+sq+".");return;
+ }
+ if(selected===sq){selected=null;drawBoard(game.fen);return}
+ if(pc&&(own?pc===pc.toUpperCase():pc===pc.toLowerCase())){selected=sq;drawBoard(game.fen);return}
+ const from=selected;selected=null;let promo="";
+ const source=pieceAt(game.fen,from);
+ if(source&&source.toLowerCase()==="p"&&(sq[1]==="1"||sq[1]==="8")){
+  promo=(prompt("Promotion: q for queen, r rook, b bishop, n knight","q")||"q").toLowerCase();
+  if(!/^[qrbn]$/.test(promo))promo="q";
+ }
+ const chosen=from+sq+promo;
+ busy=true;setMessage("Checking the legal move and letting Stockfish respond…");
+ try{const next=await api("/api/sparring/move",{gameId:game.id,uci:chosen});renderGame(next);refreshGames()}
+ catch(e){
+  try{renderGame(await api("/api/sparring/game?id="+encodeURIComponent(game.id)))}
+  catch(_){renderGame(game)}
+  setMessage(e.message+" If your move was saved, choose 'Let Stockfish move' to continue.",true);
+ }
+ finally{busy=false}
+};
+function renderReplay(ply){
+ if(!game)return;
+ replayPly=Math.max(0,Math.min(game.moves.length,ply));
+ const move=game.moves[replayPly-1];
+ const fen=move?.fen||(replayPly===0?game.startFen:game.fen);
+ if(!fen){setMessage("The starting position is unavailable for this saved game.");return}
+ selected=null;
+ drawBoard(fen,move?{from:move.uci.slice(0,2),to:move.uci.slice(2,4)}:null);
+ $("replay-position").textContent="Replay "+replayPly+" / "+game.moves.length+" half-moves";
+ $("board-side").textContent=(fen.split(" ")[1]==="w"?"White":"Black")+" to move (replay)";
+ $("game-move-list").querySelectorAll("[data-replay]").forEach(b=>
+  b.classList.toggle("active",Number(b.dataset.replay)===replayPly));
+ setMessage("Viewing saved move "+replayPly+" of "+game.moves.length+
+   ". Return to the current position before playing another move.");
+}
+$("replay-start").onclick=()=>renderReplay(0);
+$("replay-back").onclick=()=>renderReplay(replayPly===null?game.moves.length-1:replayPly-1);
+$("replay-forward").onclick=()=>renderReplay(replayPly===null?game.moves.length:replayPly+1);
+$("replay-end").onclick=()=>game&&renderGame(game);
+$("game-move-list").onclick=e=>{
+ const b=e.target.closest("[data-replay]");
+ if(b&&game)renderReplay(Number(b.dataset.replay));
+};
+$("export-game-pgn").onclick=async()=>{
+ if(!game)return;
+ const gameId=game.id,btn=$("export-game-pgn");
+ btn.disabled=true;
+ try{
+  const response=await fetch("/api/sparring/pgn?id="+encodeURIComponent(gameId));
+  if(!response.ok)throw Error("Could not export the saved game");
+  const file=await response.blob(),url=URL.createObjectURL(file);
+  const link=document.createElement("a");link.href=url;
+  link.download="ChessGrind-"+gameId+".pgn";document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }catch(error){setMessage(error.message,true)}
+ finally{btn.disabled=false}
+};
+$("view-last").onclick=()=>game&&renderGame(game);
+$("resign-game").onclick=async()=>{
+ if(!game||game.state!=="active"||busy)return;
+ if(!confirm("End this practice game by resignation? You can review it afterward."))return;
+ busy=true;
+ try{renderGame(await api("/api/sparring/resign",{gameId:game.id}));refreshGames()}
+ catch(e){setMessage(e.message,true)}
+ finally{busy=false}
+};
+$("continue-bot").onclick=async()=>{
+ if(!game||game.state!=="active"||game.yourTurn||busy)return;
+ busy=true;$("continue-bot").disabled=true;
+ setMessage("Giving the local engine another opportunity to respond.");
+ try{renderGame(await api("/api/sparring/continue",{gameId:game.id}));refreshGames()}
+ catch(error){setMessage(error.message,true)}
+ finally{busy=false;$("continue-bot").disabled=false}
+};
+$("claim-draw").onclick=async()=>{
+ if(!game||game.state!=="active"||busy||!game.canClaimDraw||!game.yourTurn)return;
+ busy=true;
+ try{renderGame(await api("/api/sparring/draw",{gameId:game.id}));refreshGames()}
+ catch(error){setMessage(error.message,true)}
+ finally{busy=false}
+};
+$("review-game").onclick=async()=>reviewGame();
+async function reviewGame(){
+ if(!game||game.state!=="finished")return;
+ $("review-game").disabled=true;$("review-game").textContent="Reviewing your decisions…";
+ setCoach("I'm analyzing the moves you made with local Stockfish. The report will identify specific alternatives rather than just a score.");
+ try{
+  review=await api("/api/sparring/review",{gameId:game.id});
+  $("review-panel").classList.remove("hidden");
+  $("review-title").textContent=review.flagged+" decisions worth revisiting";
+  $("review-summary").textContent=review.coachSummary+" "+review.note;
+  $("review-moments").innerHTML=review.moments.length?review.moments.map((m,i)=>
+   '<button type="button" class="moment" data-moment="'+i+'"><strong>'+esc(m.label)+
+   ' · '+esc(m.playedSan)+' instead of '+esc(m.bestSan)+'</strong><small>'+
+   esc(m.phase)+' · move '+Math.ceil(m.ply/2)+' · approx '+(m.gapCp/100).toFixed(2)+
+   ' pawns of evaluated difference</small></button>').join(""):
+   '<div class="notice">No significant evaluation losses were detected at depth 9. You can still discuss your plans with the coach.</div>';
+  $("review-all-moves").innerHTML='<option value="">Choose any of your decisions ('+
+    review.allDecisions.length+')</option>'+review.allDecisions.map((m,i)=>
+    '<option value="'+i+'">'+esc(m.label||("Move "+Math.ceil(m.ply/2)))+
+    ': '+esc(m.playedSan)+' vs '+esc(m.bestSan)+'</option>').join("");
+  $("review-detail").classList.add("hidden");reviewMoment=review.moments[0]||review.allDecisions[0]||null;
+  setCoach("I reviewed "+review.decisions+" of your decisions and flagged "+review.flagged+
+   " for closer study. Select a moment to display the original position and the alternative you could have considered.");
+  $("review-panel").scrollIntoView({behavior:"smooth",block:"nearest"});
+  refreshGames();
+ }catch(e){setCoach("The review couldn't be completed: "+e.message)}
+ finally{$("review-game").disabled=false;$("review-game").textContent="Review my decisions →"}
+}
+function inspectDecision(m){
+ if(!m)return;reviewMoment=m;selected=null;
+ drawBoard(m.fen,{from:m.bestUci.slice(0,2),to:m.bestUci.slice(2,4)},m.bestUci.slice(2,4));
+ $("board-side").textContent=m.phase+" · position before "+m.playedSan;
+ $("review-detail").classList.remove("hidden");
+ $("review-detail").textContent="You played "+m.playedSan+". Stockfish preferred "+m.bestSan+
+  " at depth 9. "+(m.reasons.join(" ")||"Compare the opponent's response before choosing.")+
+  " This is a sampled engine assessment, not a proof that another move wins.";
+}
+$("review-all-moves").onchange=()=>{
+ if(!review)return;
+ const n=Number($("review-all-moves").value);
+ if($("review-all-moves").value!==""&&review.allDecisions[n])inspectDecision(review.allDecisions[n]);
+};
+$("review-moments").onclick=e=>{
+ const el=e.target.closest("[data-moment]");if(!el||!review)return;
+ const m=review.moments[Number(el.dataset.moment)];inspectDecision(m);
+};
+$("review-chat").onclick=()=>{
+ if(!reviewMoment||!review)return;
+ const m=reviewMoment;
+ const question="I just played a training game. On this board I chose "+m.playedSan+
+  ", but Stockfish preferred "+m.bestSan+". Explain in plain English what I should have noticed, "+
+  "what my opponent was threatening, and one checklist to use next game. Avoid inventing forcing lines.";
+ sessionStorage.setItem("chessgrind-academy-handoff",JSON.stringify({
+  fen:m.fen,question,candidate:m.playedSan,source:"sparring"}));
+ location.href="/learn?tab=ask";
+};
+loadPlan();refreshGames();
+const q=new URLSearchParams(location.search);if(q.get("tab")==="play")chooseTab("play");
+</script>
+</body></html>

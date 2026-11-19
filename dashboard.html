@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101a1d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chess Grind">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>Chess Grind · Your Training Room</title>
+<style>
+:root{color-scheme:dark;--bg:#0c1115;--panel:#151c21;--panel2:#1c262c;--border:#2b383e;--ink:#edf1ed;--muted:#9aacad;--accent:#c8ea79;--red:#fa8d86;--gold:#f4c875;--light:#e6eadc;--dark:#759092}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,Segoe UI,Arial,sans-serif}button,input{font:inherit}
+button{cursor:pointer}.layout{display:grid;grid-template-columns:245px minmax(0,1fr);min-height:100vh}
+aside{background:#11191c;border-right:1px solid var(--border);padding:30px 18px;display:flex;flex-direction:column;gap:24px}
+.brand{font-size:24px;font-weight:850;letter-spacing:-1px;padding-left:13px}.brand span{color:var(--accent)}
+.brand small{display:block;font-size:10px;letter-spacing:2.3px;color:var(--muted);font-weight:700;margin-top:-2px}
+nav{display:grid;gap:8px}.nav{border:0;background:transparent;color:#adbfc0;text-align:left;border-radius:10px;padding:12px 15px;font-weight:650;display:flex;gap:12px;align-items:center}.nav:hover,.nav.active{background:#25342f;color:var(--accent)}
+.sidebar-note{margin-top:auto;background:var(--panel);border:1px solid var(--border);padding:17px;border-radius:13px;color:var(--muted);font-size:12px}.sidebar-note strong{color:var(--ink)}
+main{padding:38px clamp(20px,4vw,65px) 60px;max-width:1550px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:25px}
+.eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:var(--accent)}h1{font-size:clamp(27px,3.8vw,42px);line-height:1.12;letter-spacing:-1.4px;margin:8px 0}h2{font-size:19px;letter-spacing:-.35px;margin:0 0 15px}h3{font-size:15px;margin:0 0 10px}
+.sub,.muted{color:var(--muted)}.sub{max-width:620px;margin:0}.chip{display:inline-flex;align-items:center;gap:7px;background:#25362d;color:var(--accent);border:1px solid #3d5636;padding:7px 12px;border-radius:40px;font-size:12px;font-weight:750;white-space:nowrap}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:26px 0}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:17px;padding:21px;min-width:0}
+.metric .label{font-size:12px;color:var(--muted);font-weight:650}.metric .num{font-size:clamp(25px,3vw,37px);font-weight:820;letter-spacing:-1.3px;margin-top:5px}.metric .foot{font-size:12px;color:#bac8bb}
+.grid2{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(320px,0.82fr);gap:18px;margin-bottom:18px}
+.grid-wide{display:grid;grid-template-columns:minmax(320px,550px) minmax(290px,1fr);gap:24px}
+.card-title{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:16px}.card-title h2{margin:0}
+.stack{display:grid;gap:10px}.problem,.game-row,.puzzle-row{background:var(--panel2);border:1px solid transparent;border-radius:12px;padding:14px 16px}
+.problem{display:flex;gap:13px;align-items:center;justify-content:space-between}.problem:hover,.game-row:hover,.puzzle-row:hover{border-color:#50635a}
+.tag{font-size:10px;text-transform:uppercase;font-weight:800;letter-spacing:1px;border-radius:5px;padding:4px 7px;display:inline-block}.tag.blunder{background:#5c2929;color:#ffaaaa}.tag.mistake{background:#5a3e2b;color:#ffd1a5}.tag.inaccuracy{background:#514d28;color:#efe89b}
+.small{font-size:12px}.line{height:8px;background:#283439;border-radius:10px;overflow:hidden;margin:8px 0}.fill{height:100%;background:var(--accent)}.stat{display:grid;grid-template-columns:100px 1fr 26px;align-items:center;gap:8px;margin:14px 0;font-size:13px}
+.lesson{background:linear-gradient(140deg,#233a2b,#182a26 65%,#18212b);border-color:#405b3f}
+.lesson strong{color:var(--accent)}.daily{display:grid;gap:11px}.daily-item{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#d8e6da}.daily-item b{color:var(--accent)}
+.button{background:var(--accent);color:#142216;border:0;padding:10px 15px;border-radius:9px;font-weight:800}.button:hover{filter:brightness(1.08)}
+.button.alt{background:#2b3939;color:#e5eee4}.button:disabled{opacity:.4;cursor:default}
+.board{display:grid;grid-template-columns:repeat(8,1fr);width:100%;aspect-ratio:1;border-radius:8px;overflow:hidden;border:5px solid #2c3938}
+.square{position:relative;display:grid;place-items:center;aspect-ratio:1;user-select:none}.square.light{background:#e3e9d9;color:#475551}.square.dark{background:#789596;color:#ecf2dc}
+.piece{font-family:Segoe UI Symbol,DejaVu Sans,Arial Unicode MS,serif;font-size:clamp(24px,3.7vw,58px);line-height:1;font-weight:normal}
+.piece.white{color:#fffef0;text-shadow:0px 2px 1px #1b282b,1px 0 2px #1a2628,-1px 0 2px #1a2628}.piece.black{color:#151d1d;text-shadow:0px 1px 1px #e3e7e0}
+.coord{position:absolute;left:4px;top:2px;font-size:10px;font-weight:900}.file{position:absolute;right:4px;bottom:1px;font-size:10px;font-weight:900}
+.review-head{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:15px}
+select{width:100%;max-width:340px;background:#243137;color:var(--ink);border:1px solid #425254;padding:10px;border-radius:8px}
+.move-list{display:flex;flex-wrap:wrap;gap:5px;max-height:250px;overflow:auto;margin:12px 0}.move{border:1px solid transparent;border-radius:7px;background:#223038;color:var(--ink);padding:5px 8px;font-size:13px}.move.current{border-color:var(--accent);color:var(--accent)}.move.blunder{color:#ffa7a5}.move.mistake{color:#ffd3a2}.move.inaccuracy{color:#f4e4a4}
+.info{background:#233139;padding:14px;border-radius:12px;font-size:13px}.info p{margin:6px 0}.info strong{color:var(--accent)}
+.toolbar{display:flex;gap:8px;margin:12px 0}.toolbar .button{min-width:55px}
+.empty{padding:26px;text-align:center;color:var(--muted);background:#1b2628;border-radius:12px}
+.view{display:none}.view.active{display:block}.training{background:#24322a;border:1px solid #48573e;border-radius:12px;padding:16px;margin-top:14px}
+.puzzle-card{border:1px solid #4b6142;background:#26372b;border-radius:12px;padding:20px}
+.answer{font-weight:800;color:var(--accent);font-size:20px}.hint{color:var(--muted);font-size:12px}
+footer{color:#819795;font-size:11px;margin-top:26px}.progress-rail{display:flex;gap:4px;margin-top:12px}.seg{height:11px;background:#334541;flex:1;border-radius:3px}.seg.done{background:var(--accent)}
+@media(max-width:1050px){.grid2{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.grid-wide{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media(max-width:750px){.layout{display:block}aside{padding:12px 16px;display:block;position:sticky;top:0;z-index:5}.brand{font-size:19px;padding:0}.brand small{display:none}nav{display:flex;overflow:auto;margin-top:9px}.nav{white-space:nowrap;padding:8px 12px}.sidebar-note{display:none}main{padding:25px 16px}.metrics{grid-template-columns:repeat(2,1fr);gap:9px}.grid-wide{grid-template-columns:1fr}.top{flex-direction:column}.card{padding:16px}}
+</style>
+<style id="CHESS_GRIND_TRAINER_V2">
+#refresh-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+#refresh-status{font-size:12px;color:var(--muted)}
+#topic-stats{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px}
+.topic-pill{display:inline-block;padding:5px 9px;background:#253b31;color:#d3eebf;border:1px solid #47664a;border-radius:20px;font-size:12px}
+#puzzle-board .square{cursor:pointer}
+#puzzle-board .square.selected{outline:4px solid #f4c875;outline-offset:-4px;z-index:1}
+#puzzle-board .square:hover{box-shadow:inset 0 0 0 3px #badf83}
+#daily-tasks .todo{display:grid;grid-template-columns:22px minmax(0,1fr) 64px;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid #44604a}
+#daily-tasks .todo:last-child{border-bottom:0}
+#daily-tasks input{accent-color:var(--accent);width:18px;height:18px;margin-top:3px;cursor:pointer}
+#daily-tasks .done-text{text-decoration:line-through;opacity:.65}
+#daily-tasks .todo button{background:#344a3c;color:var(--accent);border:0;border-radius:7px;padding:5px;font-size:11px;white-space:nowrap}
+#rating-trend svg{width:100%;height:74px;display:block}
+#puzzle-feedback{margin-top:10px;font-size:13px;min-height:22px}
+.good{color:#c8ea79}.bad{color:#ffb4ac}
+.book-card{padding:15px;background:var(--panel2);border-radius:12px;margin-bottom:10px}
+.book-card a{color:var(--accent);font-weight:750}.book-card p{font-size:13px;color:#c5d2ce;margin:7px 0}
+</style>
+<link rel="stylesheet" href="/phone.css">
+
+<style id="chess-lesson-feedback">
+.lesson-explanation{background:#1b2f2a;border:1px solid #537157;border-radius:13px;margin-top:16px;padding:17px}
+.lesson-explanation h3{color:var(--accent);font-size:17px;letter-spacing:-.2px;margin:0 0 12px}
+.lesson-explanation h4{font-size:11px;text-transform:uppercase;letter-spacing:1.1px;color:#cdeaa0;margin:15px 0 5px}
+.lesson-explanation p{margin:0;color:#e5ece4;font-size:14px;line-height:1.65}
+.lesson-explanation .variation{padding:11px;background:#263b35;border:1px solid #3a5a4e;border-radius:9px;margin-top:7px;font:600 15px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-word}
+.lesson-explanation .lesson-note{font-size:12px;color:#9dbbb0;margin-top:13px}
+.lesson-explanation .lesson-principle{font-size:15px;line-height:1.7}
+@media(max-width:750px){.lesson-explanation{padding:15px;margin-top:13px}.lesson-explanation p{font-size:14px}.lesson-explanation .variation{font-size:14px}}
+</style>
+
+<style id="CHESS_VISUAL_COACH_V1">
+.visual-board-column{min-width:0}
+.board{position:relative;isolation:isolate}
+.board-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;overflow:visible}
+.visual-controls{margin:12px 0 17px;padding:13px;border:1px solid #344e46;border-radius:12px;background:#1d2d2b}
+.visual-controls[hidden]{display:none!important}
+.visual-view-title{font-weight:750;color:#d9ebd7;font-size:13px;margin-bottom:9px}
+.visual-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.visual-modes .button{min-width:0;padding:8px 4px;min-height:42px;font-size:11px;line-height:1.15;font-weight:750}
+.visual-modes .button.active{background:#d2ee9c;color:#1a2920}
+.visual-modes .button:disabled{display:none}
+.visual-switch{display:flex;align-items:center;gap:10px;font-size:12px;color:#c2cfc6;margin:14px 0 8px;cursor:pointer}
+.visual-switch input{width:19px;height:19px;accent-color:#cee992;flex:none}
+.visual-legend{display:flex;gap:9px 14px;flex-wrap:wrap;margin:10px 0 5px;color:#bccdc3;font-size:11px}
+.visual-legend span{display:inline-flex;align-items:center;gap:5px}
+.legend-dot{display:inline-block;width:9px;height:9px;border-radius:3px;border:1px solid rgba(255,255,255,.3)}
+.legend-dot.best{background:#a6ed75}
+.legend-dot.alternative{background:#70bbff}
+.legend-dot.reply{background:#ff7c75}
+.legend-dot.attack{background:#f6cd64}
+.legend-dot.loose{background:#cf96ff}
+.visual-motif-cards{display:grid;gap:7px;margin-top:10px}
+.visual-motif{font-size:12px;line-height:1.5;color:#dcebe1;border-left:3px solid #d7b368;background:#273a35;border-radius:6px;padding:8px 11px}
+.visual-motif strong{display:block;color:#d8f6b6;text-transform:capitalize;margin-bottom:2px}
+#puzzle-visual-caption,#review-visual-caption{line-height:1.45;min-height:19px}
+@media(max-width:750px){
+ .visual-controls{padding:11px;margin:9px 0 15px}
+ .visual-modes .button{min-height:46px;padding:8px 2px;font-size:10px}
+ .visual-legend{gap:8px 11px}
+ .visual-motif{font-size:12px}
+}
+</style>
+</head>
+<body><div class="layout">
+<aside><div class="brand">CHESS<span>GRIND</span><small>THE TRAINING ROOM</small></div>
+<div class="mobile-meta" id="current-chesscom-profile" aria-label="Synced training profile">Connect Chess.com in Settings</div>
+<a href="/settings" style="display:block;margin:10px 12px 16px;padding:11px 13px;border:1px solid #64806d;background:#284339;color:#e5efc6;text-decoration:none;border-radius:9px;font-weight:800">⚙ Chess.com Account Settings</a>
+<nav aria-label="Training navigation">
+<button class="nav active" data-view="overview" aria-label="Overview"><span class="nav-icon" aria-hidden="true">◫</span><span>Home</span></button>
+<button class="nav" data-view="reviews" aria-label="Game reviews"><span class="nav-icon" aria-hidden="true">♟</span><span>Games</span></button>
+<button class="nav" data-view="training" aria-label="Daily training"><span class="nav-icon" aria-hidden="true">◎</span><span>Train</span></button>
+<button class="nav" data-view="coach" aria-label="Ask Coach"><span class="nav-icon" aria-hidden="true">✦</span><span>Coach</span></button>
+<button class="nav" data-view="library" aria-label="Book library"><span class="nav-icon" aria-hidden="true">▤</span><span>Books</span></button>
+</nav>
+<div class="sidebar-note"><strong>FOCUS ON THE PROCESS</strong><p>One thoughtful rapid game, one honest review, and a handful of recurring mistakes fixed each day.</p><div class="muted">Private dashboard · Runs on your computer</div></div>
+</aside><main>
+<section id="overview" class="view active">
+<div class="top"><div><div class="eyebrow">PERSONAL CHESS INTELLIGENCE</div><h1>Get stronger, one move at a time.</h1><p class="sub">Your game history, engine feedback, and training priorities—all in one place.</p></div><span class="chip" id="current-account-chip">● &nbsp; CHESS.COM · YOUR ACCOUNT</span></div>
+<div id="account-setup-hint" class="card" style="display:none;border-color:#9f8760;margin-bottom:17px">
+  <h2>Connect your own Chess.com account</h2><p class="sub">Enter your username once, then Chess Grind can analyze your public games and tailor your chess lessons.</p>
+  <a href="/settings" class="button" style="display:inline-block;text-decoration:none;margin-top:8px">Set up my account →</a>
+</div>
+<div id="refresh-actions"><button class="button" id="refresh-btn" onclick="refreshAll()">↻ Sync & analyze new games</button><span id="refresh-status">Refresh after playing chess on any time control.</span></div>
+<div class="card" style="background:linear-gradient(120deg,#243f32,#1b2a30);border-color:#506f57;margin-bottom:16px"><div class="row" style="display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap"><div><div class="eyebrow">NEW · ADAPTIVE LEARNING</div><h2 style="margin:5px 0">Learn to see the board without hints.</h2><div class="small muted">Find threats → calculate moves → understand the principle → prove it on a new position.</div></div><a class="button" href="/learn" style="display:inline-block;text-decoration:none">Open Learning Lab →</a></div></div><div id="topic-stats" aria-label="Recurring mistake themes"></div><div id="metrics" class="metrics"></div><div class="card" style="margin-bottom:18px"><div class="card-title"><h2>All your chess, by time control</h2><span class="muted small">Rapid remains the rating benchmark</span></div><div id="mode-summary" style="display:flex;gap:10px;flex-wrap:wrap"></div></div>
+<div class="grid2"><div class="card"><div class="card-title"><h2>Where you're losing points</h2><span class="muted small">Stockfish analysis</span></div><div id="breakdown"></div><div id="topmistakes" class="stack"></div></div>
+<div class="card lesson"><div class="eyebrow">TODAY'S PRIORITIES</div><h2 style="margin-top:10px">The daily grind</h2><div id="daily-tasks" class="daily"><div class="muted">Loading your personalized plan…</div></div><div id="daily-progress" class="small muted" style="margin-top:14px"></div>
+<div id="rating-trend" class="small muted" style="margin-top:12px"></div>
+<button class="button" style="margin-top:22px" onclick="location.href='/learn'">Start today's training →</button></div></div>
+<div class="card"><div class="card-title"><h2>Recent analyzed games</h2><button class="button alt" onclick="setView('reviews')">View all reviews →</button></div><div id="recent" class="stack"></div></div>
+</section>
+<section id="reviews" class="view"><div class="top"><div><div class="eyebrow">ENGINE REVIEW</div><h1>Learn from every game.</h1><p class="sub">Step through your games and focus on the decisions where you left opportunities behind.</p></div></div>
+<div class="card"><div class="review-head"><select id="game-picker" aria-label="Select game"></select><span id="game-meta" class="muted small"></span></div>
+<div class="grid-wide"><div><div id="review-board" class="board" aria-label="Chess position"></div>
+<div class="visual-controls" id="review-visual-controls" hidden>
+<div class="visual-view-title">Why that move matters</div>
+<div class="visual-modes" role="group" aria-label="Compare game positions">
+<button type="button" data-visual-mode="before" class="button alt">Before</button>
+<button type="button" data-visual-mode="best" class="button alt">Best move</button>
+<button type="button" data-visual-mode="your" class="button alt">Played</button>
+<button type="button" data-visual-mode="reply" class="button alt">Best reply</button>
+</div><label class="visual-switch"><input id="review-show-control" type="checkbox"> Show controlled squares</label>
+<div id="review-visual-caption" class="small muted" aria-live="polite"></div>
+<div id="review-motif-cards" class="visual-motif-cards"></div>
+</div><div class="toolbar"><button class="button alt" onclick="goPly(-999)">|◀</button><button class="button alt" onclick="goPly(-1)">◀</button><button class="button alt" onclick="goPly(1)">▶</button><button class="button alt" onclick="goPly(999)">▶|</button></div></div>
+<div><h3>Moves & key moments</h3><div class="muted small">Select any move to inspect the board and engine feedback.</div><div id="move-list" class="move-list"></div><div id="move-detail" class="info"></div><div id="game-summary" class="training"></div></div></div></div></section>
+<section id="training" class="view"><div class="top"><div><div class="eyebrow">PERSONAL PUZZLE QUEUE</div><h1>Today's tactical repair work.</h1><p class="sub">Positions taken from your own mistakes. Calculate first; reveal the engine's choice only after committing to your answer.</p></div></div>
+<div class="card mini-lesson" style="background:#1e3026;border-color:#405d48;margin-bottom:20px">
+<div class="eyebrow">TODAY'S MINI LESSON</div><h2 id="lesson-title" style="margin:10px 0">Your personal chess lesson</h2>
+<p id="lesson-principle" class="sub" style="max-width:900px"></p>
+<div id="lesson-source" class="small" style="margin-top:14px"></div>
+</div>
+<div class="card" style="margin-bottom:15px;border-color:#526c51;background:#22342b"><div class="review-head" style="margin-bottom:7px"><div><div class="eyebrow">GUIDED MASTERY MODE</div><h2 style="margin-top:8px">Train your chess vision</h2></div><a class="button" href="/learn" style="text-decoration:none">Open Learning Lab →</a></div><p class="sub">Find the danger without arrows, predict three replies, learn the principle, then solve an unseen position.</p></div><div class="card puzzle-session"><div class="review-head"><h2 id="puzzle-count">Personalized practice</h2><button class="button alt" onclick="nextPuzzle()">Next position →</button></div><div class="grid-wide"><div class="visual-board-column">
+<div id="puzzle-board" class="board" role="img" aria-label="Interactive chessboard for your puzzle"></div>
+<div class="visual-controls" id="puzzle-visual-controls" hidden>
+<div class="visual-view-title">See what the move changes</div>
+<div class="visual-modes" role="group" aria-label="Choose chess position">
+<button type="button" data-visual-mode="before" class="button alt">Before</button>
+<button type="button" data-visual-mode="best" class="button alt">Best move</button>
+<button type="button" data-visual-mode="your" class="button alt">Your move</button>
+<button type="button" data-visual-mode="reply" class="button alt">Best reply</button>
+</div>
+<label class="visual-switch"><input id="puzzle-show-control" type="checkbox"> Highlight squares controlled by the moved piece</label>
+<div id="puzzle-visual-caption" class="small muted" aria-live="polite"></div>
+<div class="visual-legend" aria-label="Color legend">
+<span><i class="legend-dot best"></i>Best</span>
+<span><i class="legend-dot alternative"></i>Your move</span>
+<span><i class="legend-dot reply"></i>Reply / danger</span>
+<span><i class="legend-dot attack"></i>Attacked target</span>
+<span><i class="legend-dot loose"></i>Loose piece</span>
+</div>
+<div id="puzzle-motif-cards" class="visual-motif-cards" aria-live="polite"></div>
+</div>
+</div><div><div class="puzzle-card"><div class="eyebrow">YOUR CHALLENGE</div><h2 style="margin-top:14px">Find the better move</h2><p id="puzzle-text" class="sub"></p><div style="margin-top:18px"><button class="button" onclick="reveal()">Reveal best move</button></div><div id="puzzle-answer" style="margin-top:18px"></div><div id="puzzle-feedback" role="status"></div></div><div class="training"><h3>How to calculate</h3><p class="small">Identify forcing checks first, then captures and threats. Compare at least two candidate moves. Look for what your opponent can do immediately after your choice.</p></div></div></div></div>
+<section id="study-shelf" class="card" style="display:none;margin-top:18px"><div class="eyebrow">FROM YOUR CHESS LIBRARY</div><h2 style="margin-top:8px">Read the lesson behind the move</h2><p class="sub" id="book-topic"></p><div id="book-lessons" class="stack" style="margin-top:14px"></div></section></section>
+<section id="coach" class="view">
+<div class="top"><div><div class="eyebrow">YOUR EVIDENCE-BASED CHESS COACH</div>
+<h1>Ask better questions. Play better moves.</h1>
+<p class="sub">Ask about your weaknesses, how to calculate, openings or endgames. Answers draw on your analyzed games and rights-cleared book passages, with source links.</p></div></div>
+<div class="grid2"><div class="card">
+<h2>What would you like to improve?</h2>
+<textarea id="coach-question" rows="3" maxlength="1000" placeholder="Why do I keep hanging pieces?" style="width:100%;resize:vertical;background:#233237;color:var(--ink);border:1px solid #425254;padding:14px;border-radius:10px;outline-offset:3px"></textarea>
+<div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:12px">
+<button class="button" id="ask-coach" onclick="askCoach()">Ask your coach</button>
+<button class="button alt" onclick="suggestQuestion('What are the biggest weaknesses in my games?')">My biggest weaknesses</button>
+<button class="button alt" onclick="suggestQuestion('How can I calculate better?')">Calculation</button>
+<button class="button alt" onclick="suggestQuestion('Help me avoid opening mistakes')">Openings</button>
+</div><div id="coach-status" class="small muted" style="margin-top:12px">Answers use local analysis and chess-book retrieval, not an external generative chatbot.</div>
+<div id="coach-answer" class="training" style="display:none;white-space:pre-line"></div>
+<div id="coach-sources" class="stack" style="margin-top:12px"></div>
+</div><div class="card"><h2>Example from your games</h2><div id="coach-board" class="board" style="max-width:460px"></div>
+<div id="coach-board-caption" class="muted small" style="margin-top:10px">Your next question can bring up a relevant game position.</div></div></div>
+</section>
+<section id="library" class="view"><div class="top"><div><div class="eyebrow">CHESS KNOWLEDGE BASE</div><h1>The book vault.</h1><p class="sub">Your tutor uses the indexed collection. The larger catalog contains links to other editions and books that have not been imported.</p></div></div>
+<div class="card"><div class="review-head"><h2 id="library-total">Books catalog</h2><label class="small" style="display:flex;gap:7px;align-items:center"><input type="checkbox" id="indexed-only" checked> Tutor-ready books only</label><input id="library-search" aria-label="Search catalog" placeholder="Search by title or author..." style="background:#243137;color:#edf1ed;border:1px solid #425254;border-radius:8px;padding:10px;min-width:240px"></div><div id="library-results" class="stack"></div></div></section>
+<footer>Engine evaluations are approximate and depth-dependent; not every evaluation swing is a forced tactical mistake. Only rights-cleared books are indexed. Local game data is private to this computer.</footer>
+</main></div>
+<script>
+let data=null,selected=0,ply=0,puzzle=0;
+const glyph={k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟︎",K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙"};
+const $=id=>document.getElementById(id);
+const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const date=x=>x?new Date(x*1000).toLocaleDateString():"Unknown date";
+function setView(name){document.querySelectorAll(".view").forEach(e=>e.classList.toggle("active",e.id===name));document.querySelectorAll(".nav").forEach(e=>{
+   e.classList.toggle("active",e.dataset.view===name);
+   if(e.dataset.view===name)e.setAttribute("aria-current","page");
+   else e.removeAttribute("aria-current");
+ });if(name==="reviews")renderReview();if(name==="training")renderPuzzle();window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll(".nav").forEach(n=>n.onclick=()=>setView(n.dataset.view));
+function pieces(fen){let res=[],ranks=(fen||"8/8/8/8/8/8/8/8").split(" ")[0].split("/");for(const r of ranks){for(const c of r){if(/[1-8]/.test(c))for(let i=0;i<+c;i++)res.push("");else res.push(c)}}return res}
+function board(id,fen,color="White"){const p=pieces(fen),flip=color==="Black";let html="";for(let y=0;y<8;y++)for(let x=0;x<8;x++){const file=flip?7-x:x,rank=flip?7-y:y,i=rank*8+file,ch=p[i]||"",dark=(file+rank)%2===1;html+='<div class="square '+(dark?"dark":"light")+'">'+(ch?'<span class="piece '+(ch===ch.toUpperCase()?"white":"black")+'">'+glyph[ch]+"</span>":"")+(x===0?'<span class="coord">'+(8-rank)+'</span>':"")+(y===7?'<span class="file">'+"abcdefgh"[file]+"</span>":"")+"</div>"}$(id).innerHTML=html}
+function metric(label,num,foot){return '<div class="card metric"><div class="label">'+esc(label)+'</div><div class="num">'+esc(num)+'</div><div class="foot">'+esc(foot)+'</div></div>'}
+function renderOverview(){const n=data.counts,total=n.blunder+n.mistake+n.inaccuracy;
+$("metrics").innerHTML=metric("Last Rapid rating",data.player.rapid_rating??"—",data.player.rapid_last_played?"Last rated game "+date(data.player.rapid_last_played):"Latest Chess.com snapshot")+metric("Games reviewed",data.analyzed,"of "+(data.player.all_games_imported??data.player.stored_rapid_games)+" imported · Rapid "+(data.byType?.rapid??0)+" analyzed")+metric("Blunders found",n.blunder,"≥2.5-pawn eval loss")+metric("Book passages",data.passages,"Indexed for study");
+$("mode-summary").innerHTML=["rapid","daily","blitz","bullet"].map(m=>'<span class="topic-pill">'+m.toUpperCase()+' · '+(data.player.games_by_type?.[m]||0)+' imported / '+(data.byType?.[m]||0)+' analyzed</span>').join("");
+const labels=[["blunder","Blunders",n.blunder],["mistake","Mistakes",n.mistake],["inaccuracy","Inaccuracies",n.inaccuracy]];
+$("breakdown").innerHTML=labels.map(([type,label,num])=>'<div class="stat"><span>'+label+'</span><div class="line"><div class="fill" style="width:'+Math.round(100*num/Math.max(total,1))+'%;background:'+({blunder:"#fa8d86",mistake:"#f4c875",inaccuracy:"#d3db83"}[type])+'"></div></div><b>'+num+"</b></div>").join("");
+$("topmistakes").innerHTML=data.mistakes.slice(0,4).map(m=>'<div class="problem"><div><span class="tag '+m.kind+'">'+m.kind+'</span> <b>'+esc(m.move)+'</b> instead of <b>'+esc(m.best)+'</b><div class="muted small">vs '+esc(m.opponent)+' · '+date(m.date)+' · '+(m.loss/100).toFixed(1)+' pawns</div></div><button class="button alt" data-game="'+esc(m.gameId)+'" data-ply="'+m.ply+'">Review</button></div>').join("")||'<div class="empty">No mistakes yet—run the Stockfish analyzer.</div>';
+$("recent").innerHTML=data.games.slice(0,5).map((g,i)=>'<div class="game-row" data-game="'+esc(g.id)+'"><b>'+esc((g.timeClass||'rapid').toUpperCase())+' · '+esc(g.color)+' vs '+esc(g.opponent)+'</b><span class="muted small" style="float:right">'+date(g.date)+'</span><div class="muted small">'+esc(g.result)+' · '+g.counts.blunder+' blunders · '+g.counts.mistake+' mistakes</div></div>').join("")||'<div class="empty">No analyzed games yet.</div>';
+document.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>{selected=data.games.findIndex(g=>g.id===b.dataset.game);ply=+(b.dataset.ply??0);setView("reviews")});
+}
+function game(){return data.games[selected]}
+function renderReview(){if(!data?.games.length){$("review-board").innerHTML='<div class="empty">No games have been analyzed yet.</div>';return}
+$("game-picker").innerHTML=data.games.map((g,i)=>'<option value="'+i+'" '+(i===selected?"selected":"")+'>'+esc(g.color)+' vs '+esc(g.opponent)+' · '+date(g.date)+'</option>').join("");
+$("game-picker").onchange=e=>{selected=+e.target.value;ply=0;renderReview()};
+const g=game();ply=Math.max(0,Math.min(ply,g.plies.length));$("game-meta").textContent=(g.timeClass||"rapid").toUpperCase()+" · "+g.color+" · "+g.result+" · "+g.plies.length+" half-moves";
+board("review-board",ply?g.plies[ply-1].fenAfter:g.plies[0].fenBefore,g.color);
+$("move-list").innerHTML=g.plies.map((m,i)=>'<button class="move '+(i+1===ply?"current ":"")+(m.kind||"")+'" data-ply="'+(i+1)+'">'+(m.side==="white"?m.number+". ":"")+esc(m.san)+'</button>').join("");
+document.querySelectorAll("#move-list [data-ply]").forEach(e=>e.onclick=()=>{ply=+e.dataset.ply;renderReview()});
+const m=g.plies[ply-1];$("move-detail").innerHTML=!m?"<b>Starting position</b><p>Use the arrows or click a move to inspect the game.</p>":'<b>Move '+m.number+(m.side==="white"?". ":"... ")+esc(m.san)+'</b><p>'+(m.kind?'<span class="tag '+m.kind+'">'+m.kind+'</span> · Engine preference: <strong>'+esc(m.best)+'</strong> · '+(m.loss/100).toFixed(1)+'-pawn swing':'No major engine loss flagged for this move.')+'</p>';
+if(m&&m.kind){
+ $("move-detail").innerHTML+='<button type="button" class="button alt" id="review-visual-action" style="margin-top:8px" onclick="loadReviewVisual()">Show threats, forks & best move →</button>'+
+ '<div id="review-visual-error" class="small muted" role="status"></div>';
+}
+const positionKey=g.id+":"+(ply-1);
+if(reviewVisual&&reviewVisualKey===positionKey){
+ drawVisualPanel("review",reviewVisual,reviewVisualMode,g.color);
+}else{
+ reviewVisual=null;
+ $("review-visual-controls").hidden=true;
+}
+$("game-summary").innerHTML='<b>Game summary</b><p>'+g.counts.blunder+' blunders · '+g.counts.mistake+' mistakes · '+g.counts.inaccuracy+' inaccuracies across '+g.player_moves+' evaluated player moves.</p><a href="'+esc(g.url||"#")+'" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Open original game ↗</a>';
+}
+function goPly(diff){if(!data?.games.length)return;ply+=diff;renderReview()}
+function renderPuzzle(){const q=data.mistakes;if(!q.length){$("puzzle-board").innerHTML='<div class="empty">Analyze games to unlock personalized puzzles.</div>';$("puzzle-text").textContent="No positions available.";$("puzzle-answer").textContent="";return}
+puzzle=(puzzle+q.length)%q.length;const m=q[puzzle];board("puzzle-board",m.fen,m.color);$("puzzle-count").textContent="Position "+(puzzle+1)+" of "+q.length;$("puzzle-text").textContent="You played "+m.move+" against "+m.opponent+". Rewind to the position before that move. What would you play instead?";$("puzzle-answer").innerHTML='<span class="hint">Think for 60–90 seconds before revealing.</span>'}
+function reveal(){if(!data?.mistakes.length)return;const m=data.mistakes[puzzle];$("puzzle-answer").innerHTML='<div class="answer">'+esc(m.best)+'</div><p class="small">'+esc(m.explanation)+'</p>'}
+function nextPuzzle(){puzzle++;renderPuzzle()}
+(async()=>{try{const r=await fetch("/api/dashboard");if(!r.ok)throw Error("HTTP "+r.status);data=await r.json();renderOverview();renderReview();renderPuzzle()}catch(e){$("metrics").innerHTML='<div class="empty">Cannot load game data: '+esc(e.message)+'</div>'}})();
+
+// CHESS_GRIND_TRAINER_V2: safe move checking and spaced-repetition queue.
+let coach=null, practiceIndex=0, selectedSquare=null, answerLocked=false, libraryBooks=[], dailyData=null;
+const safeUrl=x=>/^https?:\/\//i.test(String(x||""))?esc(x):"#";
+async function loadTraining(){
+ try{
+  let r=await fetch("/api/coaching");
+  if(!r.ok)throw Error("Unable to load training data");
+  coach=await r.json();
+  renderTrainer();
+  renderBookShelf();
+  updateDailyPlan();
+  let top=coach.topics.slice(0,5);
+  $("topic-stats").innerHTML=top.length?top.map(x=>'<span class="topic-pill">'+esc(x.topic)+' · '+x.count+'</span>').join(""):'';
+ }catch(e){$("puzzle-feedback").textContent=e.message}
+}
+function updateDailyPlan(){/* Daily API owns the schedule. */}
+function renderBookShelf(){
+ const shelf=$("study-shelf");
+ shelf.style.display="block";
+ $("book-topic").textContent="Current focus: "+coach.topic+" · "+coach.indexedPassages+" indexed passages";
+ $("book-lessons").innerHTML=coach.bookLessons.length?
+  coach.bookLessons.map(b=>'<div class="book-card"><a href="'+safeUrl(b.url)+'" target="_blank" rel="noopener noreferrer">'+esc(b.title)+'</a><div class="muted small">'+esc(b.author||"Unknown author")+(b.page?' · page '+b.page:'')+'</div><p>'+esc(b.body)+'</p></div>').join(""):
+  '<div class="empty">No rights-cleared book text is indexed for this theme yet. Use <code>python chess_grind.py gutenberg</code> to add public-domain classics.</div>';
+}
+
+function renderMoveLesson(lesson,best){
+ if(!lesson)return '<div class="lesson-explanation"><h3>Best move: '+esc(best||'See game review')+
+   '</h3><p>Review the board and the opponent’s strongest reply to understand the idea.</p></div>';
+ const section=(heading,content)=>content?
+  '<h4>'+esc(heading)+'</h4><p>'+esc(content)+'</p>':'';
+ const line=(heading,content)=>content?
+  '<h4>'+esc(heading)+'</h4><div class="variation">'+esc(content)+'</div>':'';
+ return '<article class="lesson-explanation" aria-label="Chess fundamentals explanation">'+
+  '<h3>'+esc(lesson.headline||'Why this move works')+'</h3>'+
+  section('The core chess idea',lesson.principle)+
+  section('Your choice versus the stronger idea',lesson.comparison)+
+  line('Strong continuation — study the reply',lesson.bestLine)+
+  line('Your move — likely continuation',lesson.yourLine)+
+  section('Remember this in your next game',lesson.habit)+
+  '<p class="lesson-note">'+esc(lesson.caution||'Engine lines are depth-dependent analysis, not guaranteed future moves.')+'</p>'+
+  '</article>';
+}
+function renderTrainer(){
+ if(!coach)return;
+ const q=coach.queue;
+ if(!q.length){
+  $("puzzle-board").innerHTML='<div class="empty">All current review cards are complete. Come back when due, or sync more games.</div>';
+  $("puzzle-text").textContent="There are no due review positions.";
+  $("puzzle-answer").innerHTML="";$("puzzle-feedback").textContent="";
+  $("puzzle-count").textContent="Practice complete · "+coach.correct+"/"+coach.attempts+" correct submissions";
+  return;
+ }
+ practiceIndex=((practiceIndex%q.length)+q.length)%q.length;
+ const m=q[practiceIndex];
+ answerLocked=false;selectedSquare=null;
+ clearTrainerVisual();
+ board("puzzle-board",m.fen,m.color);
+ $("puzzle-count").textContent="Position "+(practiceIndex+1)+" of "+q.length+" · "+coach.correct+"/"+coach.attempts+" correct";
+ $("puzzle-text").textContent="You played "+m.move+" against "+m.opponent+" ("+(m.timeClass||"rapid")+"). "+m.color+" to move. Find the strongest alternative by selecting its starting and destination squares.";
+ $("puzzle-answer").innerHTML='<span class="hint">Click a piece, then click its destination. The answer stays hidden until you solve or reveal it.</span>';
+ $("puzzle-feedback").textContent="";
+}
+renderPuzzle=function(){if(coach)renderTrainer()};
+nextPuzzle=async function(){practiceIndex++;selectedSquare=null;await loadTraining()};
+reveal=async function(){
+ if(!coach?.queue.length||answerLocked)return;
+ const m=coach.queue[practiceIndex];
+ try{
+  const r=await fetch('/api/reveal',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({gameId:m.gameId,ply:m.ply})});
+  if(!r.ok)throw Error('Unable to record your revealed answer');
+  const result=await r.json();
+  answerLocked=true;
+  $("puzzle-answer").innerHTML=renderMoveLesson(result.lesson,result.best||m.best);
+  showTrainerVisual(result);
+  $("puzzle-feedback").className='bad';
+  $("puzzle-feedback").textContent="Revealed answer recorded as a missed attempt. You can retry it later.";
+ }catch(error){$("puzzle-feedback").textContent=error.message}
+};
+function idxToSquare(idx,color){
+ const row=Math.floor(idx/8),col=idx%8,flip=color==="Black";
+ const file=flip?7-col:col,rank=flip?7-row:row;
+ return String.fromCharCode(97+file)+(8-rank);
+}
+function pieceAtSquare(fen,square){
+ const arr=pieces(fen);const i=(8-Number(square[1]))*8+(square.charCodeAt(0)-97);
+ return arr[i]||"";
+}
+$("puzzle-board").addEventListener("click",async e=>{
+ if(!coach?.queue.length||answerLocked)return;
+ const cell=e.target.closest(".square");if(!cell)return;
+ const idx=Array.prototype.indexOf.call($("puzzle-board").children,cell);
+ if(idx<0)return;
+ const m=coach.queue[practiceIndex],square=idxToSquare(idx,m.color);
+ const symbol=pieceAtSquare(m.fen,square);
+ const owned=!!symbol&&(m.color==="White" ? symbol===symbol.toUpperCase() : symbol===symbol.toLowerCase());
+ if(!selectedSquare){
+  if(!owned){$("puzzle-feedback").textContent="Choose one of your own pieces first.";return;}
+  selectedSquare=square;cell.classList.add("selected");
+  $("puzzle-feedback").textContent="Selected "+square+". Now choose a destination.";
+  return;
+ }
+ if(square===selectedSquare){selectedSquare=null;cell.classList.remove("selected");$("puzzle-feedback").textContent="Selection cleared.";return;}
+ if(owned){selectedSquare=square;document.querySelectorAll("#puzzle-board .selected").forEach(c=>c.classList.remove("selected"));cell.classList.add("selected");return;}
+ let promotion="";
+ if((square.endsWith("8")||square.endsWith("1")) &&
+  pieceAtSquare(m.fen,selectedSquare).toLowerCase()==="p"){
+  promotion=(prompt("Promotion: q, r, b, or n","q")||"q").toLowerCase();
+  if(!["q","r","b","n"].includes(promotion))promotion="q";
+ }
+ try{
+  let response=await fetch("/api/answer",{method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({gameId:m.gameId,ply:m.ply,from:selectedSquare,to:square,promotion})});
+  let result=await response.json();
+  document.querySelectorAll("#puzzle-board .selected").forEach(c=>c.classList.remove("selected"));
+  selectedSquare=null;
+  if(!response.ok){$("puzzle-feedback").textContent=result.error||"Move rejected";return}
+  answerLocked=true;
+  if(result.correct){
+   $("puzzle-feedback").className="good";
+   $("puzzle-feedback").textContent="✓ "+result.message;
+  }else{
+   $("puzzle-feedback").className="bad";
+   $("puzzle-feedback").textContent="Let's learn from that choice. "+result.message+" This position remains due for another review.";
+  }
+  $("puzzle-answer").innerHTML=renderMoveLesson(result.lesson,result.best);
+  showTrainerVisual(result);
+
+ }catch(err){$("puzzle-feedback").textContent="Could not submit move: "+err.message}
+});
+async function refreshAll(){
+ const button=$("refresh-btn");
+ button.disabled=true;
+ try{
+  const response=await fetch("/api/refresh",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+  const result=await response.json();
+  if(!response.ok&&response.status!==409)throw Error(result.error||"Refresh rejected");
+  $("refresh-status").textContent="Refreshing your Rapid games…";
+  monitorRefresh();
+ }catch(e){button.disabled=false;$("refresh-status").textContent=e.message}
+}
+async function monitorRefresh(){
+ const button=$("refresh-btn");
+ for(let i=0;i<180;i++){
+  try{
+   const result=await (await fetch("/api/job")).json();
+   $("refresh-status").textContent=result.message;
+   if(!result.running){
+    button.disabled=false;
+    if(result.stage==="done"||result.stage==="warning"){
+      data=await (await fetch("/api/dashboard")).json();
+      renderOverview();renderReview();await loadTraining();
+    }
+    return;
+   }
+  }catch(e){$("refresh-status").textContent=e.message;button.disabled=false;return}
+  await new Promise(resolve=>setTimeout(resolve,2500));
+ }
+ button.disabled=false;$("refresh-status").textContent="Refresh is still running; reload later to check.";
+}
+async function loadLibrary(){
+ try{
+  const r=await fetch("/api/library");
+  if(!r.ok)throw Error("Library unavailable");
+  const response=await r.json();
+  libraryBooks=response.books||[];
+  renderLibrary();
+ }catch(e){$("library-results").textContent=e.message}
+}
+function renderLibrary(){
+ const query=($("library-search").value||"").toLowerCase();
+ const indexedOnly=$("indexed-only").checked;
+ const matches=libraryBooks.filter(x=>(!indexedOnly||x.status==="indexed")&&(String(x.title)+" "+(x.author||"")).toLowerCase().includes(query));
+ $("library-total").textContent=matches.length+" unique works of "+libraryBooks.length+" · additional scans grouped";
+ $("library-results").innerHTML=matches.slice(0,150).map(b=>{
+  const indexed=b.status==="indexed";
+  return '<div class="book-card"><div style="display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap"><a href="'+safeUrl(b.url)+'" target="_blank" rel="noopener noreferrer">'+esc(b.title)+'</a><span class="tag '+(indexed?"inaccuracy":"mistake")+'">'+(indexed?"Ready for tutor":"Catalog link only")+'</span></div><div class="muted small">'+esc(b.author||"Author unknown")+" · "+esc(b.source)+" · "+esc(b.year||"Year unverified")+'</div>'+(b.editions?.length>1?'<details class="small" style="margin-top:7px"><summary>'+b.editions.length+' scans/editions — view sources</summary>'+b.editions.map(e=>'<div style="margin:7px 0"><a href="'+safeUrl(e.url)+'" target="_blank" rel="noopener noreferrer">'+esc(e.year||'Unknown year')+' · '+esc(e.source||'Archive')+'</a></div>').join('')+'</details>':'')+'</div>';
+ }).join("")||'<div class="empty">No matching titles. Try a broader search.</div>';
+}
+$("library-search").addEventListener("input",renderLibrary);
+$("indexed-only").addEventListener("change",renderLibrary);
+loadTraining();loadLibrary();
+
+
+// CHESS_GRIND_V3 — persistent daily coaching and rating visualization.
+function miniChart(history){
+ if(!history||history.length<2) return '<span class="muted small">Rating history will appear as you complete future daily syncs.</span>';
+ const values=history.map(x=>x.rating).filter(Number.isFinite);
+ if(values.length<2)return '';
+ const minimum=Math.min(...values)-20,maximum=Math.max(...values)+20;
+ const points=values.map((v,i)=>[10+i*380/(values.length-1),65-52*(v-minimum)/(maximum-minimum)]);
+ const path=points.map((x,i)=>(i?'L':'M')+x.map(z=>z.toFixed(2)).join(' ')).join(' ');
+ return '<div class="muted small">Rapid history · '+esc(values[0])+' → '+esc(values[values.length-1])+'</div>'+
+  '<svg viewBox="0 0 400 74" aria-label="Rapid rating history"><path d="'+path+'" stroke="#c8ea79" fill="none" stroke-width="3" stroke-linecap="round"/>'+
+  points.map(z=>'<circle cx="'+z[0]+'" cy="'+z[1]+'" r="3" fill="#eaf7bc"/>').join('')+'</svg>';
+}
+function paintDaily(){
+ if(!dailyData)return;
+ $("daily-progress").textContent=dailyData.date+' · '+dailyData.complete+'/'+dailyData.total+
+  ' tasks done · '+dailyData.minutes+' minutes planned · '+dailyData.gamesToReview+' due tactical positions';
+ $("rating-trend").innerHTML=miniChart(dailyData.history);
+ $("daily-tasks").innerHTML=dailyData.tasks.map(t=>'<div class="todo"><input type="checkbox" '+
+  (t.completed?'checked ':'')+'data-task="'+esc(t.id)+'" aria-label="Complete '+esc(t.name)+'">'+
+  '<div class="'+(t.completed?'done-text':'')+'"><b>'+esc(t.name)+'</b> <span class="muted small">· '+t.minutes+' min</span>'+
+  '<div class="small">'+esc(t.description)+'</div></div><button data-action="'+esc(t.action)+'">Open</button></div>').join("");
+ const lesson=$("lesson-title"), principle=$("lesson-principle");
+ lesson.textContent=dailyData.name;
+ principle.textContent=dailyData.principle;
+ const book=dailyData.book;
+ $("lesson-source").innerHTML=book?'<a href="'+safeUrl(book.url)+'" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Read in '+esc(book.title)+' ↗</a><p class="muted small">'+esc(book.body)+'</p>':
+  '<span class="muted">Book excerpts will show here after rights-cleared indexing.</span>';
+}
+async function loadDaily(){
+ try{
+  const r=await fetch('/api/daily');
+  if(!r.ok)throw Error('Could not load the plan');
+  dailyData=await r.json();paintDaily();
+ }catch(e){$("daily-tasks").textContent=e.message}
+}
+$("daily-tasks").addEventListener("change",async e=>{
+ const input=e.target.closest("[data-task]");
+ if(!input)return;
+ input.disabled=true;
+ try{
+  const result=await fetch('/api/task',{method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({taskId:input.dataset.task,completed:input.checked})});
+  if(!result.ok)throw Error('Could not save completion');
+  dailyData=await result.json();paintDaily();
+ }catch(error){input.disabled=false;input.checked=!input.checked;alert(error.message)}
+});
+$("daily-tasks").addEventListener("click",e=>{
+ const btn=e.target.closest("[data-action]");
+ if(btn){
+  if(btn.dataset.action==="learning_lab")location.href="/learn";
+  else if(btn.dataset.action==="lab_books")location.href="/learn?tab=books";
+  else setView(btn.dataset.action);
+ }
+});
+loadDaily();
+// Refresh local lessons when the laptop wakes or this tab becomes visible.
+setInterval(async ()=>{if(!document.hidden){await loadDaily();await loadTraining()}},10*60*1000);
+document.addEventListener('visibilitychange',async ()=>{
+ if(!document.hidden){
+  try{data=await (await fetch('/api/dashboard')).json();renderOverview();renderReview();await loadTraining();await loadDaily()}
+  catch(error){console.warn('Dashboard refresh:',error.message)}
+ }
+});
+
+
+// Evidence-backed local chess coaching: legal game positions + semantic source links.
+function suggestQuestion(text){$("coach-question").value=text;askCoach()}
+async function askCoach(){
+ const input=$("coach-question"),button=$("ask-coach");
+ const question=input.value.trim();
+ if(question.length<3){$("coach-status").textContent="Enter a question first.";return}
+ button.disabled=true;$("coach-status").textContent="Reviewing your games and local chess-book passages…";
+ try{
+  const res=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({question})});
+  const answer=await res.json();
+  if(!res.ok)throw Error(answer.error||"Coach request failed");
+  $("coach-answer").style.display="block";
+  $("coach-answer").textContent=answer.answer;
+  $("coach-status").textContent="Topic: "+answer.topic+" · grounded in your games and indexed texts";
+  $("coach-sources").innerHTML=answer.sources.map(s=>'<div class="book-card"><a href="'+safeUrl(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title)+'</a><div class="small muted">'+esc(s.author||"")+'</div><p>'+esc(s.passage)+'</p></div>').join("");
+  if(answer.examples.length){
+   const ex=answer.examples[0];
+   board("coach-board",ex.fen,ex.color);
+   $("coach-board-caption").textContent=ex.color+" to move vs "+ex.opponent+". You played "+ex.played+"; engine preferred "+ex.best+".";
+  }else{
+   $("coach-board").innerHTML='<div class="empty">No matching game position yet.</div>';
+   $("coach-board-caption").textContent="Keep playing serious Rapid games and syncing your archive.";
+  }
+ }catch(error){$("coach-status").textContent=error.message}
+ finally{button.disabled=false}
+}
+$("coach-question").addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();askCoach()}
+});
+
+
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === '127.0.0.1')) {
+ navigator.serviceWorker.register('/sw.js').catch(()=>{});
+}
+
+// Verified board geometry — no hand-authored or speculative tactical arrows.
+let trainerVisual=null,trainerVisualMode="before",reviewVisual=null,reviewVisualMode="before",reviewVisualKey=null;
+const visualColors={best:"#a6ed75",alternative:"#70bbff",reply:"#ff7775",
+  attack:"#ffc85f",fork:"#ffd268",pin:"#bc93ff",skewer:"#bc93ff",
+  discovered:"#bc93ff",loose:"#d898ff"};
+function squarePoint(sq,color){
+ if(!/^[a-h][1-8]$/.test(sq))return null;
+ let file=sq.charCodeAt(0)-97,rank=Number(sq[1])-1;
+ return color==="Black"?[(7-file)*100+50,rank*100+50]:[file*100+50,(7-rank)*100+50];
+}
+function svgEscape(text){return esc(text)}
+function visualDrawing(boardId,visual,mode,color,showControl){
+ if(!visual||!visual[mode])return;
+ const frame=visual[mode],target=$(boardId);
+ // draw true after-move position, not the move remembered from an old game.
+ board(boardId,frame.fen,color);
+ const markId=boardId+"-arrow";
+ let shapes='<defs>';
+ for(const [kind,paint] of Object.entries(visualColors)){
+  shapes+='<marker id="'+markId+'-'+kind+'" markerWidth="5" markerHeight="5" refX="4.1" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 5 2.5 L 0 5 z" fill="'+paint+'"/></marker>';
+ }
+ shapes+='</defs>';
+ if(showControl&&mode!=="before"){
+  for(const sq of frame.controlled||[]){
+   const xy=squarePoint(sq,color);if(!xy)continue;
+   shapes+='<rect x="'+(xy[0]-47)+'" y="'+(xy[1]-47)+'" width="94" height="94" fill="#eee395" opacity=".18"/>';
+  }
+ }
+ for(const sq of frame.targets||[]){
+  const xy=squarePoint(sq.square,color);if(!xy)continue;
+  shapes+='<circle cx="'+xy[0]+'" cy="'+xy[1]+'" r="44" stroke="'+visualColors.attack+'" stroke-width="7" stroke-dasharray="15 9" fill="none"/>';
+ }
+ for(const f of frame.features||[]){
+  if(f.type!=="loose")continue;
+  const xy=squarePoint(f.square,color);if(!xy)continue;
+  shapes+='<circle cx="'+xy[0]+'" cy="'+xy[1]+'" r="41" stroke="'+visualColors.loose+'" stroke-width="8" fill="none"/>';
+ }
+ for(const a of frame.arrows||[]){
+  const p=squarePoint(a.from,color),q=squarePoint(a.to,color);
+  if(!p||!q)continue;
+  const dx=q[0]-p[0],dy=q[1]-p[1],len=Math.hypot(dx,dy);
+  if(len<25)continue;
+  const x1=p[0]+dx*25/len,y1=p[1]+dy*25/len;
+  const x2=q[0]-dx*27/len,y2=q[1]-dy*27/len;
+  const kind=Object.hasOwn(visualColors,a.kind)?a.kind:"attack";
+  const width=["best","alternative","reply"].includes(kind)?12:7;
+  const stroke=visualColors[kind];
+  shapes+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#172021" opacity=".75" stroke-width="'+(width+5)+'" stroke-linecap="round"/>';
+  shapes+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+stroke+'" stroke-width="'+width+'" stroke-linecap="round" opacity=".92" marker-end="url(#'+markId+'-'+kind+')"/>';
+ }
+ const overlay=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ overlay.setAttribute("class","board-overlay");
+ overlay.setAttribute("viewBox","0 0 800 800");
+ overlay.setAttribute("preserveAspectRatio","none");
+ overlay.setAttribute("aria-hidden","true");
+ overlay.innerHTML=shapes;
+ target.append(overlay);
+}
+function visualSummary(mode,frame){
+ const labels={before:"Compare the green engine arrow with the blue arrow for your move.",
+ best:"After the best move: outlined targets are attacked. Purple highlights a loose piece.",
+ your:"After your move: compare its threats and consequences with the engine's choice.",
+ reply:"After the strongest engine reply: this red arrow shows how your opponent may respond."};
+ return (labels[mode]||"")+" "+(frame?.move?"Move "+frame.move+".":"");
+}
+async function loadReviewVisual(){
+ const current=game();
+ const m=current?.plies[ply-1];
+ if(!m||!m.kind)return;
+ const key=current.id+":"+(ply-1);
+ const action=$("review-visual-action");
+ if(action){action.disabled=true;action.textContent="Analyzing move…"}
+ try{
+  const res=await fetch("/api/visual-review",{method:"POST",
+     headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({gameId:current.id,ply:ply-1})});
+  const result=await res.json();
+  if(!res.ok)throw Error(result.error||"Visual analysis unavailable");
+  if(game().id+":"+(ply-1)!==key)return;
+  reviewVisual=result.visual;
+  reviewVisualKey=key;reviewVisualMode="before";
+  $("review-show-control").checked=false;
+  drawVisualPanel("review",reviewVisual,reviewVisualMode,current.color);
+  if(action){action.textContent="Visual comparison ready ✓";action.disabled=false}
+ }catch(error){
+  if($("review-visual-error"))$("review-visual-error").textContent=error.message;
+  if(action){action.disabled=false;action.textContent="Try visual review again"}
+ }
+}
+function drawVisualPanel(area,visual,mode,color){
+ if(!visual)return;
+ const controls=$(area+"-visual-controls");
+ if(!controls)return;
+ controls.hidden=false;
+ const frame=visual[mode]||visual.best;
+ if(!frame)return;
+ visualDrawing(area==="puzzle"?"puzzle-board":"review-board",visual,mode,color,
+     $(area+"-show-control").checked);
+ controls.querySelectorAll("[data-visual-mode]").forEach(b=>{
+  const m=b.dataset.visualMode;
+  b.disabled=!visual[m];b.classList.toggle("active",m===mode);
+  b.setAttribute("aria-pressed",m===mode?"true":"false");
+ });
+ $(area+"-visual-caption").textContent=visualSummary(mode,frame);
+ const motif=(frame.features||[]).filter(x=>x.label&&x.type);
+ $(area+"-motif-cards").innerHTML=motif.map(x=>
+   '<div class="visual-motif"><strong>'+esc(x.type)+"</strong>"+esc(x.label)+'</div>').join("")||
+   '<div class="small muted">No verified fork, pin, skewer or discovered attack is present in this position. Compare move consequences on the board.</div>';
+}
+function showTrainerVisual(result){
+ trainerVisual=result?.visual||null;
+ trainerVisualMode="before";
+ if(!trainerVisual)return;
+ drawVisualPanel("puzzle",trainerVisual,"before",coach.queue[practiceIndex].color);
+}
+function clearTrainerVisual(){
+ trainerVisual=null;trainerVisualMode="before";
+ $("puzzle-visual-controls").hidden=true;
+ $("puzzle-motif-cards").innerHTML="";
+ $("puzzle-show-control").checked=false;
+}
+for(const area of ["puzzle","review"]){
+ const ctr=$(area+"-visual-controls");
+ ctr.addEventListener("click",e=>{
+  const b=e.target.closest("[data-visual-mode]");if(!b||b.disabled)return;
+  if(area==="puzzle"){
+   trainerVisualMode=b.dataset.visualMode;
+   if(trainerVisual)drawVisualPanel(area,trainerVisual,trainerVisualMode,
+       coach.queue[practiceIndex].color);
+  }else{
+   reviewVisualMode=b.dataset.visualMode;
+   if(reviewVisual)drawVisualPanel(area,reviewVisual,reviewVisualMode,game().color);
+  }
+ });
+ $(area+"-show-control").addEventListener("change",()=>{
+  if(area==="puzzle"&&trainerVisual)drawVisualPanel(area,trainerVisual,trainerVisualMode,coach.queue[practiceIndex].color);
+  if(area==="review"&&reviewVisual)drawVisualPanel(area,reviewVisual,reviewVisualMode,game().color);
+ });
+}
+
+(async()=>{
+ try{
+  const r=await fetch("/api/settings/chesscom"),settings=await r.json();
+  const label=settings.configured?settings.username:"Not connected";
+  $("current-chesscom-profile").textContent=label;
+  $("current-account-chip").textContent="CHESS.COM · "+label;
+  $("account-setup-hint").style.display=settings.configured?"none":"block";
+  $("refresh-btn").disabled=!(settings.configured&&settings.syncEnabled);
+  if(!settings.configured)$("refresh-status").textContent="Connect your Chess.com account in Settings to enable syncing.";
+  else if(!settings.syncEnabled)$("refresh-status").textContent="Chess.com syncing is paused. Enable it in Settings.";
+ }catch(e){$("current-chesscom-profile").textContent="Open Settings to configure Chess.com"}
+})();
+</script></body></html>

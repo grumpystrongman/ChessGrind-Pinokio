@@ -1,0 +1,553 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#132126"><title>Strategy Studio · Chess Grind</title><style>
+:root{color-scheme:dark;--bg:#101a1e;--panel:#1a2b2f;--surface:#243a3d;--border:#405e58;--mint:#d4ec9f;--ink:#eff6eb;--soft:#b7cdc2;--gold:#f4d38d;--red:#f3aaa1}
+*{box-sizing:border-box}body{background:radial-gradient(800px 450px at 85% -210px,#36584d 0,transparent 90%),var(--bg);color:var(--ink);margin:0;font:15px/1.55 "Segoe UI",Inter,Arial,sans-serif}
+button,select{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.5;cursor:default}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid var(--mint);outline-offset:3px}
+a{color:var(--mint);text-decoration:none}h1,h2,h3,p{margin:0}h1{font-size:clamp(27px,3.5vw,42px);letter-spacing:-1px;line-height:1.17}h2{font-size:22px;letter-spacing:-.5px}h3{font-size:16px}
+header{background:#142529;height:68px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:17px;padding:0 clamp(13px,3vw,30px);position:sticky;top:0;z-index:40}
+.brand{font-weight:900;font-size:19px;letter-spacing:-.8px;white-space:nowrap}.brand b{color:var(--mint)}
+.hdr{border-left:1px solid var(--border);padding-left:15px;font-size:12px;color:var(--soft)}
+.navlink{margin-left:auto;padding:9px 12px;background:#2a4241;border:1px solid #547069;border-radius:9px;font-size:12px;font-weight:800}
+main{max-width:1420px;margin:0 auto;padding:28px clamp(13px,3.1vw,42px) 75px}
+.hero{border-radius:19px;border:1px solid #587d64;padding:25px 30px;background:linear-gradient(114deg,#29473a,#213b3e 82%,#1a353a);position:relative;overflow:hidden}
+.hero:after{content:"♞";position:absolute;right:25px;top:-60px;opacity:.06;font-size:210px;pointer-events:none}.hero>*{position:relative;z-index:1}
+.hero p{max-width:760px;margin-top:11px;color:#d4e3d5}
+.kicker{text-transform:uppercase;color:#c8e7a4;letter-spacing:1.5px;font-size:11px;font-weight:850}
+.tabs{display:flex;gap:8px;margin:19px 0}
+.tab{border:1px solid #52706b;border-radius:10px;background:#28403f;color:#d7e4d9;min-height:45px;padding:10px 17px;font-weight:800}
+.tab.active{background:var(--mint);color:#183021;border-color:var(--mint)}
+.layout{display:grid;grid-template-columns:minmax(0,530px) minmax(0,1fr);gap:19px;align-items:start}
+.panel{border:1px solid var(--border);border-radius:16px;background:var(--panel);padding:19px;min-width:0}
+.panel+.panel{margin-top:13px}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:13px;flex-wrap:wrap}
+.muted{color:var(--soft)}.small{font-size:12px}.tiny{font-size:11px}
+.btn{border:1px solid var(--mint);background:var(--mint);color:#1a3020;min-height:44px;border-radius:10px;padding:10px 14px;font-weight:850}
+.btn.alt{background:#304b46;color:#e8f1e8;border-color:#557269}.btn:hover:not(:disabled){filter:brightness(1.08)}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.row.between{justify-content:space-between}
+.pill{background:#33533e;border-radius:99px;padding:5px 11px;font-size:11px;font-weight:800;color:#e3f5d7}
+.statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:15px}
+.stat{background:#223734;border:1px solid #456158;border-radius:12px;padding:14px}.stat b{font-size:24px;display:block;line-height:1.2}.stat small{display:block;color:var(--soft);font-size:11px;margin-top:5px}
+.board-shell{padding:9px;background:#2d4642;border:1px solid #567a70;border-radius:12px}
+.board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));position:relative;border:3px solid #47645f;border-radius:8px;overflow:hidden;isolation:isolate}
+.square{border:0;padding:0;min-width:0;aspect-ratio:1;position:relative;display:grid;place-items:center}
+.square.light{background:#e1e8db;color:#35534b}.square.dark{background:#7c9999;color:#eaf3e9}
+.square.selected{box-shadow:inset 0 0 0 5px #c7ed8f}
+.piece{font:clamp(25px,4vw,54px)/1 "Segoe UI Symbol","DejaVu Sans",serif}
+.piece.white{color:#fffef2;text-shadow:0 2px 3px #23413a,-1px -1px 2px #23413a}.piece.black{color:#16282a;text-shadow:0px 1px 1px #f4f1e2}
+.coord{position:absolute;top:2px;left:3px;font-size:10px;font-weight:850;opacity:.75}
+.board svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.boardfoot{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-top:10px;color:var(--soft);font-size:11px;flex-wrap:wrap}
+.cards{display:grid;gap:9px;margin-top:12px;max-height:430px;overflow-y:auto}
+.card{border-radius:12px;border:1px solid #4a665e;background:#253b3e;padding:13px;text-align:left;color:var(--ink)}
+.card:hover{border-color:#aedca0}.card.active{background:#315345;border-color:#c6e69d}
+.card strong{display:block;font-size:14px}.card small{display:block;font-size:11px;color:#b8d0c2;margin-top:4px}
+.notes{border:1px solid #4d765d;background:#284336;border-radius:12px;padding:14px;color:#dcefd7;line-height:1.6;font-size:13px}
+.notes.warning{background:#433d2e;border-color:#816c43;color:#f0dbad}
+.notes.error{background:#463531;border-color:#8c6256;color:#f5c9c1}
+.controls{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+select{padding:10px 13px;background:#294040;color:#e9f0e9;border:1px solid #57766c;border-radius:10px;min-height:44px}
+.bar{width:100%;height:7px;border-radius:99px;background:#35504b;overflow:hidden;margin-top:11px}
+.bar span{display:block;height:100%;background:#c7e59c}
+.move-list{display:grid;gap:8px;margin:10px 0}
+.move-option{border:1px solid #4f695e;background:#293e3d;border-radius:10px;padding:12px;text-align:left;color:var(--ink);width:100%}
+.move-option.active{border-color:#c9e99f;background:#36533f}.move-option strong{display:block}
+.move-option small{display:block;color:#c1d5c7;font-size:12px}
+.steps{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.step{padding:8px 10px;border-radius:8px;border:1px solid #54726a;color:#e6f0e6;background:#2c4845;font-size:12px}
+.step.active{background:#cde8a6;color:#223023}
+.feedback{min-height:22px;color:#c5dbbe;font-size:13px;margin:11px 0;line-height:1.6}
+.hidden{display:none!important}
+#endgame-result{display:grid;gap:12px}
+.branch{padding:13px;border-radius:11px;background:#233937;border:1px solid #4d6d60}
+.branch strong{color:#d9edc7}.branch p{font:13px/1.6 Consolas,monospace;margin-top:6px;color:#d6e2d4;overflow-wrap:anywhere}
+.branch.active{border-color:#d1efaa;background:#305144}
+#eg-branches{display:grid;gap:9px}
+.grid-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.info{font-size:12px;color:var(--soft)}
+@media(max-width:970px){.layout{grid-template-columns:1fr}}
+@media(max-width:620px){header{height:59px;padding:0 12px}.hdr{display:none}.brand{font-size:17px}.navlink{font-size:11px;padding:8px}
+main{padding:14px 10px 55px}.hero{padding:19px 17px}.hero:after{font-size:145px}h1{font-size:29px}
+.panel{padding:14px}.board-shell{padding:5px}.piece{font-size:clamp(26px,10vw,47px)}
+.grid-cards{grid-template-columns:1fr}.statrow{gap:6px}.stat{padding:10px}.stat b{font-size:20px}.stat small{font-size:10px}
+.tab{font-size:12px;padding:9px 11px}.controls .btn{flex:1}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style><style id="opening-study-design">
+.teach-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:13px 0}
+.teach-card{background:#233c34;border:1px solid #52735b;border-radius:12px;padding:14px}
+.teach-card p{color:#d7e8d9;font-size:13px;line-height:1.65;margin-top:8px}
+#opening-teaching{border-top:1px solid #47685c;margin-top:18px;padding-top:16px}
+#opening-verdict{margin-bottom:12px}
+#opening-takeaway{width:100%;margin-top:10px;background:#203733;border:1px solid #6a8776;border-radius:9px;color:#e5f0e3;padding:12px;font:inherit;resize:vertical;min-height:87px}
+#opening-takeaway:focus-visible{outline:3px solid #d4ec9f}
+@media(max-width:620px){.teach-grid{grid-template-columns:1fr}#opening-lesson-actions .btn{flex:1}}
+</style>
+<style id="deep-endgame-layout">
+.teach-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:13px}
+.teach-card{padding:14px;background:#243e36;border:1px solid #547663;border-radius:12px}
+.teach-card p{font-size:13px;color:#d7e7d8;line-height:1.65;margin-top:7px}
+@media(max-width:620px){.teach-grid{grid-template-columns:1fr}}
+</style>
+</head><body>
+<header><a href="/learn" class="brand">CHESS<b>GRIND</b></a><span class="hdr">Strategy Studio · Openings & Endgames</span><a class="navlink" href="/arena">♞ Sparring</a><a class="navlink" href="/masters">♚ Study Masters</a><a class="navlink" href="/learn">← Learning Lab</a></header>
+<main>
+<div class="hero"><span class="kicker">Strategy Studio · Batch 4</span><h1>Learn the plan. Not just the move.</h1><p>Explore your actual games, study verified named opening theory as White <em>and</em> Black, and learn endgame techniques with practical plans and concrete answers.</p></div>
+<div class="tabs" role="tablist"><button id="tab-openings" class="tab active" role="tab" aria-selected="true">♙ My opening repertoire</button><button id="tab-endgames" class="tab" role="tab" aria-selected="false">♚ Endgame laboratory</button></div>
+<section id="openings-view">
+<div class="statrow"><div class="stat"><b id="opening-games">—</b><small>Usable imported games</small></div><div class="stat"><b id="opening-saved">—</b><small>Saved repertoire decisions</small></div><div class="stat"><b id="opening-score">New</b><small>Independent recall accuracy</small></div></div>
+<div class="notes" style="margin-bottom:14px">
+ <div class="row between"><div><strong>Opening Mastery Academy is ready</strong>
+ <p class="small" style="margin-top:5px">3,865 ECO variations, equal White and Black tracks, position-specific teaching, adaptive reviews and held-out transfer tests.</p></div>
+ <a href="/opening-course" class="btn" style="text-decoration:none;display:inline-flex;align-items:center">Enter Opening Mastery Academy ↗</a></div>
+</div>
+<div class="layout">
+<div><div class="panel"><div class="section-title"><h2>What you actually play</h2><span id="opening-count" class="pill">Loading…</span></div>
+<p class="info">These are real PGN sequences grouped by the first two full moves. Frequent moves aren't necessarily strong moves; you choose what to study.</p>
+<div class="controls"><button class="btn" id="color-white">Study as White</button><button class="btn alt" id="color-black">Study as Black</button></div>
+<div id="opening-lines" class="cards"></div></div>
+<div id="opening-board-panel" class="panel hidden"><h2>Explore this line</h2>
+<div class="board-shell"><div class="board" id="opening-board" aria-label="Opening exploration chessboard"></div></div>
+<div class="boardfoot"><span id="opening-turn">White to move</span><span id="opening-step-label">Beginning</span></div>
+<div class="controls"><button class="btn alt" id="opening-back">← Previous</button><button class="btn alt" id="opening-forward">Next move →</button></div><div id="opening-sequence" class="steps"></div></div></div>
+<div><div class="panel"><div class="kicker">Build your own repertoire</div><h2 style="margin-top:7px">Understand the idea behind each move.</h2>
+<p class="muted small">Choose a line, then select Teach me this move. See its purpose, the opponent response, a real engine comparison, and a short memory check.</p>
+<div id="repertoire-position" class="hidden"><div class="notes" id="repertoire-principle" style="margin:13px 0"></div>
+<div id="repertoire-focus" class="notes" style="margin:12px 0"></div>
+<div id="repertoire-options" class="move-list"></div>
+<div id="opening-teaching" class="hidden">
+ <div id="opening-verdict" class="notes" role="status"></div>
+ <div id="opening-teach-sections" class="teach-grid"></div>
+ <div id="opening-question" class="notes" style="margin:12px 0"></div>
+ <div id="opening-lesson-actions" class="controls">
+  <button class="btn alt" id="opening-show-best">Engine line</button>
+  <button class="btn alt" id="opening-show-chosen">Chosen line</button>
+  <button class="btn alt" id="opening-back-step">← Back</button>
+  <button class="btn alt" id="opening-next-step">Next move →</button>
+  <button class="btn" id="opening-recall-prompt">Test my memory</button>
+ </div>
+ <div id="opening-recall" class="notes warning hidden" style="margin:10px 0">
+  <h3>Before revealing the answer...</h3>
+  <p id="opening-recall-text"></p>
+  <button class="btn alt" id="opening-reveal-memory">Reveal the explanation</button>
+  <div id="opening-memory-answer" class="hidden" style="margin-top:10px"></div>
+ </div>
+ <div class="teach-card" style="margin:13px 0">
+  <label for="opening-takeaway"><strong>Explain the plan in your own words</strong></label>
+  <p class="muted small">What does this move achieve, and what reply should you prepare for?</p>
+  <textarea id="opening-takeaway" rows="3" placeholder="I would choose this move because…"></textarea>
+  <div class="controls"><button class="btn" id="save-opening-takeaway">Save my takeaway</button></div>
+  <div id="opening-takeaway-status" class="muted small" role="status"></div>
+ </div>
+ <div id="opening-variation-label" class="muted small" role="status"></div>
+</div><div id="repertoire-feedback" class="feedback" role="status"></div>
+<button class="btn alt" id="opening-discuss" style="margin-top:10px">♞ Ask my AI coach about this opening ↗</button>
+</div>
+<div id="repertoire-empty" class="notes">Choose an opening line on the left to start exploring the positions you actually reached.</div></div>
+<div class="panel"><div class="kicker">Memory over memorization</div><h2 style="margin:7px 0">Quick repertoire recall</h2>
+<p class="muted small">After saving a preferred move, test whether you can find it without seeing your choice. This measures recall of your plan—not objective move quality.</p>
+<button class="btn" id="opening-review" style="margin-top:13px">Practice one saved decision →</button><div id="opening-review-feedback" class="feedback" role="status"></div>
+</div></div></div></section>
+<section id="endgames-view" class="hidden">
+<div class="statrow"><div class="stat"><b id="endgame-count">6</b><small>Guided endgame lessons</small></div><div class="stat"><b id="endgame-attempts">—</b><small>Moves practiced</small></div><div class="stat"><b id="tablebase-state">Engine</b><small>Verification mode</small></div></div>
+<div class="controls" style="margin:0 0 14px">
+ <button class="btn" id="endgame-all">All endgames</button>
+ <button class="btn alt" id="endgame-white">Study as White</button>
+ <button class="btn alt" id="endgame-black">Study as Black</button>
+ <span class="small muted">Both colors receive the same foundational concepts.</span>
+</div>
+<div class="layout">
+<div><div class="panel"><div class="section-title"><h2>Choose your endgame</h2><span class="pill">Small, focused positions</span></div>
+<div class="small muted">Select a lesson to study the rule, your board, common mistakes, the opponent's resources, and a concrete engine line.</div><div id="endgame-cards" class="grid-cards"></div></div>
+<div class="panel hidden" id="endgame-board-panel"><div class="section-title"><h2 id="endgame-board-title">Your position</h2><span class="pill" id="endgame-side">White to move</span></div>
+<div class="board-shell"><div class="board" id="endgame-board" aria-label="Interactive endgame chessboard"></div></div>
+<div class="boardfoot"><span id="endgame-board-hint">Choose a piece, then its destination.</span><span id="endgame-step">Before your move</span></div>
+<div class="controls hidden" id="endgame-playback"><button class="btn alt" id="endgame-prev">← Back</button><button class="btn alt" id="endgame-next">Next →</button></div></div></div>
+<div>
+<div class="panel"><div class="kicker">Your endgame coach</div><h2 style="margin:7px 0" id="endgame-title">A small board. Big decisions.</h2>
+<p class="muted" id="endgame-subtitle">Choose one of the positions on the left to learn the principle and test your next move.</p>
+<div class="notes" id="endgame-principle" style="margin:14px 0">Choose a position to learn the rule and see why it matters.</div>
+<div id="endgame-deep" class="hidden">
+ <div id="endgame-deep-sections" class="teach-grid"></div>
+ <div id="endgame-deep-memory" class="notes" style="margin-top:12px"></div>
+ <div class="controls"><button class="btn alt" id="endgame-quiz-me">Question me about this position</button></div>
+ <div id="endgame-thinking-questions" class="notes warning hidden"></div>
+</div>
+<div class="controls" id="endgame-actions"></div><div class="feedback" id="endgame-feedback" role="status"></div></div>
+<div id="endgame-result" class="panel hidden"><div class="kicker">Compare your decision</div>
+<h2 id="endgame-verdict" style="margin-top:8px"></h2><div class="notes" id="endgame-explanation"></div>
+<div id="eg-branches"></div>
+<div class="notes warning">Stockfish works at limited search depth. Without installed Syzygy tablebases, this is not proof of a theoretical win, draw, or loss.</div>
+<button id="endgame-discuss" class="btn alt">♞ Discuss this with my AI coach ↗</button></div>
+</div></div></section>
+<footer class="muted small" style="margin-top:24px">Chess Grind's opening observations come from imported games. Endgame decisions are engine-checked, not tablebase-certified. Personal training records remain in local SQLite.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id),esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const glyph={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+const safe=(x)=>typeof x==="string"?x:"";
+let egFilter="All",egTheory=null;
+let color="White",lines=null,activeLine=null,lineStep=0,openingMode="browse",review=null,
+ endgameList=null,eg=null,egResult=null,egChosen=null,egAssisted=false,
+ egRoundId=null,egBranch=0,egStep=0,egStarted=Date.now(),
+ selected=null;
+async function api(url,data=undefined){const r=await fetch(url,data===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});const j=await r.json();if(!r.ok)throw Error(j.error||"Request failed");return j}
+function side(fen){return fen?.split(" ")[1]==="b"?"Black":"White"}
+function array(fen){const out=[];for(const row of fen.split(" ")[0].split("/"))for(const x of row){if(/[1-8]/.test(x))for(let i=0;i<Number(x);i++)out.push("");else out.push(x)}return out}
+function at(fen,sq){const a=array(fen),f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;return a[(7-r)*8+f]}
+function square(i,orientation){return orientation==="Black"?String.fromCharCode(104-i%8)+(Math.floor(i/8)+1):String.fromCharCode(97+i%8)+(8-Math.floor(i/8))}
+function coord(sq,orientation){const f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;return orientation==="Black"?[(7-f)*100+50,r*100+50]:[f*100+50,(7-r)*100+50]}
+function renderBoard(id,fen,orientation=side(fen),arrows=[],focus=[]){
+ const node=$(id),arr=array(fen),html=[];
+ if(arr.length!==64){node.textContent="Invalid board";return}
+ for(let i=0;i<64;i++){
+  const sq=square(i,orientation),f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;
+  const pc=arr[(7-r)*8+f],dark=(f+r)%2===1;
+  html.push('<button type="button" data-square="'+sq+'" class="square '+(dark?'dark':'light')+
+   (selected===sq?' selected':'')+'" aria-label="'+sq+(pc?' '+pc:' empty')+'">'+
+   (pc?'<span class="piece '+(pc===pc.toUpperCase()?'white':'black')+'">'+glyph[pc]+'</span>':'')+
+   (i%8===0?'<span class="coord">'+sq[1]+'</span>':'')+'</button>');
+ }
+ node.innerHTML=html.join("");
+ if(!arrows.length&&!focus.length)return;
+ let svg='<defs><marker id="strategy-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#d5e999"/></marker></defs>';
+ for(const sq of focus){const [x,y]=coord(sq,orientation);svg+='<circle cx="'+x+'" cy="'+y+'" r="40" stroke="#f4cc82" stroke-width="7" fill="none" stroke-dasharray="14 8"/>'}
+ for(const a of arrows){if(!a.from||!a.to)continue;const [x,y]=coord(a.from,orientation),[u,v]=coord(a.to,orientation),dx=u-x,dy=v-y,l=Math.hypot(dx,dy);if(!l)continue;
+ svg+='<line x1="'+(x+24*dx/l)+'" y1="'+(y+24*dy/l)+'" x2="'+(u-35*dx/l)+'" y2="'+(v-35*dy/l)+'" stroke="#d5e999" stroke-width="10" marker-end="url(#strategy-arrow)"/>'}
+ const layer=document.createElementNS("http://www.w3.org/2000/svg","svg");layer.setAttribute("viewBox","0 0 800 800");layer.setAttribute("aria-hidden","true");layer.innerHTML=svg;node.append(layer);
+}
+function switchTab(tab){
+ const op=tab==="openings";
+ $("openings-view").classList.toggle("hidden",!op);$("endgames-view").classList.toggle("hidden",op);
+ $("tab-openings").classList.toggle("active",op);$("tab-endgames").classList.toggle("active",!op);
+ $("tab-openings").setAttribute("aria-selected",op);$("tab-endgames").setAttribute("aria-selected",!op);
+ if(!op&&!endgameList)loadEndgames();
+}
+$("tab-openings").onclick=()=>switchTab("openings");$("tab-endgames").onclick=()=>switchTab("endgames");
+async function loadOverview(){
+ try{const x=await api("/api/repertoire");$("opening-games").textContent=x.games;
+ $("opening-saved").textContent=x.savedPositions;$("opening-score").textContent=x.independentAccuracy===null?"New":x.independentAccuracy+"%"}
+ catch(e){$("opening-games").textContent="—"}
+}
+async function loadLines(){
+ try{
+  lines=await api("/api/repertoire/lines?color="+encodeURIComponent(color));
+  $("opening-count").textContent=lines.totalGames+" games as "+color;
+  $("color-white").classList.toggle("alt",color!=="White");$("color-black").classList.toggle("alt",color!=="Black");
+  $("opening-lines").innerHTML=lines.lines.map((l,i)=>
+   '<button class="card" data-line="'+i+'"><strong>'+esc(l.title||l.label)+'</strong>'+
+   '<small>'+esc(l.explanation||l.label)+'</small>'+
+    '<small>'+esc(l.eco?(l.eco.eco+" · "+l.eco.name+
+    (l.eco.exact?" · exact position":" · last known name")):"Opening name not established")+'</small>'+
+   '<small>Line: '+esc(l.label)+' · '+l.count+' matching games</small>'+
+   '<div class="bar"><span style="width:'+Math.round(100*l.count/Math.max(1,lines.totalGames))+'%"></span></div></button>').join("")||
+   '<div class="notes warning">No imported games as '+color+' yet. Import PGN games to populate your repertoire.</div>';
+ }catch(e){$("opening-lines").textContent=e.message}
+}
+$("color-white").onclick=()=>{color="White";activeLine=null;loadLines()};$("color-black").onclick=()=>{color="Black";activeLine=null;loadLines()};
+$("opening-lines").onclick=event=>{const row=event.target.closest("[data-line]");if(!row)return;activeLine=lines.lines[Number(row.dataset.line)];lineStep=0;openingMode="browse";showLine()};
+function showLine(){
+ if(!activeLine)return;
+ $("opening-board-panel").classList.remove("hidden");$("repertoire-position").classList.remove("hidden");$("repertoire-empty").classList.add("hidden");
+ const steps=activeLine.steps,prev=lineStep?steps[lineStep-1]:null;
+ const fen=prev?prev.after:steps[0].fen;selected=null;
+ renderBoard("opening-board",fen,color,prev?[{from:prev.uci.slice(0,2),to:prev.uci.slice(2,4)}]:[]);
+ $("opening-turn").textContent=side(fen)+" to move";
+ $("opening-step-label").textContent="Move "+lineStep+" / "+steps.length;
+ $("opening-back").disabled=lineStep===0;$("opening-forward").disabled=lineStep===steps.length;
+ $("opening-sequence").innerHTML=steps.map((s,i)=>'<button type="button" class="step '+(i+1===lineStep?'active':'')+
+  '" data-step="'+(i+1)+'">'+(Math.floor(i/2)+1)+(i%2?"…":"." )+' '+esc(s.san)+'</button>').join("");
+ loadPosition(fen);
+}
+$("opening-back").onclick=()=>{lineStep=Math.max(0,lineStep-1);showLine()};
+$("opening-forward").onclick=()=>{lineStep=Math.min(activeLine.steps.length,lineStep+1);showLine()};
+$("opening-sequence").onclick=event=>{const x=event.target.closest("[data-step]");if(x){lineStep=Number(x.dataset.step);showLine()}};
+async function loadPosition(fen){
+ const key=fen;
+ try{const r=await api("/api/repertoire/position?fen="+encodeURIComponent(fen));
+ if(!activeLine||openingMode!=="browse")return;
+ openingPosition=r;
+ $("repertoire-principle").textContent=r.openingPrinciple;
+ $("repertoire-focus").textContent=r.side===color?
+ "Your question: what does this move develop, defend, threaten or prepare?":
+ "Opponent to move: understand the threat before preparing your answer.";
+ $("opening-teaching").classList.add("hidden");openingLesson=null;
+ $("repertoire-options").innerHTML=r.options.length?r.options.map(x=>
+  '<div class="move-option '+(r.savedMove===x.uci?'active':'')+'"><div class="row between"><strong>'+esc(x.san)+
+  (r.savedMove===x.uci?' · Saved':'')+'</strong><span class="pill">'+x.games+' games</span></div>'+
+  '<small>'+x.frequency+'% of observed continuations. '+esc(x.reasons.join(" ")||"Compare the resulting positions.")+'</small>'+
+  '<button class="btn" type="button" data-teach="'+esc(x.uci)+'" style="margin-top:9px;margin-right:7px">Teach me this move →</button>'+
+  (r.side===color?'<button class="btn alt" type="button" data-save="'+esc(x.uci)+'" style="margin-top:9px">Save this move as my plan</button>':
+   '<small style="margin-top:9px">Opponent response · study the plan, not a move to memorize as yours</small>')+'</div>').join(""):
+  '<div class="notes warning">There are no imported continuations at this position. Step back to an earlier decision.</div>';
+ $("repertoire-feedback").textContent=r.side!==color?
+  "Opponent to move. Explore their observed replies, then advance to your next decision.":
+  r.savedSan?"Saved for this board: "+r.savedSan:
+  "Your turn. Choose the move you want in your repertoire—not necessarily the most frequent one.";
+ $("repertoire-options").dataset.fen=fen;
+ }catch(e){$("repertoire-feedback").textContent="Couldn't load this position: "+e.message}
+}
+let openingLesson=null,openingBranch="candidate",openingPly=0,openingPosition=null;
+async function showOpeningLesson(uci){
+ if(!activeLine)return;
+ const fen=$("repertoire-options").dataset.fen;
+ if(!fen)return;
+ $("opening-teaching").classList.remove("hidden");
+ $("opening-verdict").textContent="Analyzing this exact board with local Stockfish…";
+ $("opening-teach-sections").innerHTML="";
+ $("opening-recall").classList.add("hidden");
+ for(const id of ["opening-teach-sections","opening-question","opening-verdict","opening-variation-label"])$(id).classList.remove("hidden");
+ try{
+  const data=await api("/api/repertoire/lesson?fen="+encodeURIComponent(fen)+"&uci="+encodeURIComponent(uci));
+  if(fen!==$("repertoire-options").dataset.fen)return;
+  openingLesson=data;openingBranch="candidate";openingPly=0;
+  const comparison=data.comparable?"A competitive candidate at this depth.":
+   "Stockfish finds a stronger continuation. Study the difference before saving it.";
+  $("opening-verdict").textContent="You selected "+data.candidate.san+
+   ". "+comparison+" Engine preference: "+data.best.san+
+   " (approximately "+(data.comparisonCp/100).toFixed(2)+" pawns of difference).";
+  $("opening-takeaway").value=openingPosition?.myTakeaway||"";
+  $("opening-takeaway-status").textContent="";
+  $("opening-teach-sections").innerHTML=data.lesson.map((item,i)=>
+    '<div class="teach-card"><span class="kicker">0'+(i+1)+' · '+esc(item.title)+'</span><p>'+esc(item.detail)+'</p></div>').join("");
+  $("opening-question").textContent="Coach asks: "+data.nextQuestion;
+  $("opening-recall-text").textContent=data.reviewPrompt;
+  $("opening-memory-answer").textContent=data.lesson[1].detail+" "+
+    data.lesson[2].detail+" "+data.lesson[3].detail;
+  renderOpeningLessonBoard();
+  $("opening-teaching").scrollIntoView({behavior:"smooth",block:"nearest"});
+ }catch(e){$("opening-verdict").textContent="The detailed lesson could not load: "+e.message}
+}
+function renderOpeningLessonBoard(){
+ if(!openingLesson)return;
+ const branch=openingLesson[openingBranch],step=branch.steps[openingPly];
+ const arrow=step.uci?[{from:step.uci.slice(0,2),to:step.uci.slice(2,4)}]:[];
+ renderBoard("opening-board",step.fen,color,arrow);
+ $("opening-turn").textContent=side(step.fen)+" to move";
+ $("opening-step-label").textContent=(openingBranch==="candidate"?"Chosen move":"Engine preference")+
+  " · step "+openingPly+" / "+(branch.steps.length-1);
+ $("opening-variation-label").textContent=branch.line+
+  " · engine evaluation from original mover's perspective: "+branch.score.display;
+ $("opening-back-step").disabled=openingPly===0;
+ $("opening-next-step").disabled=openingPly===branch.steps.length-1;
+}
+$("opening-show-best").onclick=()=>{openingBranch="best";openingPly=0;renderOpeningLessonBoard()};
+$("opening-show-chosen").onclick=()=>{openingBranch="candidate";openingPly=0;renderOpeningLessonBoard()};
+$("opening-back-step").onclick=()=>{openingPly=Math.max(0,openingPly-1);renderOpeningLessonBoard()};
+$("opening-next-step").onclick=()=>{
+ if(openingLesson){openingPly=Math.min(openingLesson[openingBranch].steps.length-1,openingPly+1);renderOpeningLessonBoard()}
+};
+$("opening-recall-prompt").onclick=()=>{
+ if(!openingLesson)return;
+ $("opening-recall").classList.remove("hidden");
+ $("opening-memory-answer").classList.add("hidden");
+ $("opening-teach-sections").classList.add("hidden");
+ $("opening-question").classList.add("hidden");
+ $("opening-verdict").classList.add("hidden");
+ $("opening-variation-label").classList.add("hidden");
+ openingBranch="candidate";openingPly=1;renderOpeningLessonBoard();
+ $("opening-variation-label").classList.add("hidden");
+};
+$("opening-reveal-memory").onclick=()=>{
+ $("opening-memory-answer").classList.remove("hidden");
+ $("opening-teach-sections").classList.remove("hidden");
+ $("opening-question").classList.remove("hidden");
+ $("opening-verdict").classList.remove("hidden");
+ $("opening-variation-label").classList.remove("hidden");
+};
+$("save-opening-takeaway").onclick=async()=>{
+ if(!openingLesson)return;
+ const text=$("opening-takeaway").value.trim();
+ try{
+  const saved=await api("/api/repertoire/takeaway",{fen:openingLesson.fen,note:text});
+  if(openingPosition)openingPosition.myTakeaway=saved.takeaway;
+  $("opening-takeaway-status").textContent="Saved to this position. You'll see your own explanation when you return.";
+ }catch(error){$("opening-takeaway-status").textContent=error.message}
+};
+
+$("opening-discuss").onclick=()=>{
+ if(!activeLine)return;
+ const prior=lineStep?activeLine.steps[lineStep-1]:null;
+ const fen=prior?prior.after:activeLine.steps[0].fen;
+ const question=openingLesson?
+   ("I am studying this exact opening board as "+color+". Candidate "+
+   openingLesson.candidate.san+", engine preferred "+openingLesson.best.san+
+   ". An analyzed continuation is "+openingLesson.candidate.line+
+   ". Please explain this plan and the opponent's reply in plain English."):
+   ("I am studying my opening decisions as "+color+
+  ". From this exact board, teach me the important piece-development and pawn-structure ideas, "+
+  "show what the opponent threatens, and give me a practical decision checklist. "+
+  "Do not assume a named opening or a best move without checking it.");
+ sessionStorage.setItem("chessgrind-academy-handoff",JSON.stringify({
+    source:"opening",fen,question,candidate:null}));
+ location.href="/learn?tab=ask";
+};
+$("repertoire-options").onclick=async event=>{
+ const teach=event.target.closest("[data-teach]");
+ if(teach){showOpeningLesson(teach.dataset.teach);return}
+ const button=event.target.closest("[data-save]");if(!button)return;
+ try{const fen=$("repertoire-options").dataset.fen;
+ const result=await api("/api/repertoire/save",{fen,uci:button.dataset.save});
+ $("repertoire-feedback").textContent="Saved "+result.move+". This is your study preference, not a claim that it is Stockfish's top move.";
+ await loadPosition(fen);loadOverview();
+ }catch(e){$("repertoire-feedback").textContent=e.message}
+};
+$("opening-review").onclick=async()=>{
+ try{review=await api("/api/repertoire/review");
+ if(!review.fen){$("opening-review-feedback").textContent=review.note;return}
+ openingMode="review";selected=null;
+ $("opening-board-panel").classList.remove("hidden");$("repertoire-position").classList.add("hidden");$("repertoire-empty").classList.remove("hidden");
+ $("repertoire-empty").textContent="Practice recall: choose your saved move on the board. The answer stays hidden until you commit.";
+ renderBoard("opening-board",review.fen,review.side);
+ $("opening-turn").textContent=review.side+" to move";$("opening-step-label").textContent="Recall your saved move";
+ $("opening-review-feedback").textContent="No hints. Click a piece, then where you would move it.";
+ }catch(e){$("opening-review-feedback").textContent=e.message}
+};
+$("opening-board").onclick=event=>{
+ if(openingMode!=="review"||!review?.fen)return;
+ const el=event.target.closest("[data-square]");if(!el)return;
+ const sq=el.dataset.square,pc=at(review.fen,sq),self=review.side==="White";
+ if(!selected){if(!pc||(self?pc!==pc.toUpperCase():pc!==pc.toLowerCase()))return;selected=sq;renderBoard("opening-board",review.fen,review.side);return}
+ const from=selected;selected=null;
+ let promo=pc?"":"";
+ if(at(review.fen,from).toLowerCase()==="p"&&["1","8"].includes(sq[1]))promo="q";
+ const uci=from+sq+promo;
+ gradeReview(uci);
+};
+async function gradeReview(uci){
+ try{const r=await api("/api/repertoire/grade",{fen:review.fen,uci,assisted:false,seconds:0});
+ $("opening-review-feedback").textContent=(r.correct?"Correct recall. ":"Your saved move was "+r.savedSan+". ")+r.note;
+ openingMode="browse";renderBoard("opening-board",review.fen,review.side,[{from:uci.slice(0,2),to:uci.slice(2,4)}]);
+ loadOverview();
+ }catch(e){selected=null;renderBoard("opening-board",review.fen,review.side);$("opening-review-feedback").textContent=e.message}
+}
+async function loadEndgames(){
+ try{endgameList=await api("/api/endgame");$("endgame-count").textContent=endgameList.total;$("endgame-attempts").textContent=endgameList.attempts;
+ $("tablebase-state").textContent=endgameList.tablebaseInstalled?"Tablebase available":"Engine only";
+ $("endgame-cards").innerHTML=endgameList.lessons.filter(x=>
+   egFilter==="All" || x.side===egFilter
+ ).map(x=>'<button class="card" data-endgame="'+esc(x.id)+'"><strong>'+
+  esc(x.title)+'</strong><small>'+esc(x.side||"")+" · "+esc(x.category)+' · '+esc(x.subtitle)+'</small>'+
+  '<small>'+(x.accuracy===null?"Not practiced":x.accuracy+"% unaided at depth-limited engine grading")+'</small></button>').join("");
+ }catch(e){$("endgame-cards").textContent="Couldn't load endgames: "+e.message}
+}
+$("endgame-all").onclick=()=>{egFilter="All";loadEndgames()};
+$("endgame-white").onclick=()=>{egFilter="White";loadEndgames()};
+$("endgame-black").onclick=()=>{egFilter="Black";loadEndgames()};
+$("endgame-cards").onclick=async event=>{
+ const x=event.target.closest("[data-endgame]");if(!x)return;
+ try{eg=await api("/api/endgame/lesson?id="+encodeURIComponent(x.dataset.endgame));egResult=null;egChosen=null;egAssisted=false;selected=null;
+ egRoundId=crypto.randomUUID().replaceAll("-","");egStarted=Date.now();
+ $("endgame-board-panel").classList.remove("hidden");$("endgame-result").classList.add("hidden");
+ $("endgame-title").textContent=eg.title;$("endgame-board-title").textContent=eg.title;$("endgame-subtitle").textContent=eg.subtitle;
+ $("endgame-principle").textContent=eg.principle+"  "+eg.idea;
+ $("endgame-deep").classList.remove("hidden");
+ $("endgame-deep-sections").innerHTML='<div class="small muted">Loading the deeper endgame lesson…</div>';
+ $("endgame-thinking-questions").classList.add("hidden");
+ egTheory=null;
+ try{
+   const detail=await api("/api/endgame/deep?id="+encodeURIComponent(eg.id));
+   if(!eg||eg.id!==detail.id)return;
+   egTheory=detail;
+   $("endgame-deep-sections").innerHTML=detail.sections.map((s,i)=>
+    '<div class="teach-card"><div class="kicker">0'+(i+1)+' · '+esc(s.title)+'</div>'+
+    '<p>'+esc(s.detail)+'</p></div>').join("");
+   $("endgame-deep-memory").textContent="Your takeaway: "+detail.memory;
+ }catch(error){$("endgame-deep-sections").textContent="Could not load the deeper lesson: "+error.message}
+
+ $("endgame-side").textContent=eg.side+" to move";$("endgame-board-hint").textContent="Choose a piece, then its destination.";
+ $("endgame-step").textContent="Before your move";$("endgame-playback").classList.add("hidden");
+ $("endgame-actions").innerHTML='<button class="btn alt" id="endgame-nudge">A small hint</button>';
+ $("endgame-nudge").onclick=()=>{egAssisted=true;$("endgame-feedback").textContent=eg.hint+" This attempt will count as assisted practice."; $("endgame-nudge").disabled=true};
+ $("endgame-feedback").textContent="Find the strongest move. You have three attempts. If you miss, I'll encourage you to retry before showing the engine line.";
+ renderBoard("endgame-board",eg.fen,eg.side,[],[]);
+ document.querySelector("#endgame-board-panel").scrollIntoView({behavior:"smooth",block:"nearest"});
+ }catch(e){$("endgame-feedback").textContent=e.message}
+};
+$("endgame-quiz-me").onclick=()=>{
+ if(!egTheory)return;
+ $("endgame-thinking-questions").classList.remove("hidden");
+ $("endgame-thinking-questions").textContent="Before viewing Stockfish: "+
+  egTheory.questions.join("  Then ask yourself: ");
+};
+$("endgame-board").onclick=event=>{
+ if(!eg||egResult)return;
+ const x=event.target.closest("[data-square]");if(!x)return;
+ const sq=x.dataset.square,pc=at(eg.fen,sq),white=eg.side==="White";
+ if(!selected){if(!pc||(white?pc!==pc.toUpperCase():pc!==pc.toLowerCase()))return;selected=sq;renderBoard("endgame-board",eg.fen,eg.side);return}
+ if(pc&&(white?pc===pc.toUpperCase():pc===pc.toLowerCase())){selected=sq;renderBoard("endgame-board",eg.fen,eg.side);return}
+ const from=selected;selected=null;
+ let promo="";
+ if(at(eg.fen,from).toLowerCase()==="p"&&["1","8"].includes(sq[1]))promo="q";
+ egChosen=from+sq+promo;
+ renderBoard("endgame-board",eg.fen,eg.side,[{from,to:sq}],[]);
+ $("endgame-feedback").textContent="Move selected: "+from+" to "+sq+". Submit for concrete engine comparison.";
+ $("endgame-actions").innerHTML='<button class="btn" id="endgame-grade">Analyze this move →</button>'+
+ '<button class="btn alt" id="endgame-repick">Choose another</button>';
+ $("endgame-grade").onclick=gradeEndgame;
+ $("endgame-repick").onclick=()=>{egChosen=null;renderBoard("endgame-board",eg.fen,eg.side);$("endgame-actions").innerHTML="";$("endgame-feedback").textContent="Choose a legal candidate move."};
+};
+async function gradeEndgame(){
+ if(!eg||!egChosen)return;
+ $("endgame-actions").innerHTML='<button class="btn" disabled>Stockfish is evaluating…</button>';
+ try{
+  const graded=await api("/api/endgame/play",{id:eg.id,uci:egChosen,
+    assisted:egAssisted,seconds:Math.round((Date.now()-egStarted)/1000),
+    roundId:egRoundId});
+  if(graded.retry){
+   egResult=null;egChosen=null;selected=null;
+   $("endgame-feedback").textContent=graded.summary;
+   $("endgame-result").classList.add("hidden");
+   $("endgame-actions").innerHTML='<button class="btn" id="retry-endgame-position">Try another move →</button>';
+   $("retry-endgame-position").onclick=()=>{
+     renderBoard("endgame-board",eg.fen,eg.side);
+     $("endgame-board-hint").textContent="Select a different legal move. "+graded.remaining+" attempts left.";
+     $("endgame-actions").innerHTML="";
+   };
+   return;
+  }
+  egResult=graded;
+  $("endgame-result").classList.remove("hidden");
+ $("endgame-verdict").textContent=egResult.correct?"A competitive move at this depth.":"There's a stronger continuation to examine.";
+ $("endgame-explanation").textContent=egResult.summary+" "+egResult.principle+
+  " "+(egResult.reasons.join(" ")||"Compare each side's legal reply before deciding the plan.");
+ $("eg-branches").innerHTML=[{title:"Stockfish's preferred line",line:egResult.bestLine},{title:"Your chosen line",line:egResult.yourLine}].map((b,i)=>
+  '<button class="branch '+(!i?"active":"")+'" type="button" data-branch="'+i+'"><strong>'+esc(b.title)+
+  '</strong><p>'+esc(b.line.text||"No continuation available.")+'</p></button>').join("");
+ $("eg-branches").querySelectorAll("[data-branch]").forEach(b=>b.onclick=()=>setEgBranch(Number(b.dataset.branch)));
+ $("endgame-playback").classList.remove("hidden");setEgBranch(0);
+ $("endgame-actions").innerHTML='<button class="btn alt" id="endgame-again">Practice another lesson</button>';
+ $("endgame-again").onclick=()=>{eg=null;egResult=null;$("endgame-board-panel").classList.add("hidden");$("endgame-result").classList.add("hidden");loadEndgames()};
+ $("endgame-feedback").textContent=egResult.limit;
+ loadEndgames();
+ }catch(e){$("endgame-feedback").textContent=e.message;$("endgame-actions").innerHTML='<button class="btn" id="retry-eg">Retry engine analysis</button>';$("retry-eg").onclick=gradeEndgame}
+}
+function setEgBranch(which){
+ if(!egResult)return;egBranch=which;egStep=0;
+ document.querySelectorAll("#eg-branches .branch").forEach(b=>b.classList.toggle("active",Number(b.dataset.branch)===which));
+ replayEg();
+}
+function replayEg(){
+ const line=egBranch?egResult.yourLine:egResult.bestLine;
+ if(!line)return;
+ egStep=Math.max(0,Math.min(egStep,line.steps.length-1));
+ const step=line.steps[egStep],arrows=step.uci?[{from:step.uci.slice(0,2),to:step.uci.slice(2,4)}]:[];
+ renderBoard("endgame-board",step.fen,eg.side,arrows,egStep===0?eg.focus:[]);
+ $("endgame-step").textContent=egStep?"After "+step.san:"Original board";
+ $("endgame-prev").disabled=egStep===0;$("endgame-next").disabled=egStep===line.steps.length-1;
+}
+$("endgame-prev").onclick=()=>{egStep--;replayEg()};$("endgame-next").onclick=()=>{egStep++;replayEg()};
+$("endgame-discuss").onclick=()=>{
+ if(!eg||!egResult)return;
+ sessionStorage.setItem("chessgrind-academy-handoff",JSON.stringify({source:"endgame",
+  fen:eg.fen,candidate:egResult.yourSan,
+  question:"I am studying "+eg.title+". I played "+egResult.yourSan+
+   " and Stockfish preferred "+egResult.bestSan+". "+
+   "Explain the positional principle and compare these verified engine lines: "+
+   egResult.bestLine.text+" versus "+egResult.yourLine.text+
+   ". What should I learn to notice before deciding?"}));
+ location.href="/learn?tab=ask";
+};
+loadOverview();loadLines();
+const chosenTab=new URLSearchParams(location.search).get("tab");
+if(chosenTab==="endgames")switchTab("endgames");
+</script></body></html>

@@ -1,0 +1,343 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101a1f"><title>Calculation Workshop · Chess Grind</title>
+<style>
+:root{color-scheme:dark;--bg:#0f181c;--panel:#192a2e;--panel2:#253a3d;--line:#405a55;--text:#eef5ed;--muted:#b2c8bf;--accent:#d1eb9b;--gold:#f2d08a;--blue:#9bc9ef;--red:#f8a6a0}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(800px 450px at 65% -250px,#38574b 0,transparent 100%),var(--bg);color:var(--text);font:15px/1.55 "Segoe UI",Inter,Arial,sans-serif}
+button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.48;cursor:default}
+a{color:var(--accent);text-decoration:none}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+header{height:66px;padding:0 25px;display:flex;gap:15px;align-items:center;border-bottom:1px solid var(--line);background:#132227;position:sticky;top:0;z-index:20}
+.logo{font-size:19px;font-weight:850;letter-spacing:-.7px;white-space:nowrap}.logo b{color:var(--accent)}.hdr{font-size:12px;color:var(--muted);padding-left:16px;border-left:1px solid var(--line)}
+.hdr-actions{margin-left:auto}.link{display:inline-flex;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#29403e;font-weight:750;font-size:12px}
+main{max-width:1470px;padding:28px clamp(12px,3vw,38px) 70px;margin:auto}
+.hero{border-radius:19px;border:1px solid #52725f;padding:24px 29px;background:linear-gradient(115deg,#29483a,#18333a);position:relative;overflow:hidden}
+.hero:after{content:"♞";position:absolute;font-size:190px;opacity:.055;top:-40px;right:15px;pointer-events:none}
+.hero>*{position:relative;z-index:1}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:1.6px;font-weight:800;color:#cbe5a3}
+h1{font-size:clamp(27px,3.5vw,42px);line-height:1.17;letter-spacing:-1px;margin:8px 0 10px}h2{font-size:21px;letter-spacing:-.4px;margin:0 0 11px}h3{font-size:16px;margin:0 0 7px}
+.hero p{max-width:720px;color:#d1e0d5;margin:0}
+.tabs{display:flex;gap:7px;margin:20px 0}
+.tab,.btn{border-radius:10px;min-height:44px;font-weight:800;padding:10px 16px;border:1px solid #4a6761}
+.tab{background:#223436;color:#d1e2d8}.tab.active{background:var(--accent);color:#16281b;border-color:var(--accent)}
+.btn{background:var(--accent);color:#17291c;border-color:var(--accent)}.btn.secondary{background:#314a46;color:#e3f1e3;border-color:#526f65}
+.btn:hover:not(:disabled),.tab:hover{filter:brightness(1.08)}
+.panel{border:1px solid var(--line);border-radius:15px;background:var(--panel);padding:19px;min-width:0}
+.layout{display:grid;grid-template-columns:minmax(0,530px) minmax(0,1fr);gap:19px;align-items:start}
+.board-box{padding:9px;background:#283f3c;border-radius:13px;border:1px solid #50736b}
+.board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border:4px solid #47615c;border-radius:8px;position:relative;overflow:hidden;isolation:isolate}
+.square{aspect-ratio:1;min-width:0;padding:0;border:0;display:grid;place-items:center;position:relative}
+.square.light{background:#e1e7da;color:#4e6257}.square.dark{background:#789598;color:#e5f3db}
+.square.sel{box-shadow:inset 0 0 0 5px #b4eb89}
+.piece{font:clamp(24px,3.8vw,53px)/1 "Segoe UI Symbol","DejaVu Sans",serif}
+.white{color:#fffef3;text-shadow:1px 1px 2px #183332,-1px -1px 2px #183332}.black{color:#172727;text-shadow:0 1px 1px #f6f3e8}
+.coord{position:absolute;top:1px;left:3px;font:800 10px "Segoe UI",Arial;opacity:.75}
+.board svg{position:absolute;width:100%;height:100%;inset:0;pointer-events:none;z-index:5}
+.board-note{display:flex;justify-content:space-between;margin:11px 1px;color:var(--muted);font-size:11px;gap:8px;flex-wrap:wrap}
+.muted{color:var(--muted)}.small{font-size:12px}.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.space{justify-content:space-between}.hidden{display:none!important}
+.statgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin:15px 0}
+.stat{background:#1b2e2f;border:1px solid #3e5952;padding:15px;border-radius:12px}
+.stat b{font-size:26px;display:block;line-height:1.2}.stat small{font-size:11px;color:var(--muted)}
+.topic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.topic{background:#203336;border:1px solid #405b55;border-radius:14px;padding:17px;text-align:left;color:var(--text)}
+.topic:hover{border-color:#a8d896}.topic strong{font-size:16px}
+.topic small{display:block;color:var(--muted);margin-top:7px}
+.meter{height:8px;background:#2e4543;overflow:hidden;border-radius:99px;margin:12px 0 4px}
+.meter span{height:100%;background:#b5df96;display:block}
+.note{border:1px solid #55745b;border-radius:12px;background:#284035;padding:13px 15px;color:#dcebd5;line-height:1.65;font-size:13px}
+.note.amber{background:#443a2c;color:#f8e0b4;border-color:#78603e}
+.note.red{background:#473433;color:#f6cec8;border-color:#87615c}
+.stepper{display:flex;gap:7px;margin:0 0 18px}
+.step{flex:1;text-align:center;background:#2a3c3d;border-radius:9px;padding:9px 3px;color:#afc1b8;font-size:11px;font-weight:750}
+.step.done{background:#36593e;color:#e3f4ce}.step.current{background:var(--accent);color:#173021}
+#workshop-side{display:grid;gap:13px}
+.choice-list{display:grid;gap:9px;margin-top:12px}
+.choice{width:100%;text-align:left;border:1px solid #49645d;background:#25383a;border-radius:10px;padding:13px 15px;color:#eff4e8}
+.choice.active{border-color:#cfeb96;background:#314a3a}
+.choice small{font-size:12px;color:#b6c9c0;display:block;margin-top:5px}
+.controls{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+input,select{min-height:43px;background:#253b3d;border:1px solid #56716b;color:var(--text);border-radius:10px;padding:9px 12px}
+#position-list{display:grid;gap:7px;margin-top:12px;max-height:350px;overflow-y:auto}
+.position-item{border:1px solid #46605a;border-radius:10px;background:#24393a;padding:12px;color:var(--text);text-align:left}
+.position-item:hover{border-color:#b6d894}
+.position-item strong{display:block;font-size:13px}.position-item small{display:block;color:var(--muted)}
+.branch{border:1px solid #486259;background:#24373a;border-radius:12px;padding:13px}
+.branch.active{border-color:#d1e69a;background:#2b483a}
+.branch-line{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#d8e5cf;margin:9px 0;word-break:break-word}
+.score{font-weight:850;font-variant-numeric:tabular-nums;color:#d6edbd;font-size:17px}
+#playback{display:flex;align-items:center;justify-content:space-between;gap:7px;margin:12px 0}
+#playback .btn{padding:9px 11px}
+.tip{font-size:12px;color:#b6cac0;margin-top:9px}
+.pill{display:inline-block;padding:4px 9px;background:#365743;border-radius:99px;font-size:11px;font-weight:750;color:#dfefd7}
+.bars{display:grid;gap:9px;margin-top:11px}.bar{display:grid;grid-template-columns:105px 1fr 43px;align-items:center;gap:8px;font-size:12px}
+.bar-track{background:#2a4242;border-radius:99px;height:12px;overflow:hidden}.bar-fill{background:#bbdf98;height:100%;border-radius:99px}
+#chart-months{display:flex;align-items:end;gap:6px;min-height:148px;border-bottom:1px solid #688078;padding-top:13px;overflow-x:auto}
+.month{min-width:25px;flex:1;max-width:70px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.monthbar{width:60%;background:#8db6a0;border-radius:4px 4px 0 0;min-height:2px}
+.month label{font-size:9px;color:var(--muted);white-space:nowrap;transform:rotate(-30deg);transform-origin:center;padding-top:5px}
+footer{margin:22px 0;color:var(--muted);font-size:12px}
+@media(max-width:950px){.layout{grid-template-columns:1fr}.statgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){header{height:58px;padding:0 13px}.hdr{display:none}.logo{font-size:17px}.link{font-size:11px;padding:8px}
+main{padding:15px 11px 60px}.hero{padding:20px 17px}.hero:after{font-size:130px}
+.topic-grid{grid-template-columns:1fr}.panel{padding:14px}.board{border-width:3px}.piece{font-size:clamp(25px,10vw,46px)}
+.stat{padding:11px}.stat b{font-size:22px}.tab{padding:8px 10px;font-size:12px}
+.bar{grid-template-columns:96px 1fr 34px}.step{font-size:10px}
+}
+</style></head><body>
+<header><a href="/learn" class="logo">CHESS<b>GRIND</b></a><span class="hdr">Calculation Workshop · Blind Spot Detector</span>
+<div class="hdr-actions"><a class="link" href="/strategy">♚ Strategy Studio</a><a class="link" href="/arena">♞ Sparring</a><a class="link" href="/learn">← Learning Lab</a></div></header>
+<main>
+<div class="hero"><div class="kicker">Learn to calculate, not to guess</div><h1>Think ahead. Find what you've been missing.</h1>
+<p>Your own game positions become branching decisions. Commit to a move, predict the reply, then compare actual Stockfish continuations side by side.</p></div>
+<div class="tabs" role="tablist"><button class="tab active" id="tab-blindspots" role="tab" aria-selected="true">◎ My blind spots</button>
+<button class="tab" id="tab-calculate" role="tab" aria-selected="false">♞ Calculation Workshop</button></div>
+<section id="blindspots-view">
+<div class="statgrid">
+<div class="stat"><b id="s-games">—</b><small>Flagged decisions analyzed</small></div>
+<div class="stat"><b id="s-untouched">—</b><small>Workshop positions unattempted</small></div>
+<div class="stat"><b id="s-practiced">—</b><small>Workshop attempts</small></div>
+<div class="stat"><b id="s-accuracy">—</b><small>Unaided accuracy in Workshop</small></div></div>
+<div class="panel"><div class="kicker">What your games show</div><h2 style="margin-top:7px">Your recurring decision patterns</h2>
+<p class="muted small">Themes describe actual flagged engine losses. More flagged moves can reflect more games analyzed, not necessarily worsening skill.</p>
+<div class="topic-grid" id="topic-grid"></div></div>
+<div class="layout" style="margin-top:18px">
+<div class="panel"><h2>Where mistakes occur</h2><p class="small muted">Opening, middlegame and endgame share of flagged positions</p><div class="bars" id="phase-bars"></div>
+<h3 style="margin-top:21px">By time control</h3><div class="bars" id="time-bars"></div></div>
+<div class="panel"><h2>Historical flagged positions</h2><p class="small muted">Month-by-month counts, not a performance rate.</p><div id="chart-months" aria-label="Historical counts of flagged moves"></div>
+<div class="note" style="margin-top:19px">Chess Grind does not claim you improved simply because this chart went down. We need new game results, consistent analysis coverage, and unfamiliar-position checks to establish that.</div></div></div></section>
+<section id="calculate-view" class="hidden">
+<div class="layout">
+<div><div class="panel"><div class="row space"><h2>Choose a real position</h2><span class="pill" id="position-counter">From your games</span></div>
+<div class="row"><select id="filter-topic" aria-label="Filter skill topic"><option value="">All themes</option></select>
+<select id="filter-phase" aria-label="Filter game phase"><option value="">All phases</option><option>Opening</option><option>Middlegame</option><option>Endgame</option></select></div>
+<div id="position-list"></div></div>
+<div class="panel hidden" id="board-panel" style="margin-top:13px">
+<div class="row space"><h3 id="board-title">Your board</h3><span class="pill" id="side-to-move">White to move</span></div>
+<div class="board-box"><div class="board" id="workshop-board" aria-label="Chess calculation interactive board"></div></div>
+<div class="board-note"><span id="board-caption">Select a piece, then a destination.</span><span id="step-caption">Choose</span></div>
+<div class="controls hidden" id="playback"><button class="btn secondary" id="step-back">← Back</button>
+<span id="ply-counter" class="small">Original board</span><button class="btn secondary" id="step-forward">Next →</button></div>
+</div></div>
+<div id="workshop-side">
+<div class="panel" id="stage-card"><div class="kicker">One decision at a time</div>
+<h2 style="margin-top:9px" id="stage-title">Pick an exercise to begin.</h2><p class="muted" id="stage-text">Choose one of your analyzed positions on the left. You'll play a candidate move, predict a reply, then see the engine's actual branches.</p>
+<div class="stepper" aria-label="Calculation stages"><span class="step current">1 · Choose</span><span class="step">2 · Predict</span><span class="step">3 · Compare</span></div>
+<div id="stage-notes" role="status" aria-live="polite"></div>
+<div class="controls" id="stage-buttons"></div>
+<div class="tip" id="workshop-status" role="status"></div></div>
+<div class="panel hidden" id="branch-panel"><div class="kicker">Compare the consequences</div><h2 style="margin-top:7px">What changes between the lines?</h2>
+<div id="branches" class="choice-list"></div><div id="branch-principle" class="note" style="margin-top:13px"></div>
+<div class="controls"><button class="btn secondary" id="coach-branch">♞ Ask my coach about this decision ↗</button></div></div>
+</div></div></section>
+<footer>Stockfish runs locally at limited search depth. All displayed variations are legal engine lines, but are not proofs of forced outcomes. Workshop accuracy excludes assisted attempts.</footer>
+</main>
+<script>
+const $=s=>document.getElementById(s),esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const glyph={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+let profile=null,listing=null,current=null,stage="idle",selected=null,candidate=null,preview=null,predicted=null,result=null,activeBranch=0,ply=0,assisted=false;
+async function api(path,data=null){const r=await fetch(path,data===null?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}),x=await r.json();if(!r.ok)throw Error(x.error||"Request failed");return x}
+const flag="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+function side(fen){return fen?.split(" ")[1]==="b"?"Black":"White"}
+function squares(fen){
+ const a=[],rows=fen.split(" ")[0].split("/");if(rows.length!==8)throw Error("Bad FEN");
+ for(const row of rows)for(const c of row){if(/[1-8]/.test(c))for(let n=0;n<Number(c);n++)a.push("");else a.push(c);}
+ if(a.length!==64)throw Error("Bad board");return a;
+}
+function squareAt(i,orientation){
+ const col=i%8,row=Math.floor(i/8);
+ return orientation==="Black"?String.fromCharCode(104-col)+(row+1):String.fromCharCode(97+col)+(8-row);
+}
+function pt(sq,orientation){const f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;return orientation==="Black"?[(7-f)*100+50,r*100+50]:[f*100+50,(7-r)*100+50]}
+function board(fen,overlay=[]){
+ const turn=side(current?.fen||fen),source=squares(fen),html=[];
+ for(let i=0;i<64;i++){
+  const sq=squareAt(i,turn),f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;
+  const piece=source[(7-r)*8+f],dark=(f+r)%2===1;
+  html.push('<button type="button" data-square="'+sq+'" class="square '+(dark?'dark':'light')+(selected===sq?' sel':'')+
+  '" aria-label="'+sq+' '+(piece||'empty')+'">'+(piece?'<span class="piece '+(piece===piece.toUpperCase()?'white':'black')+'">'+glyph[piece]+'</span>':'')+
+  (i%8===0?'<span class="coord">'+sq[1]+'</span>':'')+'</button>');
+ }
+ $("workshop-board").innerHTML=html.join("");
+ if(overlay.length){
+  let code='<defs><marker id="arrw" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6z" fill="#d1ed9f"/></marker></defs>';
+  for(const a of overlay){
+   if(!a.from||!a.to)continue;
+   const [x,y]=pt(a.from,turn),[tx,ty]=pt(a.to,turn),dx=tx-x,dy=ty-y,len=Math.hypot(dx,dy);
+   if(len<20)continue;
+   code+='<line x1="'+(x+dx*25/len)+'" y1="'+(y+dy*25/len)+'" x2="'+(tx-dx*33/len)+'" y2="'+(ty-dy*33/len)+
+   '" stroke="#d1ed9f" stroke-width="10" marker-end="url(#arrw)"/>';
+  }
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 800 800");svg.setAttribute("aria-hidden","true");svg.innerHTML=code;$("workshop-board").append(svg);
+ }
+}
+function tab(which){
+ const on=which==="calculate";
+ $("tab-calculate").classList.toggle("active",on);$("tab-blindspots").classList.toggle("active",!on);
+ $("tab-calculate").setAttribute("aria-selected",String(on));$("tab-blindspots").setAttribute("aria-selected",String(!on));
+ $("calculate-view").classList.toggle("hidden",!on);$("blindspots-view").classList.toggle("hidden",on);
+ if(on&&!listing)loadPositions();
+}
+$("tab-calculate").onclick=()=>tab("calculate");$("tab-blindspots").onclick=()=>tab("blindspots");
+function barItem(label,n,max){return '<div class="bar"><span>'+esc(label)+'</span><div class="bar-track"><div class="bar-fill" style="width:'+(max?100*n/max:0)+'%"></div></div><b>'+n+'</b></div>'}
+async function refreshProfile(){
+ try{
+  profile=await api("/api/workshop/profile");
+  $("s-games").textContent=profile.totalFlagged.toLocaleString();
+  $("s-untouched").textContent=profile.unseenAvailable.toLocaleString();
+  $("s-practiced").textContent=profile.totalWorkshopTrials.toLocaleString();
+  $("s-accuracy").textContent=profile.independentAccuracy===null?"New":profile.independentAccuracy+"%";
+  $("topic-grid").innerHTML=profile.topics.map(t=>
+   '<button type="button" class="topic" data-topic="'+esc(t.topic)+'"><div class="row space"><strong>'+esc(t.topic)+'</strong><span class="pill">'+t.positions+' decisions</span></div>'+
+   '<small>'+t.games+' games · '+esc(t.mostCommonPhase)+' most common · '+t.dueCount+' not yet tried here</small>'+
+   '<div class="meter"><span style="width:'+Math.min(100,100*t.weightedPriority/Math.max(1,profile.topics[0].weightedPriority))+'%"></span></div>'+
+   '<small>Average loss on flagged moves: '+(t.averageLossCp/100).toFixed(2)+' pawns · not a skill score</small></button>').join("");
+  document.querySelectorAll('[data-topic]').forEach(el=>el.onclick=()=>{tab('calculate');$("filter-topic").value=el.dataset.topic;loadPositions()});
+  $("filter-topic").innerHTML='<option value="">All themes</option>'+profile.topics.map(t=>'<option value="'+esc(t.topic)+'">'+esc(t.topic)+'</option>').join("");
+  const pmax=Math.max(1,...profile.phases.map(x=>x.count)),tmax=Math.max(1,...profile.timeControls.map(x=>x.count));
+  $("phase-bars").innerHTML=profile.phases.map(x=>barItem(x.phase,x.count,pmax)).join("");
+  $("time-bars").innerHTML=profile.timeControls.map(x=>barItem(x.timeClass,x.count,tmax)).join("");
+  const top=Math.max(1,...profile.monthly.map(x=>x.flagged));
+  $("chart-months").innerHTML=profile.monthly.map(x=>'<div class="month" title="'+esc(x.month)+': '+x.flagged+' flagged decisions in analyzed games">'+
+   '<span class="small">'+x.flagged+'</span><div class="monthbar" style="height:'+Math.max(3,95*x.flagged/top)+'px"></div><label>'+esc(x.month.slice(2))+'</label></div>').join("");
+ }catch(e){$("topic-grid").textContent="Unable to load game analysis: "+e.message}
+}
+async function loadPositions(){
+ const query=new URLSearchParams({limit:"14"});
+ if($("filter-topic").value)query.set("topic",$("filter-topic").value);
+ if($("filter-phase").value)query.set("phase",$("filter-phase").value);
+ try{
+  listing=await api("/api/workshop/positions?"+query);
+  $("position-counter").textContent=listing.count+" matching positions";
+  $("position-list").innerHTML=listing.positions.map((p,i)=>
+   '<button type="button" class="position-item" data-index="'+i+'"><strong>'+esc(p.topic)+' · '+esc(p.severity)+'</strong>'+
+   '<small>vs '+esc(p.opponent)+' · '+p.phase+' · '+p.timeClass+(p.attempted?' · Previously tried':' · Not tried here')+'</small></button>').join("")||
+   '<p class="muted">No analyzed positions match these filters. Try another category.</p>';
+  document.querySelectorAll(".position-item").forEach(b=>b.onclick=()=>start(listing.positions[Number(b.dataset.index)]));
+ }catch(e){$("position-list").textContent="Could not load positions: "+e.message}
+}
+$("filter-topic").onchange=loadPositions;$("filter-phase").onchange=loadPositions;
+function stepLabel(){
+ document.querySelectorAll(".step").forEach((n,i)=>{const k=["choose","predict","compare"].indexOf(stage);n.classList.toggle("current",i===k);n.classList.toggle("done",i<k)});
+}
+function start(p){
+ current=p;stage="choose";candidate=null;preview=null;predicted=null;result=null;selected=null;assisted=false;
+ $("board-panel").classList.remove("hidden");$("branch-panel").classList.add("hidden");
+ $("board-title").textContent="vs "+p.opponent+" · "+p.phase;
+ $("side-to-move").textContent=side(p.fen)+" to move";
+ $("board-caption").textContent="Choose a piece, then its destination. No evaluation is shown yet.";
+ $("step-caption").textContent="Your decision";
+ $("stage-title").textContent="What would you play here?";
+ $("stage-text").textContent="This is a position where a move in one of your games lost engine evaluation. Don't guess the recorded move. Find your own candidate and predict your opponent's reply before seeing Stockfish.";
+ $("stage-buttons").innerHTML='<button class="btn secondary" id="show-cue">Thinking prompt (assisted)</button>';
+ $("show-cue").onclick=()=>{assisted=true;$("stage-notes").innerHTML='<div class="note amber">Start with forcing checks, then captures, then threats. After each candidate, imagine the opponent’s strongest reply. This attempt will be labeled assisted.</div>'};
+ $("stage-notes").innerHTML="";$("workshop-status").textContent="";
+ $("playback").classList.add("hidden");board(p.fen);stepLabel();
+ document.querySelector("#board-panel").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function tell(msg,error=false){$("workshop-status").textContent=msg;$("workshop-status").style.color=error?"#ffa49a":"#bad8b7"}
+function pieceAt(fen,sq){const arr=squares(fen),f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;return arr[(7-r)*8+f]}
+function owned(fen,sq){const p=pieceAt(fen,sq);return !!p&&(side(fen)==="White"?p===p.toUpperCase():p===p.toLowerCase())}
+$("workshop-board").onclick=event=>{
+ const b=event.target.closest("[data-square]");if(!b||!current||!["choose","predict"].includes(stage))return;
+ const sq=b.dataset.square,fen=stage==="choose"?current.fen:preview.afterFen;
+ if(!selected){if(!owned(fen,sq)){tell("Select a piece belonging to the side to move.",true);return}selected=sq;board(fen);tell("Now choose its destination.");return}
+ if(selected===sq){selected=null;board(fen);return}
+ if(owned(fen,sq)){selected=sq;board(fen);return}
+ const from=selected;selected=null;
+ let promo="";
+ if(pieceAt(fen,from).toLowerCase()==="p"&&["1","8"].includes(sq[1])){
+   promo=prompt("Promote to q, r, b or n","q")||"q";if(!/^[qrbn]$/.test(promo))promo="q";
+ }
+ const uci=from+sq+promo;
+ if(stage==="choose")previewCandidate(uci);else{
+  predicted=uci;board(fen,[{from,to:sq}]);tell("Predicted reply selected. Submit to compare the engine's lines.");
+  $("stage-notes").innerHTML='<div class="note">You predicted an opponent reply from '+esc(from)+' to '+esc(sq)+'. Stockfish hasn’t been shown yet.</div>';
+ }
+};
+async function previewCandidate(uci){
+ try{
+  const r=await api("/api/workshop/preview",{gameId:current.gameId,ply:current.ply,chosenUci:uci});
+  candidate=uci;preview=r;predicted=null;selected=null;stage="predict";stepLabel();
+  $("stage-title").textContent="What is your opponent's best reply?";
+  $("stage-text").textContent="You've chosen "+r.san+". Now play a move for "+r.side+" that you think responds most strongly. Or skip prediction and compare the branches.";
+  $("stage-notes").innerHTML='<div class="note">Your candidate is locked in. This is still a prediction exercise, so no engine evaluation is visible.</div>';
+  $("stage-buttons").innerHTML='<button class="btn" id="reveal-branches">Compare Stockfish branches →</button>'+
+   '<button class="btn secondary" id="new-candidate">Change my candidate</button>';
+  $("reveal-branches").onclick=grade;
+  $("new-candidate").onclick=()=>start(current);
+  $("board-caption").textContent="Board after "+r.san+". Choose a reply for "+r.side+".";
+  $("side-to-move").textContent=r.side+" to reply";
+  $("step-caption").textContent="Predict the reply";
+  board(r.afterFen);tell("");
+ }catch(e){board(current.fen);tell(e.message,true)}
+}
+async function grade(){
+ if(!current||!candidate)return;
+ $("stage-buttons").innerHTML='<button class="btn" disabled>Stockfish is analyzing these branches…</button>';
+ tell("Comparing your move, the top engine candidate, and the move played in your game.");
+ try{
+  result=await api("/api/workshop/submit",{gameId:current.gameId,ply:current.ply,
+   chosenUci:candidate,predictedReply:predicted||"",assisted});
+  stage="compare";selected=null;activeBranch=0;ply=0;stepLabel();
+  $("branch-panel").classList.remove("hidden");
+  $("stage-title").textContent=result.accepted?"You found a strong candidate.":"You found something worth investigating.";
+  $("stage-text").textContent=result.message;
+  $("stage-notes").innerHTML='<div class="note '+(result.accepted?"":"amber")+'">'+
+   (result.accepted?"Your move was within the engine tolerance at this search depth.":
+    "The best analyzed move was "+esc(result.bestSan)+", compared with your "+esc(result.chosenSan)+". Rewind and inspect both replies.")+'</div>'+
+   (result.predictedReply?'<p class="tip">You predicted '+esc(result.predictedReply)+
+   '. Leading engine reply to your move: '+esc(result.engineReply||"no legal reply")+'. '+
+   (result.predictionMatches?"Your predicted reply matches.":"Different responses can be playable; this is the engine's leading line.")+'</p>':"");
+  $("stage-buttons").innerHTML='<button class="btn" id="another-board">Try another position →</button>'+
+   '<button class="btn secondary" id="retry-board">Revisit original board</button>';
+  $("another-board").onclick=()=>{result=null;$("branch-panel").classList.add("hidden");$("board-panel").classList.add("hidden");loadPositions()};
+  $("retry-board").onclick=()=>start(current);
+  $("branches").innerHTML=result.branches.map((br,i)=>
+   '<button type="button" class="branch '+(!i?"active":"")+'" data-branch="'+i+'">'+
+   '<div class="row space"><strong>'+esc(br.type==="top"?"Engine's preferred move":br.type==="candidate"?"Your candidate":"Move from your game")+
+   ' · '+esc(br.move)+'</strong><span class="score">'+esc(br.score.display)+'</span></div>'+
+   '<div class="branch-line">'+esc(br.line)+'</div><div class="small muted">'+
+   (br.reasons.length?esc(br.reasons.join(" ")):"Compare the position after the opponent's next move; not every advantage has an immediate tactical label.")+
+   '</div></button>').join("");
+  document.querySelectorAll("[data-branch]").forEach(b=>b.onclick=()=>branch(Number(b.dataset.branch)));
+  $("playback").classList.remove("hidden");branch(0);
+  $("step-caption").textContent="Review the continuation";
+  $("side-to-move").textContent=side(current.fen)+" perspective";
+  $("branch-principle").textContent="Coach's habit: Don't memorize "+result.bestSan+
+   ". Compare your candidate's strongest reply to Stockfish's preferred line. What changes about king safety, threatened pieces, or initiative?";
+  tell("Each score and line comes from Stockfish at limited depth, not a guaranteed outcome.");
+  $("branch-panel").scrollIntoView({behavior:"smooth",block:"nearest"});
+  refreshProfile();
+ }catch(e){tell(e.message,true);$("stage-buttons").innerHTML='<button class="btn" id="retry-grading">Retry analysis</button>'; $("retry-grading").onclick=grade}
+}
+function branch(i){
+ if(!result)return;activeBranch=i;ply=0;
+ document.querySelectorAll("[data-branch]").forEach(b=>b.classList.toggle("active",Number(b.dataset.branch)===i));
+ replay();
+}
+function replay(){
+ const line=result?.branches[activeBranch];if(!line)return;
+ const step=line.steps[Math.max(0,Math.min(ply,line.steps.length-1))];ply=step.index;
+ const prior=step.index?line.steps[step.index-1]:null,overlays=[];
+ if(step.uci)overlays.push({from:step.uci.slice(0,2),to:step.uci.slice(2,4)});
+ board(step.fen,overlays);
+ $("ply-counter").textContent=step.index?step.index+" · "+step.san:"Start position";
+ $("step-back").disabled=ply===0;$("step-forward").disabled=ply===line.steps.length-1;
+ $("board-caption").textContent=step.index?"After "+step.san+" · "+line.move+" branch":"Initial position · "+line.move+" branch";
+}
+$("step-back").onclick=()=>{ply--;replay()};$("step-forward").onclick=()=>{ply++;replay()};
+$("coach-branch").onclick=()=>{
+ if(!current||!result)return;
+ const br=result.branches[activeBranch],question=
+  "In this analyzed chess game I chose "+result.chosenSan+" and Stockfish preferred "+result.bestSan+
+  ". Please explain the critical difference between these plans, using only this board, and ask me a helpful question. Engine variation: "+br.line;
+ sessionStorage.setItem("chessgrind-academy-handoff",JSON.stringify({
+    fen:current.fen,question,candidate:result.chosenSan,source:"workshop"}));
+ location.href="/learn?tab=ask";
+};
+refreshProfile().then(()=>{
+ const q=new URLSearchParams(location.search);if(q.get("topic")){
+  $("filter-topic").value=q.get("topic");
+  tab("calculate");
+ }
+});
+</script></body></html>

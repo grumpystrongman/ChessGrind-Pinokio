@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101a1d"><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png">
+<title>Learning Lab · Chess Grind</title>
+<style>
+:root{color-scheme:dark;--bg:#0e1519;--surface:#182329;--surface2:#223139;--line:#304447;--ink:#eef5ec;--muted:#adbfbe;--mint:#c8ed84;--gold:#f9ce76;--red:#ff9690;--blue:#79bdff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Segoe UI,Inter,Arial,sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer;touch-action:manipulation}a{color:var(--mint);text-decoration:none}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--mint);outline-offset:3px}
+.topbar{height:70px;display:flex;align-items:center;gap:15px;border-bottom:1px solid var(--line);padding:0 26px;background:#101c20;position:sticky;top:0;z-index:20}
+.logo{font-weight:900;font-size:20px;letter-spacing:-.8px;white-space:nowrap}.logo b{color:var(--mint)}.tagline{font-size:11px;color:var(--muted)}
+.topbar .home{margin-left:auto;background:var(--surface2);border-radius:9px;padding:9px 13px}
+.shell{display:grid;grid-template-columns:218px minmax(0,1fr);max-width:1550px;margin:auto;min-height:calc(100dvh - 70px)}
+.sidebar{border-right:1px solid var(--line);padding:28px 14px}.nav{display:grid;gap:7px;position:sticky;top:100px}
+.tab{width:100%;background:transparent;border:0;text-align:left;padding:13px 15px;border-radius:12px;color:var(--muted);font-weight:700}
+.tab.active{background:#253a31;color:var(--mint)}.content{padding:28px clamp(14px,3.5vw,48px) 80px;min-width:0}
+.view{display:none}.view.active{display:block}
+.eyebrow{color:var(--mint);font-size:11px;text-transform:uppercase;font-weight:850;letter-spacing:1.7px}h1{font-size:clamp(28px,3.2vw,42px);letter-spacing:-1.2px;line-height:1.15;margin:8px 0 11px}h2{font-size:19px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}.sub{color:var(--muted);margin:0 0 24px;max-width:720px}
+.card{background:var(--surface);border:1px solid var(--line);padding:21px;border-radius:17px;min-width:0}
+.grid{display:grid;grid-template-columns:minmax(0,530px) minmax(300px,1fr);gap:22px}
+.stack{display:grid;gap:13px}.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.push{margin-left:auto}
+.btn{border:0;background:var(--mint);color:#17271c;font-weight:850;padding:11px 16px;border-radius:10px;min-height:45px}
+.btn.alt{background:#314448;color:#eff7ec}.btn:disabled{opacity:.45;cursor:default}.btn.selected{box-shadow:inset 0 0 0 2px var(--mint)}
+.pill{font-size:11px;color:#d7eed2;background:#2d4638;border-radius:999px;padding:5px 9px;font-weight:750}
+.prompt{font-size:17px;font-weight:700;margin:6px 0 14px}
+.stagebar{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:15px 0 21px}
+.stage{background:#263339;border-radius:8px;padding:9px 3px;text-align:center;color:#91a8a5;font-size:11px;font-weight:750}
+.stage.done{background:#325740;color:#e1f6c2}.stage.now{background:var(--mint);color:#182919}
+.board-wrap{width:100%;max-width:530px;margin:auto}.board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border:5px solid #314444;border-radius:9px;position:relative;overflow:hidden;isolation:isolate}
+.square{min-width:0;aspect-ratio:1;border:0;position:relative;display:grid;place-items:center;padding:0;touch-action:manipulation}
+.square.light{background:#e6ebdf;color:#4e5955}.square.dark{background:#769699;color:#e7f4db}
+.square.marked{box-shadow:inset 0 0 0 5px #f6ce66}.square.selected{box-shadow:inset 0 0 0 5px #97e97c}
+.piece{font-family:Segoe UI Symbol,DejaVu Sans,serif;font-size:clamp(28px,3.9vw,54px);line-height:1}
+.piece.white{color:#fffef2;text-shadow:1px 1px 2px #1b2727,-1px -1px 2px #1b2727}.piece.black{color:#152122;text-shadow:0 1px 1px #f4f4e9}
+.board svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.coord{position:absolute;top:1px;left:3px;font-size:9px;font-weight:800;opacity:.8}
+.controls{margin:14px 0;display:flex;gap:8px;flex-wrap:wrap}
+.controlset{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:13px 0}
+.controlset .btn{padding:9px 3px;font-size:11px;min-height:42px}
+.legends{font-size:12px;color:var(--muted);display:flex;gap:13px;flex-wrap:wrap;margin:11px 0}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;background:var(--mint)}.dot.blue{background:var(--blue)}.dot.red{background:var(--red)}.dot.gold{background:var(--gold)}
+.explain{background:#263e34;border:1px solid #476b50;border-radius:12px;padding:16px;margin:12px 0;line-height:1.7;white-space:pre-line}
+.explain h3{color:var(--mint)}.feedback{min-height:28px;color:var(--mint);font-size:13px;margin:9px 0}
+.feedback.bad{color:var(--red)}.muted{color:var(--muted)}.small{font-size:12px}
+.topic{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:16px;background:var(--surface2);border:1px solid #34504a;border-radius:12px}
+.topic p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.progress{background:#304445;height:9px;border-radius:99px;overflow:hidden;margin-top:8px}.progress span{display:block;height:100%;background:var(--mint)}
+textarea,input,select{background:#26353b;border:1px solid #496063;color:var(--ink);border-radius:10px;padding:12px;font-size:16px}
+textarea{width:100%;resize:vertical}
+.book{background:var(--surface2);border:1px solid #314843;border-radius:10px;padding:14px;font-size:13px;line-height:1.7}
+.book p{margin:7px 0;color:#d8e2d7}
+.skill{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;padding:14px;border-bottom:1px solid var(--line)}
+.hidden{display:none!important}
+@media(max-width:1000px){.grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:760px){
+ .topbar{height:54px;padding:0 14px}.logo{font-size:18px}.tagline{display:none}
+ .shell{display:block}.sidebar{padding:0;border:0}.nav{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:50;background:#101d20;
+ border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;
+ padding:5px 4px calc(8px + env(safe-area-inset-bottom,0px))}
+ .tab{padding:9px 1px;text-align:center;font-size:9px;min-height:50px}
+ .content{padding:19px 12px calc(100px + env(safe-area-inset-bottom,0px))}
+ .card{padding:15px}.board{border-width:3px}.piece{font-size:clamp(27px,10vw,45px)}
+ .stage{font-size:10px}.btn{min-height:46px}
+ .controlset .btn{font-size:10px;min-height:46px}
+ h1{font-size:29px}.prompt{font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+ .academy-link{display:flex;align-items:center;text-decoration:none;justify-content:flex-start}
+ .academy-hero-link{display:inline-flex;align-items:center;text-decoration:none;justify-content:center}
+ @media(max-width:760px){.academy-link{justify-content:center}.academy-hero-link{min-height:46px}}
+</style>
+<style id="local-coach-chat">
+.chat-history{border:1px solid var(--line);border-radius:12px;background:#121f23;padding:11px;min-height:160px;max-height:430px;overflow-y:auto;margin:13px 0;display:grid;align-content:start;gap:11px}
+.chat-message{max-width:96%;border-radius:12px;padding:12px 13px;font-size:14px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.chat-message.user{justify-self:end;background:#2f493c;border:1px solid #527055}
+.chat-message.assistant{justify-self:start;background:#25363a;border:1px solid #39565b}
+.chat-message small{display:block;margin-bottom:5px;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#b5d6c1}
+.chat-message.pending{opacity:.7;font-style:italic}
+@media(max-width:760px){.chat-history{max-height:330px;padding:9px}.chat-message{font-size:13px;max-width:100%}}
+</style>
+<style id="positional-overlays">
+.position-legend{display:flex;gap:7px 12px;flex-wrap:wrap;margin:12px 0}
+.position-legend span{font-size:11px;display:inline-flex;align-items:center;gap:5px;color:#c1ceca}
+.position-legend i{display:inline-block;border-radius:2px;width:11px;height:11px}
+#positional-features .topic{cursor:pointer}
+#positional-features .topic:hover{border-color:#b6da85}
+#positional-features .topic:focus-visible{outline:2px solid #c8ed84}
+</style>
+
+<style id="academy-experience-v1">
+:root{--mint:#d4ed9c;--ink:#f4f6ee;--line:#344749;--bg:#10181b;--surface:#1c282b;--surface2:#243538}
+body{background:radial-gradient(ellipse 850px 480px at 82% -190px,rgba(174,220,144,.10),transparent),var(--bg)}
+.topbar{background:#132125;border-color:#364d47;box-shadow:0 3px 25px #0002}
+.logo{letter-spacing:-.5px}
+.content{max-width:1260px}
+h1{font-weight:850}
+.card{box-shadow:0 12px 36px rgba(0,0,0,.11)}
+.btn{transition:filter .12s,transform .12s,background-color .12s}
+.btn:hover:not(:disabled){filter:brightness(1.09)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.tab{transition:color .15s,background-color .15s}
+.tab:hover{background:#253b39;color:#e9f5e3}
+.hero{background:linear-gradient(120deg,#263f37 0%,#1a3437 72%,#1e3338 100%);
+border:1px solid #4b6c57;border-radius:20px;padding:24px 26px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero:after{content:"♞";position:absolute;right:26px;top:-40px;font-size:210px;color:#cced9f;opacity:.048;pointer-events:none;line-height:1}
+.hero>*{position:relative;z-index:1}
+.hero h1{margin:8px 0 12px;font-size:clamp(28px,3.3vw,41px)}
+.hero .sub{margin-bottom:18px;color:#d0dfd2}
+.training-kicker{font-size:11px;color:#b6d5af;font-weight:800;letter-spacing:1.3px;text-transform:uppercase}
+.overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.stat{background:#1b2b2e;border:1px solid #38504c;border-radius:12px;padding:15px 17px}
+.stat-value{font-size:25px;font-weight:850;letter-spacing:-.8px;color:#ecf9d9}
+.stat-label{font-size:11px;color:#b0c5c0;margin-top:2px}
+.coach-note{border-radius:14px;background:linear-gradient(125deg,#28453b,#243b3b);
+border:1px solid #4b7061;padding:16px 18px;margin:16px 0}
+.coach-note-head{display:flex;align-items:center;gap:10px;font-weight:800;color:#e2f3c9}
+.coach-avatar{width:35px;height:35px;flex:none;display:grid;place-items:center;background:#436b54;
+border-radius:11px;color:#f5ffdf;font-size:21px}
+.coach-note-body{color:#d7e6db;margin-top:10px;line-height:1.6;font-size:14px}
+.coach-note-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.coach-note-actions .btn{font-size:12px;min-height:40px}
+.board-wrap{background:#223534;border:1px solid #465f5b;padding:8px;border-radius:14px}
+.board{border:3px solid #3b5250;border-radius:7px;box-shadow:0 4px 15px #0005}
+.board-instructions{font-size:12px;color:#aec5bb;text-align:center;margin-top:10px}
+.stagebar{margin:16px 0 24px}.stage{font-weight:800;font-size:12px;min-height:41px;display:grid;place-items:center}
+.stage.now{box-shadow:0 0 0 2px rgba(212,237,156,.16)}
+.stage.done:before{content:"✓ ";color:#e6f6b4}
+.exercise-layout{align-items:start}
+.lesson-card{display:grid;gap:13px}
+.lesson-section{background:#1d312e;border:1px solid #34564a;border-radius:12px;padding:14px 15px}
+.lesson-section h3{margin:0 0 7px;color:#d6f1b8;letter-spacing:.1px}
+.lesson-section p{margin:0;white-space:pre-wrap;line-height:1.6}
+.lesson-section.primary{background:#29463a;border-color:#64926c}
+.lesson-section.line{background:#1d2c31;border-color:#3b5054}
+.context-help{background:#253539;border-left:3px solid #dbbd78;border-radius:8px;padding:10px 12px;color:#d2dfd5;font-size:12px;margin:10px 0}
+#feedback:not(:empty){background:#274339;border:1px solid #48775e;border-radius:10px;padding:11px 13px;line-height:1.5}
+#feedback.bad:not(:empty){background:#423232;border-color:#895e57}
+#board-hint{min-height:18px;margin-top:8px}
+#stage-actions{margin-top:14px}
+.quick-question-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.quick-question{background:#2c4142;color:#ebf1e8;border:1px solid #54706c;padding:9px 12px;
+border-radius:999px;font-size:12px}
+.quick-question:hover{background:#395752}
+.status-inline{font-size:12px;color:#bcd2bd}
+.learn-empty{border:1px dashed #57736a;border-radius:11px;padding:13px;color:#bdd0c1;font-size:12px}
+#session-finished{background:linear-gradient(120deg,#264138,#1d3036);border-color:#5e8769}
+#learn-board .square[aria-label]{cursor:pointer}
+#learn-board .square:focus-visible{outline:3px solid #ffe59b;outline-offset:-3px;z-index:3}
+@media(max-width:1000px){.hero{padding:20px}}
+@media(max-width:760px){
+ /* Keep the only next-action button above the bottom navigation. */
+ #stage-actions:has(#continue-stage){position:sticky;bottom:calc(70px + env(safe-area-inset-bottom,0px));
+   background:#1b2d2d;border:1px solid #4b6960;border-radius:13px;
+   padding:9px;z-index:47;box-shadow:0 -6px 25px #0007}
+ #continue-stage{width:100%}
+ #continue-stage,#submit-spot,#reveal-lesson{scroll-margin-bottom:130px}
+ .hero{padding:20px 17px;border-radius:15px;margin-bottom:14px}
+ .hero:after{font-size:140px;right:-8px;top:0}
+ .hero h1{font-size:28px}
+ .overview{gap:6px;margin-bottom:14px}
+ .stat{padding:10px 9px;border-radius:9px}
+ .stat-value{font-size:21px}
+ .stat-label{font-size:10px}
+ .board-wrap{padding:5px}
+ .coach-note{padding:14px}
+ .stage{font-size:10px}
+ .lesson-section{padding:12px}
+}
+</style>
+<style id="mobile-primary-nav">@media(max-width:760px){.nav .academy-link{display:none!important}.nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}.nav .tab{font-size:10px!important}} </style>
+</head>
+<body>
+<header class="topbar"><div><div class="logo">CHESS<b>GRIND</b> <span style="font-weight:400;color:#8fa7a8;font-size:15px">/ Learn</span></div><div class="tagline">See it. Calculate it. Explain it. Prove it.</div></div><a class="home" href="/">← Training Room</a></header>
+<div class="shell"><aside class="sidebar"><nav class="nav" aria-label="Learning Lab">
+<button class="tab active" data-tab="train">♞ Train</button><a class="tab academy-link" href="/academy">♟ Academy</a><a class="tab academy-link" href="/workshop">♟ Workshop</a><button class="tab" data-tab="campaigns">◎ Campaigns</button><button class="tab" data-tab="skills">▤ Skills</button><button class="tab" data-tab="books">▦ Lessons</button><button class="tab" data-tab="ask">✦ Board Coach</button>
+</nav></aside><main class="content">
+<section class="view active" id="train">
+ <div class="hero">
+  <div class="training-kicker">Personal chess academy · Your games, your progress</div>
+  <h1>See the position. Understand the decision.</h1>
+  <p class="sub">Build the instinct to spot danger, calculate a response and explain your move—without relying on the green arrows.</p>
+  <div class="row" id="start-options">
+    <button class="btn" onclick="startSession('guided')">Begin a guided session →</button>
+    <a class="btn academy-hero-link" href="/academy">Explore the Academy ↗</a>
+    <a class="btn academy-hero-link" href="/workshop">Explore my blind spots ↗</a>
+    <a class="btn academy-hero-link" href="/strategy">Openings & endgames ↗</a>
+    <a class="btn academy-hero-link" href="/arena">Play my AI coach ↗</a>
+    <a class="btn academy-hero-link" href="/masters">Study the Masters ↗</a>
+    <button class="btn alt" onclick="startSession('micro')">Quick practice · 1 position</button>
+    <span class="pill" id="session-status">Ready when you are</span>
+  </div>
+ </div>
+ <div class="overview" aria-label="Your training at a glance">
+   <div class="stat"><div class="stat-value" id="overview-accuracy">—</div><div class="stat-label">Unaided accuracy</div></div>
+   <div class="stat"><div class="stat-value" id="overview-checks">—</div><div class="stat-label">Decisions practiced</div></div>
+   <div class="stat"><div class="stat-value" id="overview-focus">—</div><div class="stat-label">Next skill to develop</div></div>
+ </div>
+ <div class="coach-note" id="welcome-coach">
+  <div class="coach-note-head"><span class="coach-avatar" aria-hidden="true">♞</span> Your coach's plan</div>
+  <div class="coach-note-body" id="welcome-coach-text">I'll look at your analyzed games, pick a useful weakness and guide you through one decision at a time.</div>
+  <div class="coach-note-actions"><button class="btn alt" onclick="openTab('skills')">See my skill profile</button><button class="btn alt" onclick="openTab('campaigns')">Choose a weakness</button></div>
+ </div>
+ <div class="card hidden" id="exercise-card">
+  <div class="row"><span class="pill" id="position-number"></span><span class="pill" id="topic-pill"></span><span class="muted small push" id="opponent"></span></div>
+  <div class="stagebar" id="stages"></div>
+  <div class="grid exercise-layout">
+   <div><div class="board-wrap"><div class="board" id="learn-board" aria-label="Interactive chessboard"></div></div>
+    <div id="compare-controls" class="hidden"><div class="controlset">
+      <button class="btn alt" data-compare="before">Before</button>
+      <button class="btn alt" data-compare="best">Best move</button>
+      <button class="btn alt" data-compare="your">Your move</button>
+      <button class="btn alt" data-compare="reply">Best reply</button></div>
+      <label class="small"><input type="checkbox" id="show-controlled"> Show controlled squares</label>
+      <div class="legends"><span><i class="dot"></i>Best</span><span><i class="dot blue"></i>Your move</span><span><i class="dot red"></i>Reply</span><span><i class="dot gold"></i>Threat</span></div></div>
+    <div class="board-instructions" id="board-orientation-note" aria-live="polite"></div>
+    <div class="feedback" id="board-hint" role="status"></div>
+    <div class="controls" id="thinking-controls"><button class="btn alt" id="thinking-hint" type="button">Need a nudge?</button><span class="small muted">A hint guides your thinking without showing the answer.</span></div>
+    <div class="context-help hidden" id="thinking-prompt" role="status"></div>
+   </div>
+   <div><div class="eyebrow" id="stage-label"></div><h2 id="stage-title"></h2><p class="prompt" id="prompt"></p>
+    <div class="feedback" id="feedback" role="status"></div>
+    <div class="coach-note hidden" id="coach-feedback-panel">
+     <div class="coach-note-head"><span class="coach-avatar" aria-hidden="true">♞</span><span id="coach-feedback-title">Coach's observation</span></div>
+     <div class="coach-note-body" id="coach-feedback-message"></div>
+     <div class="coach-note-actions">
+      <button class="btn alt" id="explain-with-coach">Ask why this move matters ↗</button>
+      <button class="btn alt" id="coach-practice-skill">Practice this skill ↗</button>
+     </div>
+    </div>
+    <div id="stage-actions" class="controls"></div>
+    <div class="explain hidden" id="lesson-output"></div>
+    <div class="stack hidden" id="book-output"></div>
+    <div id="takeaway" class="hidden"><label class="small" for="lesson-note">Write one takeaway in your own words</label><textarea id="lesson-note" rows="3" placeholder="I should check my opponent's forcing replies before..."></textarea><button class="btn alt" id="save-takeaway">Save takeaway</button></div>
+   </div>
+  </div>
+ </div>
+ <div class="card hidden" id="session-finished"><div class="training-kicker">Session completed</div><h2>Good work. Now make the idea stick.</h2><p class="sub">You've practiced spotting, calculating, explaining, and recognizing a related position. Independent decisions count more than assisted answers, and the coach will bring back due positions for retention.</p><button class="btn" onclick="startSession('guided')">Train again</button><button class="btn alt" onclick="openTab('skills')">See skill growth</button></div>
+ </section>
+<section class="view" id="campaigns"><div class="eyebrow">Adaptive training</div><h1>Repair your recurring weaknesses.</h1><p class="sub">Campaign priority combines your analyzed mistakes and game time control; Rapid carries more weight than Daily or Bullet.</p><div class="stack" id="campaign-list">Loading weaknesses…</div></section>
+<section class="view" id="skills"><div class="eyebrow">Evidence of improvement</div><h1>Can you do it unaided?</h1><p class="sub">Track independent recognition, calculation, response time, and unfamiliar-position transfer—not just a rating number.</p><div class="row" id="mastery-summary"></div><div class="card" id="skill-list">Loading skill metrics…</div></section>
+<section class="view" id="books"><div class="eyebrow">From reading to practice</div><h1>Make the books teach.</h1><p class="sub">Choose a fundamental. Read a complete sourced passage, visualize the position, then practice the same idea in your own games.</p><div class="row"><select id="lesson-topic" aria-label="Select chess concept"></select><button class="btn" onclick="fetchLesson()">Load lesson</button></div><div id="book-lesson" class="stack" style="margin-top:20px"></div></section>
+<section class="view" id="ask"><div class="eyebrow">Private conversational chess tutor</div><h1>Ask about this board.</h1><p class="sub">Discuss threats, plans, mistakes and alternatives in everyday language. A local AI explains the position while Stockfish checks its actual moves and threats. Ask follow-up questions about the same board.</p><div class="row" style="margin:-5px 0 16px"><span id="local-ai-status" class="pill">Checking local AI…</span><span class="small muted">On BarnesPC · No cloud AI account</span></div>
+<div class="grid"><div class="card"><label class="small" for="fen-input">Chess position (FEN)</label><textarea id="fen-input" rows="3" placeholder="Paste a FEN, or load the current exercise"></textarea>
+ <div class="controls"><button class="btn alt" onclick="useTrainingPosition()">Use current training position</button><button class="btn alt" onclick="inspectPosition()">Show positional structures</button></div>
+ <div class="chat-history" id="board-chat-history" role="log" aria-label="Coach conversation" aria-live="polite"></div>
+ <label class="small" for="board-question">Ask your coach</label>
+ <textarea id="board-question" rows="3" placeholder="Why is my knight vulnerable? What would you play and why?"></textarea>
+<label class="small" for="move-to-test">Optional move to compare with Stockfish (SAN)</label>
+<input id="move-to-test" placeholder="e.g., Nf3 or Bxc5" style="display:block;width:100%;margin:8px 0 12px">
+ <button class="btn" id="ask-board-button" onclick="askBoard()">Ask my coach</button><button class="btn alt" type="button" id="clear-board-chat">New conversation</button>
+ <div class="feedback" id="ask-status" role="status"></div>
+ <div class="explain hidden" id="board-answer"></div><div id="positional-features" class="stack"></div></div>
+ <div class="card"><div class="board-wrap"><div id="coach-position-board" class="board"></div></div>
+ <div class="position-legend"><span><i style="background:#f4b077"></i>Pawn weakness</span><span><i style="background:#ade889"></i>Passed / defended</span><span><i style="background:#df99ef"></i>King danger</span><span><i style="background:#76bbf1"></i>Open file</span><span><i style="background:#f5ce75"></i>Active square</span></div>
+ <div id="coach-overlays" class="muted small" style="margin-top:11px"></div></div></div>
+</section>
+</main></div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const symbols={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+let current=null,sid=null,selected=null,spotSquares=new Set(),boardMode="before",visual=null,learningResult=null,displayFen=null;
+let stageStarted=Date.now(),activeTopic=null,stageLocked=false,stageAssisted=false;
+const topics=["piece safety","calculation","opening decisions","forks and double attacks","pins","missed captures","forcing checks","endgame technique","checkmate patterns"];
+function openTab(tab){
+ document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
+ document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===tab));
+ if(tab==="campaigns")loadCampaigns();if(tab==="skills")loadSkills();if(tab==="books"&&!$("lesson-topic").value)$("lesson-topic").value=topics[0];
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>openTab(b.dataset.tab)));
+$("lesson-topic").innerHTML=topics.map(x=>'<option value="'+esc(x)+'">'+esc(x.replace(/\b\w/g,c=>c.toUpperCase()))+'</option>').join("");
+async function api(path,body=null){
+ const options=body===null?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)};
+ const r=await fetch(path,options),x=await r.json();
+ if(!r.ok)throw Error(x.error||"Request failed ("+r.status+")");
+ return x;
+}
+function readFen(fen){
+ const ranks=fen.split(" ")[0].split("/");
+ if(ranks.length!==8)throw Error("Invalid chessboard");
+ const arr=[];
+ for(const row of ranks){for(const c of row){if(/[1-8]/.test(c))for(let i=0;i<Number(c);i++)arr.push("");else arr.push(c);}}
+ if(arr.length!==64)throw Error("Invalid FEN");
+ return arr;
+}
+function boardSquare(i,orientation){
+ const col=i%8,row=Math.floor(i/8);
+ return (orientation==="Black"?String.fromCharCode(104-col):String.fromCharCode(97+col))+
+   (orientation==="Black"?row+1:8-row);
+}
+function point(sq,orientation){
+ const f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;
+ return orientation==="Black"?[(7-f)*100+50,r*100+50]:[f*100+50,(7-r)*100+50];
+}
+function renderBoard(id,fen,orientation,selectSquares=[],overlays=null){
+ const board=$(id);
+ if(!board)return;
+ displayFen=fen;
+ const pieces=readFen(fen);
+ const flipped=orientation==="Black",marked=new Set(selectSquares);
+ const rows=[];
+ for(let i=0;i<64;i++){
+  const sq=boardSquare(i,orientation),file=sq.charCodeAt(0)-97,rank=Number(sq[1])-1;
+  const item=pieces[(7-rank)*8+file];
+  rows.push('<button type="button" class="square '+((file+rank)%2===1?"dark":"light")+
+   (marked.has(sq)?" marked":"")+(selected===sq?" selected":"")+
+   '" data-square="'+sq+'" aria-label="'+sq+' '+(item||"empty")+'">'+
+   (item?'<span class="piece '+(item===item.toUpperCase()?"white":"black")+'">'+symbols[item]+'</span>':'')+
+   (i%8===0?'<span class="coord">'+sq[1]+'</span>':'')+'</button>');
+ }
+ board.innerHTML=rows.join("");
+ if(overlays)drawOverlay(board,overlays,orientation);
+}
+function drawOverlay(el,frame,orientation){
+ const palette={best:"#b3f08a",alternative:"#79bdff",reply:"#ff8985",fork:"#ffd06b",attack:"#f0ca68",pin:"#be9bff",skewer:"#be9bff",discovered:"#be9bff"};
+ let markup='<defs>';
+ for(const kind of Object.keys(palette))markup+='<marker id="arr-'+el.id+'-'+kind+'" markerWidth="5" markerHeight="5" refX="4.2" refY="2.5" orient="auto"><path d="M0 0 L5 2.5 L0 5z" fill="'+palette[kind]+'"/></marker>';
+ markup+='</defs>';
+ if($("show-controlled")?.checked)for(const sq of frame.controlled||[]){
+  const [x,y]=point(sq,orientation);markup+='<rect x="'+(x-46)+'" y="'+(y-46)+'" width="92" height="92" fill="#ead57e" opacity=".23"/>';
+ }
+ for(const t of frame.targets||[]){
+  const [x,y]=point(t.square,orientation);
+  markup+='<circle cx="'+x+'" cy="'+y+'" r="43" fill="none" stroke="#ffcf69" stroke-width="8" stroke-dasharray="12 8"/>';
+ }
+ for(const feature of frame.features||[]){
+  if(feature.type!=="loose")continue;
+  const [x,y]=point(feature.square,orientation);markup+='<circle cx="'+x+'" cy="'+y+'" r="42" fill="none" stroke="#d4a1ff" stroke-width="8"/>';
+ }
+ for(const a of frame.arrows||[]){
+  if(!a.from||!a.to)continue;
+  const [x,y]=point(a.from,orientation),[u,v]=point(a.to,orientation),dx=u-x,dy=v-y,len=Math.hypot(dx,dy);
+  if(len<25)continue;
+  const sx=x+dx*24/len,sy=y+dy*24/len,ex=u-dx*29/len,ey=v-dy*29/len;
+  const kind=Object.hasOwn(palette,a.kind)?a.kind:"attack";
+  markup+='<line x1="'+sx+'" y1="'+sy+'" x2="'+ex+'" y2="'+ey+'" stroke="#152425" stroke-width="16" opacity=".65"/>';
+  markup+='<line x1="'+sx+'" y1="'+sy+'" x2="'+ex+'" y2="'+ey+'" stroke="'+palette[kind]+'" stroke-width="10" opacity=".92" marker-end="url(#arr-'+el.id+'-'+kind+')"/>';
+ }
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("viewBox","0 0 800 800");svg.setAttribute("aria-hidden","true");svg.innerHTML=markup;el.append(svg);
+}
+function feedback(text,isBad=false){$("feedback").textContent=text;$("feedback").classList.toggle("bad",isBad)}
+function seconds(){return Math.round((Date.now()-stageStarted)/1000)}
+function boardSide(fen){return fen?.split(" ")[1]==="b"?"Black":"White"}
+function showCoachNote(title,message,options={}){
+ $("coach-feedback-panel").classList.remove("hidden");
+ $("coach-feedback-title").textContent=title;
+ $("coach-feedback-message").textContent=message;
+ $("explain-with-coach").hidden=options.ask===false;
+ $("coach-practice-skill").hidden=options.practice===false;
+}
+function hideCoachNote(){$("coach-feedback-panel").classList.add("hidden")}
+let lastMoveSan=null,lastBestSan=null;
+function handoffToCoach(question){
+ if(!current||current.completed)return;
+ const fen=current.stage==="predict"?current.fen:(current.coachContext?.fen||current.fen);
+ $("fen-input").value=fen;
+ if(coachConversationFen!==fen)clearBoardHistory();
+ $("fen-input").value=fen;
+ coachConversationFen=fen;
+ sessionStorage.setItem(fenKey,fen);
+ $("move-to-test").value=lastMoveSan||"";
+ $("board-question").value=question||
+   (lastMoveSan&&lastBestSan?"I played "+lastMoveSan+" but Stockfish recommends "+lastBestSan+". Explain the key positional difference and how I could spot it before moving.":"What should I notice before choosing a move?");
+ openTab("ask");
+ renderBoard("coach-position-board",fen,current.color);
+ $("board-question").focus();
+}
+$("explain-with-coach").onclick=()=>handoffToCoach();
+$("coach-practice-skill").onclick=()=>{
+ if(!current||current.completed)return;
+ activeTopic=current.topic;
+ startSession("campaign",activeTopic);
+};
+async function loadOverview(){
+ try{
+  const [profile,ranking]=await Promise.all([api("/api/lab/profile"),api("/api/lab/campaigns")]);
+  const attempts=profile.assessments||0;
+  const practiced=profile.skills||[];
+  const total=practiced.reduce((n,x)=>n+(x.attempts||0),0);
+  const correct=practiced.reduce((n,x)=>n+(x.correct||0),0);
+  $("overview-checks").textContent=attempts.toLocaleString();
+  $("overview-accuracy").textContent=total?Math.round(100*correct/total)+"%":"New";
+  const candidates=ranking.campaigns||[];
+  const best=candidates.find(x=>x.available>0)||candidates[0];
+  $("overview-focus").textContent=best?best.title.split(" ")[0]:"Explore";
+  $("overview-focus").title=best?.title||"Start learning";
+  $("welcome-coach-text").textContent=best?
+   "Your next useful focus is "+best.title.toLowerCase()+". I have "+best.available+" due positions from your games. We'll start without hints, reveal the reasoning only after your answer, and then test whether you can apply the idea again.":
+   "Start with one guided position. I'll adapt the next lesson to the mistakes you make and the skills you master.";
+ }catch(error){$("welcome-coach-text").textContent="Training is available. I couldn't load your progress summary yet; you can still start a lesson."}
+}
+function renderStage(x){
+ current=x;stageStarted=Date.now();selected=null;spotSquares=new Set();visual=null;learningResult=null;boardMode="before";stageLocked=false;
+ hideCoachNote();lastMoveSan=x.coachContext?.yourMove||null;
+ lastBestSan=x.coachContext?.bestMove||null;stageAssisted=false;
+ $("session-status").textContent=x.completed?"Complete":"Position "+(x.position+1)+"/"+x.total;
+ if(x.completed){$("exercise-card").classList.add("hidden");$("session-finished").classList.remove("hidden");loadSkills();loadOverview();return}
+ $("session-finished").classList.add("hidden");$("exercise-card").classList.remove("hidden");
+ $("board-orientation-note").textContent="You are choosing for "+boardSide(x.fen)+". The board is shown from "+x.color+"'s perspective.";
+ $("position-number").textContent="Position "+(x.position+1)+" of "+x.total;
+ $("topic-pill").textContent=x.topic;$("opponent").textContent="vs "+x.opponent;
+ const stageOrder=["spot","move","predict","learn","prove"];
+ $("stages").innerHTML=stageOrder.map((t,i)=>'<div class="stage '+(i<stageOrder.indexOf(x.stage)?"done":i===stageOrder.indexOf(x.stage)?"now":"")+'">'+
+  ["1 Spot","2 Move","3 Predict","4 Learn","5 Prove"][i]+'</div>').join("");
+ const title={spot:"Spot the danger",move:"Choose your move",predict:"Predict the strongest reply",learn:"Understand why",prove:"Prove it on a new position"};
+ const desc={spot:x.prompt,move:"Choose the strongest move. You will earn credit for a comparably strong alternative.",
+ predict:"Prediction "+(x.predictionNumber||1)+" of "+(x.predictionTotal||3)+": play a strong move for "+(x.predictingColor||"the side to move")+". Calculate forcing replies before you move.",
+ learn:"Now reveal the engine ideas and visual lines. Write a takeaway before moving on.",
+ prove:x.transferAvailable?"A different, unfamiliar position. No highlights. Solve unaided to demonstrate recognition.":"No unseen position remains for this topic. Finish and continue."};
+ $("stage-label").textContent="Stage "+(stageOrder.indexOf(x.stage)+1)+" / 5";
+ $("stage-title").textContent=title[x.stage];$("prompt").textContent=desc[x.stage];
+ $("compare-controls").classList.add("hidden");$("lesson-output").classList.add("hidden");
+ $("book-output").classList.add("hidden");$("takeaway").classList.add("hidden");
+ $("feedback").textContent="";$("board-hint").textContent="Choose a piece, then its destination. Take your time.";
+ $("thinking-controls").classList.toggle("hidden",!["spot","move","predict"].includes(x.stage));
+ $("thinking-prompt").classList.add("hidden");
+ $("thinking-prompt").textContent="";
+ $("thinking-hint").disabled=false;
+ $("thinking-hint").textContent="Need a nudge?";
+ renderBoard("learn-board",x.fen,x.color);
+ const actions=$("stage-actions");actions.innerHTML="";
+ if(x.stage==="spot"){
+  actions.innerHTML='<button class="btn" id="submit-spot">Check highlighted squares</button><span class="small muted">Tap squares to select or deselect.</span>';
+  $("submit-spot").addEventListener("click",sendSpot);
+ }else if(x.stage==="move"||x.stage==="predict"||x.stage==="prove"){
+  if(x.stage==="prove"&&!x.transferAvailable){
+   actions.innerHTML='<button class="btn" id="skip-proof">Finish without transfer position</button>';
+   $("skip-proof").onclick=()=>submitStage({});}
+  else actions.innerHTML='<span class="small muted">Select a piece, then its destination. The engine checks alternative strong moves.</span>';
+ }else if(x.stage==="learn"){
+  actions.innerHTML='<button class="btn" id="reveal-lesson">Reveal the explanation and arrows</button>';
+  $("reveal-lesson").onclick=revealLesson;
+ }
+}
+$("learn-board").addEventListener("click",event=>{
+ if(!current||current.completed||learningResult||stageLocked)return;
+ const el=event.target.closest("[data-square]");
+ if(!el)return;const sq=el.dataset.square;
+ if(current.stage==="spot"){
+  if(spotSquares.has(sq))spotSquares.delete(sq);else spotSquares.add(sq);
+  renderBoard("learn-board",current.fen,current.color,[...spotSquares]);return;
+ }
+ if(!["move","predict","prove"].includes(current.stage))return;
+ const pieces=readFen(current.fen),turn=current.fen.split(" ")[1]==="w";
+ const i=(8-Number(sq[1]))*8+(sq.charCodeAt(0)-97),piece=pieces[i];
+ const mine=piece&&(turn?piece===piece.toUpperCase():piece===piece.toLowerCase());
+ if(!selected){if(!mine){$("board-hint").textContent="Select one of your pieces first.";return}selected=sq;
+  $("board-hint").textContent="Selected "+sq+" — tap a destination";renderBoard("learn-board",current.fen,current.color);return}
+ if(sq===selected){selected=null;renderBoard("learn-board",current.fen,current.color);return}
+ if(mine){selected=sq;renderBoard("learn-board",current.fen,current.color);return}
+ const start=selected;selected=null;
+ let promotion="";
+ if(pieces[(8-Number(start[1]))*8+start.charCodeAt(0)-97]?.toLowerCase()==="p"&&
+    (sq.endsWith("1")||sq.endsWith("8"))){promotion=prompt("Promotion: q, r, b or n","q")||"q";
+   if(!/^[qrbn]$/.test(promotion))promotion="q";}
+ submitStage({uci:start+sq+promotion});
+});
+function getThinkingPrompt(){
+ const stage=current?.stage,topic=current?.topic||"";
+ if(stage==="spot"){
+  if(current.prompt?.includes("undefended"))return "First look for your pieces under attack. Then ask: is each piece protected by another friendly piece? Tap only those that are attacked AND undefended.";
+  if(current.prompt?.includes("capture"))return "For each of your pieces, trace its legal capture squares. Count enemy pieces on those squares; ignore empty squares and illegal moves.";
+  return "Check where friendly pieces defend one another. Focus on knights, bishops, rooks and queens—not pawns or kings.";
+ }
+ if(stage==="predict")return "Pretend you're sitting on the other side of the table. List forcing checks first, then captures, then threats. Try to understand the move your opponent most dislikes.";
+ if(topic.includes("opening"))return "Before moving, check the center, unfinished development, and king safety. What moves improve two things at once?";
+ if(topic.includes("endgame"))return "Count your pawn races and king moves. Look for positions where king activity or a passed pawn decides the plan.";
+ if(topic.includes("fork")||topic.includes("pins"))return "Scan for undefended targets and pieces aligned with the king or queen. Does one move create two threats?";
+ return "Make a short candidate list: checks, captures, and threats. For each, imagine the opponent's strongest response before selecting.";
+}
+$("thinking-hint").onclick=()=>{
+ if(stageLocked||!current)return;
+ stageAssisted=true;
+ $("thinking-prompt").textContent=getThinkingPrompt()+"  · Hint used: this attempt is recorded as assisted practice.";
+ $("thinking-prompt").classList.remove("hidden");
+ $("thinking-hint").disabled=true;
+ $("thinking-hint").textContent="Hint applied";
+};
+async function startSession(mode="guided",topic=activeTopic){
+ try{feedback("");const x=await api("/api/lab/start",{mode,topic:mode==="campaign"?(topic||null):null,count:5});
+  sid=x.sessionId;sessionStorage.setItem("chessgrind-lab",sid);openTab("train");renderStage(x.exercise);}
+ catch(e){$("session-status").textContent=e.message;}
+}
+async function sendSpot(){
+ try{const x=await api("/api/lab/action",{sessionId:sid,stage:"spot",squares:[...spotSquares],seconds:seconds(),assisted:stageAssisted});
+  stageLocked=true;
+  $("thinking-controls").classList.add("hidden");
+  feedback(x.correct?"Excellent — every target found.":"You missed "+x.missed.join(", ")+(x.extra.length?"; extra: "+x.extra.join(", "):""),!x.correct);
+  renderBoard("learn-board",current.fen,current.color,x.targets);
+  showCoachNote(x.correct?"You spotted the pattern":"Look at the squares you missed",
+   x.correct?"Nice. Now choose a move that responds to the actual position, not just the highlighted pieces.":
+     "The gold outlines now show the verified targets. Before choosing your move, ask which piece or square needs attention first.",
+   {ask:false,practice:false});
+  $("stage-actions").innerHTML='<button class="btn" id="continue-stage">Continue to your move →</button>';
+  $("continue-stage").onclick=()=>renderStage(x.next);}
+ catch(e){feedback(e.message,true)}
+}
+async function submitStage(body){
+ if(!sid||!current)return;
+ const action=current.stage;
+ try{
+  $("board-hint").textContent="Analyzing your choice…";
+  const x=await api("/api/lab/action",{sessionId:sid,stage:action,seconds:seconds(),assisted:stageAssisted,...body});
+  stageLocked=true;
+  $("thinking-controls").classList.add("hidden");
+  feedback(x.message||((x.correct===null)?"No transfer exercise available.":x.correct?"Strong decision.":"Let's compare that choice."),x.correct===false);
+  if(x.visual){
+   visual=x.visual;boardMode="before";displayVisual();
+  }
+  if(action==="move"||action==="prove"){
+   lastMoveSan=x.yourSan||null;lastBestSan=x.best||x.lesson?.best||null;
+   const specific=x.lesson?.comparison||x.lesson?.principle||x.message;
+   showCoachNote(x.correct?"Good thinking — now understand why":"This is where the learning happens",
+     specific+" "+(x.lesson?.habit||"Before your next move, scan checks, captures, threats and your opponent's reply."),
+     {ask:true,practice:true});
+  }else if(action==="predict"){
+   lastMoveSan=x.yourSan||null;lastBestSan=x.best||x.expected||null;
+   showCoachNote(x.correct?"You anticipated a strong reply":"Compare your prediction",
+     (x.lesson?.comparison||x.message)+" "+
+     (x.lesson?.habit||"Ask how the opponent can respond before committing to a move."),
+     {ask:true,practice:false});
+  }
+  if(x.lesson){
+   renderLesson(x.lesson,[]);
+   if(action==="move"){
+    $("board-hint").textContent="Compare the green best-move arrow with your move. Read the principle and concrete lines below.";
+    $("lesson-output").scrollIntoView({behavior:"smooth",block:"nearest"});
+   }
+  }
+  $("stage-actions").innerHTML='<button class="btn" id="continue-stage">'+(action==="prove"?"Next position →":action==="move"?"Continue to calculation →":"Continue →")+'</button>';
+  $("continue-stage").onclick=()=>renderStage(x.next);
+ }catch(e){$("board-hint").textContent=e.message;feedback(e.message,true)}
+}
+async function revealLesson(){
+ try{
+  $("board-hint").textContent="Preparing visual explanations…";
+  const x=await api("/api/lab/action",{sessionId:sid,stage:"learn",seconds:seconds()});
+  learningResult=x;stageLocked=true;visual=x.visual;boardMode="before";displayVisual();renderLesson(x.lesson,x.sources);
+  $("takeaway").classList.remove("hidden");
+  showCoachNote("Make this idea yours",
+    (x.lesson?.habit||"Identify the threats and your opponent's best response.")+
+    " When you can explain the reason in your own words, save a takeaway and try the unseen position.",
+    {ask:true,practice:false});
+  $("stage-actions").innerHTML='<button class="btn" id="continue-stage">Try an unseen position →</button>';
+  $("continue-stage").onclick=()=>renderStage(x.next);
+  $("board-hint").textContent="Compare each board state to understand what changed.";
+ }catch(e){$("board-hint").textContent=e.message;}
+}
+function displayVisual(){
+ if(!visual)return;const frame=visual[boardMode]||visual.best;
+ if(!frame)return;
+ $("compare-controls").classList.remove("hidden");
+ document.querySelectorAll("[data-compare]").forEach(b=>{
+  b.disabled=!visual[b.dataset.compare];b.classList.toggle("selected",b.dataset.compare===boardMode);});
+ renderBoard("learn-board",frame.fen,current.color,[],frame);
+ const feats=(frame.features||[]).map(f=>f.type+": "+f.label).join(" ");
+ $("board-hint").textContent=(frame.move?"After "+frame.move+". ":"")+feats;
+}
+document.querySelectorAll("[data-compare]").forEach(b=>b.onclick=()=>{boardMode=b.dataset.compare;displayVisual()});
+$("show-controlled").onchange=displayVisual;
+function renderLesson(lesson,sources){
+ if(!lesson)return;
+ const part=(heading,value,klass="")=>value?
+  '<section class="lesson-section '+klass+'"><h3>'+esc(heading)+'</h3><p>'+esc(value)+'</p></section>':"";
+ const sections=[
+  part("The chess principle",lesson.principle,"primary"),
+  part("Why one move works better",lesson.comparison),
+  part("Best continuation · replay on the board",lesson.bestLine,"line"),
+  part("What your move permits",lesson.yourLine,"line"),
+  part("Your next-game habit",lesson.habit)
+ ];
+ $("lesson-output").innerHTML='<div class="training-kicker">'+esc(lesson.headline||"Move breakdown")+
+  '</div><div class="lesson-card">'+sections.join("")+'</div>';
+ $("lesson-output").classList.remove("hidden");
+ if(sources?.length){
+  $("book-output").innerHTML='<div class="small muted">Relevant further reading — linked to this exact position</div>'+
+   sources.map(s=>'<div class="book"><a target="_blank" rel="noopener noreferrer" href="'+safeUrl(s.url)+'">'+esc(s.title)+'</a>'+
+   '<div class="small muted" style="margin:7px 0">Why this applies: '+esc(s.reason||"Verified chess principle")+'</div><p>'+esc(s.body)+'</p></div>').join("");
+  $("book-output").classList.remove("hidden");
+ }else{
+  $("book-output").innerHTML='<div class="learn-empty">Your move has a board-specific explanation above. There is no clean book passage closely matching this particular idea, so the coach won’t add an unrelated quotation.</div>';
+  $("book-output").classList.remove("hidden");
+ }
+}
+function safeUrl(url){return /^https?:\/\//.test(String(url))?esc(url):"#";}
+$("save-takeaway").onclick=async()=>{
+ try{
+  const x=await api("/api/lab/note",{sessionId:sid,note:$("lesson-note").value});
+  $("save-takeaway").textContent="Takeaway saved ✓";}catch(e){feedback(e.message,true)}
+};
+async function loadCampaigns(){
+ try{
+  const res=await api("/api/lab/campaigns");
+  $("campaign-list").innerHTML=res.campaigns.map(c=>
+  '<div class="topic"><div><strong>'+esc(c.title)+'</strong> <span class="pill">'+c.available+' ready</span><p>'+esc(c.description)+'</p>'+
+  '<div class="progress"><span style="width:'+Math.min(100,c.accuracy||0)+'%"></span></div><p>Unaided accuracy: '+(c.accuracy===null?"Not yet measured":c.accuracy+"%")+'</p></div>'+
+  '<button class="btn" data-start-topic="'+esc(c.topic)+'">Train</button></div>').join("");
+  document.querySelectorAll("[data-start-topic]").forEach(b=>b.onclick=()=>{
+    activeTopic=b.dataset.startTopic;startSession("campaign",activeTopic);});
+ }catch(e){$("campaign-list").textContent=e.message}
+}
+async function loadSkills(){
+ try{
+  const r=await api("/api/lab/profile");
+  $("mastery-summary").innerHTML='<span class="pill">'+r.assessments+' unaided checks</span><span class="pill">'+r.mastered+' skills reviewed twice</span>';
+  $("skill-list").innerHTML=r.skills.map(s=>
+    '<div class="skill"><div><b>'+esc(s.topic)+'</b><div class="small muted">'+s.attempts+' attempts · '+(s.averageSeconds??"—")+' sec average'+
+    ' · unseen transfer '+(s.transferAccuracy===null?"Not tested":s.transferAccuracy+"%")+'</div><div class="progress"><span style="width:'+Math.min(100,s.accuracy||0)+'%"></span></div></div>'+
+    '<b>'+(s.accuracy===null?"—":s.accuracy+"%")+'</b></div>').join("");
+ }catch(e){$("skill-list").textContent=e.message}
+}
+async function fetchLesson(){
+ const topic=$("lesson-topic").value;
+ try{
+  const r=await api("/api/lab/lesson",{topic});
+  $("book-lesson").innerHTML='<div class="card"><h2>'+esc(topic)+'</h2><p>'+esc(r.principle)+'</p></div>'+
+    (r.sources.length?r.sources.map(s=>'<div class="book"><a href="'+safeUrl(s.url)+'" target="_blank" rel="noopener noreferrer">'+esc(s.title)+'</a><p class="small muted">Why this applies: '+esc(s.reason)+'</p><p>'+esc(s.passage)+'</p></div>').join(""):'<div class="card muted">No complete readable excerpt available for this topic; the board exercises still work.</div>')+
+    (r.example?'<div class="card"><h3>See this principle in your own games</h3><div class="small muted" id="book-example-caption">Against '+esc(r.example.opponent)+': you played '+esc(r.example.played)+', Stockfish preferred '+esc(r.example.best)+'.</div><div id="book-demo-board" class="board" style="max-width:400px;margin:12px auto"></div><button class="btn alt" id="book-demo-toggle">Show after best move</button></div>':'')+
+    '<button class="btn" id="practice-from-book">Practice this concept in my games →</button>';
+  if(r.example){
+   let after=false;const draw=()=>renderBoard("book-demo-board",after?r.example.visual.best.fen:r.example.fen,
+      r.example.color,[],after?r.example.visual.best:r.example.visual.before);
+   draw();
+   $("book-demo-toggle").onclick=()=>{after=!after;draw();$("book-demo-toggle").textContent=after?"Show original position":"Show after best move"};
+  }
+  $("practice-from-book").onclick=()=>{activeTopic=topic;startSession("campaign",topic)};
+ }catch(e){$("book-lesson").textContent=e.message}
+}
+
+const positionalPalette={"doubled pawns":"#f4b077","isolated pawn":"#f4b077","restricted bishop":"#f4b077",
+ "passed pawn":"#ade889","pawn chain":"#ade889","king opposition":"#f5ce75",
+ "king exposure":"#df99ef","open file":"#76bbf1","half-open file":"#76bbf1",
+ "rook on open file":"#76bbf1","knight outpost":"#f5ce75"};
+function highlightPositional(features,orientation){
+ const el=$("coach-position-board");if(!el)return;
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("viewBox","0 0 800 800");svg.setAttribute("aria-hidden","true");
+ let lines='';
+ for(const f of features.slice(0,35)){
+  if(!/^[a-h][1-8]$/.test(f.square))continue;
+  const [x,y]=point(f.square,orientation),color=positionalPalette[f.type]||"#ffca65";
+  if(f.type==="open file"||f.type==="half-open file"){
+    lines+='<rect x="'+(x-41)+'" y="5" width="82" height="790" stroke="'+color+'" stroke-width="6" fill="'+color+'" fill-opacity=".08"/>';
+  }else{
+    lines+='<circle cx="'+x+'" cy="'+y+'" r="39" fill="none" stroke="'+color+'" stroke-width="7" stroke-dasharray="10 7"/>';
+  }
+ }
+ svg.innerHTML=lines;el.append(svg);
+}
+function showFeatureCards(features,orientation,fen){
+ const target=$("positional-features");
+ target.innerHTML=features.slice(0,25).map((f,i)=>
+   '<button type="button" class="topic" data-feature="'+i+'" style="text-align:left;width:100%"><div><strong>'+esc(f.type)+' · '+esc(f.square)+'</strong><p>'+esc(f.label)+'</p></div><span class="small muted">Show</span></button>').join("")||
+   '<div class="muted">No matching positional patterns found in this board.</div>';
+ target.querySelectorAll("[data-feature]").forEach(b=>b.onclick=()=>{
+  const f=features[Number(b.dataset.feature)];
+  renderBoard("coach-position-board",fen,orientation);
+  highlightPositional([f],orientation);
+  $("coach-overlays").textContent=f.type+": "+f.label;
+ });
+}
+function useTrainingPosition(){
+ if(!current||current.completed){$("ask-status").textContent="Start training to use its current board.";return}
+ if(coachConversationFen!==current.fen){
+  $("fen-input").value=current.fen;clearBoardHistory();
+ }
+ $("fen-input").value=current.fen;renderBoard("coach-position-board",current.fen,current.color);
+}
+async function inspectPosition(){
+ try{
+  const fen=$("fen-input").value.trim();
+  const r=await api("/api/lab/board",{fen});
+  const orientation=fen.split(" ")[1]==="b"?"Black":"White";
+  renderBoard("coach-position-board",fen,orientation);
+  highlightPositional(r.features,orientation);
+  showFeatureCards(r.features,orientation,fen);
+  $("coach-overlays").textContent=r.note;
+  $("ask-status").textContent=r.features.length+" geometric positional observations.";
+ }catch(e){$("ask-status").textContent=e.message}
+}
+
+let coachChatBusy=false;
+const threadKey="chessgrind-coach-thread",fenKey="chessgrind-coach-fen";
+const freshThread=()=>crypto.randomUUID().replace(/[^a-zA-Z0-9_-]/g,"");
+let coachThreadId=sessionStorage.getItem(threadKey)||freshThread();
+let coachConversationFen=sessionStorage.getItem(fenKey)||null;
+function appendBoardMessage(role,text,pending=false){
+ const el=document.createElement("div");
+ el.className="chat-message "+(role==="user"?"user":"assistant")+(pending?" pending":"");
+ const header=document.createElement("small");
+ header.textContent=role==="user"?"Your question":"Chess Grind · local AI";
+ const msg=document.createElement("div");
+ msg.textContent=text;
+ el.append(header,msg);
+ $("board-chat-history").append(el);
+ $("board-chat-history").scrollTop=$("board-chat-history").scrollHeight;
+ return el;
+}
+function clearBoardHistory(){
+ $("board-chat-history").replaceChildren();
+ coachThreadId=freshThread();
+ coachConversationFen=$("fen-input").value.trim()||null;
+ sessionStorage.setItem(threadKey,coachThreadId);
+ if(coachConversationFen)sessionStorage.setItem(fenKey,coachConversationFen);
+ else sessionStorage.removeItem(fenKey);
+ appendBoardMessage("assistant","Ask me a question about this board. We'll examine your ideas and the opponent's replies together.");
+}
+async function restoreBoardHistory(){
+ const savedFen=coachConversationFen;
+ if(!savedFen){clearBoardHistory();return;}
+ $("fen-input").value=savedFen;
+ sessionStorage.setItem(threadKey,coachThreadId);
+ try{
+  const q=new URLSearchParams({fen:savedFen,threadId:coachThreadId});
+  const response=await api("/api/lab/chat/history?"+q.toString());
+  $("board-chat-history").replaceChildren();
+  if(!response.items?.length){clearBoardHistory();return}
+  for(const entry of response.items){
+   appendBoardMessage("user",entry.question);
+   appendBoardMessage("assistant",entry.reply);
+  }
+  const orientation=savedFen.split(" ")[1]==="b"?"Black":"White";
+  renderBoard("coach-position-board",savedFen,orientation);
+ }catch(error){clearBoardHistory();}
+}
+$("clear-board-chat").onclick=clearBoardHistory;
+async function refreshCoachStatus(){
+ try{
+  const result=await api("/api/lab/chat/status");
+  const target=$("local-ai-status");
+  target.textContent=result.available?"AI coach ready · "+result.model:"AI unavailable · engine fallback";
+  target.style.color=result.available?"#e0f6b6":"#f5ca91";
+ }catch(error){$("local-ai-status").textContent="Local AI status unavailable"}
+}
+async function askBoard(){
+ if(coachChatBusy)return;
+ const fen=$("fen-input").value.trim(),question=$("board-question").value.trim(),
+  candidate=$("move-to-test").value.trim()||null;
+ if(!fen){$("ask-status").textContent="Select a current training position or enter its FEN.";return}
+ if(question.length<3){$("ask-status").textContent="Ask a question about the position first.";return}
+ if(coachConversationFen!==fen){
+  clearBoardHistory();
+  coachConversationFen=fen;
+  sessionStorage.setItem(fenKey,fen);
+ }
+ appendBoardMessage("user",question+(candidate?" · move to test: "+candidate:""));
+ const pending=appendBoardMessage("assistant","Analyzing this position with Stockfish and the local tutor…",true);
+ coachChatBusy=true;$("ask-board-button").disabled=true;
+ $("ask-status").textContent="Analyzing the board locally…";
+ try{
+  const r=await api("/api/lab/chat",{fen,question,candidate,threadId:coachThreadId});
+  pending.classList.remove("pending");
+  pending.querySelector("div").textContent=r.answer;
+  $("board-question").value="";
+  const orientation=fen.split(" ")[1]==="b"?"Black":"White";
+  renderBoard("coach-position-board",fen,orientation,[],r.visual?.before||null);
+  highlightPositional(r.features||[],orientation);
+  showFeatureCards(r.features||[],orientation,fen);
+  $("coach-overlays").textContent=(r.note||"")+" Green and blue arrows represent checked moves, not guesses by the AI.";
+  $("ask-status").textContent=r.mode==="local_llm"?"Local AI explanation ready. Ask a follow-up.":"Stockfish explanation shown. AI fallback is available.";
+ }catch(error){
+  pending.classList.remove("pending");
+  pending.querySelector("div").textContent="I couldn't analyze that position: "+error.message;
+  $("ask-status").textContent=error.message;
+ }finally{
+  coachChatBusy=false;$("ask-board-button").disabled=false;
+  $("board-chat-history").scrollTop=$("board-chat-history").scrollHeight;
+ }
+}
+$("board-question").addEventListener("keydown",event=>{
+ if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)){
+  event.preventDefault();askBoard();
+ }
+});
+refreshCoachStatus();
+loadOverview();
+(async()=>{
+ await restoreBoardHistory();
+ const handoffRaw=sessionStorage.getItem("chessgrind-academy-handoff");
+ if(handoffRaw){
+  sessionStorage.removeItem("chessgrind-academy-handoff");
+  try{
+   const handoff=JSON.parse(handoffRaw);
+   if(typeof handoff.fen==="string"&&handoff.fen.length<150&&
+      typeof handoff.question==="string"&&handoff.question.length<850){
+    readFen(handoff.fen);
+    $("fen-input").value=handoff.fen;
+    clearBoardHistory();
+    $("board-question").value=handoff.question;
+    $("move-to-test").value=handoff.candidate||"";
+    coachConversationFen=handoff.fen;
+    sessionStorage.setItem(fenKey,handoff.fen);
+    openTab("ask");
+    renderBoard("coach-position-board",handoff.fen,
+      handoff.fen.split(" ")[1]==="b"?"Black":"White");
+    $("ask-status").textContent="Board imported from Chess Vision Academy. Your coach is ready to discuss it.";
+   }
+  }catch(error){$("ask-status").textContent="Could not import that Academy board."}
+ }
+ const requestedTab=new URLSearchParams(location.search).get("tab");
+ if(["campaigns","skills","books","ask"].includes(requestedTab))openTab(requestedTab);
+ try{const old=sessionStorage.getItem("chessgrind-lab");if(old){sid=old;renderStage(await api("/api/lab/session?id="+encodeURIComponent(old)));}}
+ catch(e){sessionStorage.removeItem("chessgrind-lab");}
+})();
+</script></body></html>

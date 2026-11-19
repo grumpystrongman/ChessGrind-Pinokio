@@ -1,0 +1,126 @@
+/* Chess Grind: purpose-built touch-first portrait and landscape layouts.
+   Shared DOM and APIs: completion, game analysis and trainer state sync with desktop. */
+:root{--tap:46px}
+button,.button,.nav,.move{touch-action:manipulation}
+button:focus-visible,.square:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.board{touch-action:manipulation}
+.square{touch-action:manipulation}
+#puzzle-board .square.selected{box-shadow:inset 0 0 0 4px #f4c875}
+#puzzle-board .square[data-target="true"]{box-shadow:inset 0 0 0 4px #cee98a}
+#puzzle-board{max-width:550px;margin:auto}
+#coach-board{margin:auto}
+#puzzle-board .square:focus-visible{outline:3px solid #fae2a7;outline-offset:-3px}
+#game-picker{min-height:46px}
+#coach-question{font-size:16px;line-height:1.55}
+.mobile-meta{display:none}
+@media(max-width:750px){
+ :root{--tap:48px}
+ html{-webkit-text-size-adjust:100%;scroll-padding-top:67px}
+ body{font-size:15px;overscroll-behavior-y:contain}
+ .layout{display:block;min-height:100dvh}
+ aside{height:56px;padding:8px 17px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;
+   background:rgba(15,24,25,.96);border-right:0;border-bottom:1px solid #344342;
+   -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+ .brand{font-size:22px;line-height:1.05;white-space:nowrap}
+ .mobile-meta{display:flex;align-items:center;gap:6px;color:#c8ea79;font-size:11px;font-weight:750}
+ .mobile-meta::before{content:"";height:6px;width:6px;border-radius:50%;background:#c8ea79}
+ nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin:0;overflow:visible;position:fixed;bottom:0;left:0;right:0;
+   min-height:calc(68px + env(safe-area-inset-bottom,0px));padding:5px 5px calc(6px + env(safe-area-inset-bottom,0px));
+   background:rgba(14,22,24,.98);border-top:1px solid #364641;z-index:50;
+   -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+ .nav{min-width:0;white-space:normal;flex-direction:column;justify-content:center;align-items:center;gap:2px;
+   padding:7px 1px 5px;font-size:10px;line-height:1.25;text-align:center;font-weight:750;border-radius:10px;min-height:52px}
+ .nav .nav-icon{font-size:21px;line-height:1}
+ .nav.active{background:#263a2e}
+ main{padding:23px 14px calc(95px + env(safe-area-inset-bottom,0px));width:100%;overflow:hidden}
+ h1{font-size:clamp(28px,7.6vw,36px);letter-spacing:-1.05px;line-height:1.13;margin:9px 0 12px}
+ h2{font-size:18px}
+ .eyebrow{font-size:10px}
+ .sub{line-height:1.56;font-size:13px}
+ .top{margin-bottom:18px}
+ .chip{font-size:10px;max-width:100%;white-space:normal;padding:7px 10px}
+ .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:17px 0}
+ .metric{padding:16px 13px}
+ .metric .num{font-size:31px;line-height:1.2}
+ .metric .foot{font-size:11px;overflow-wrap:anywhere}
+ .card{padding:16px;border-radius:15px}
+ .grid2,.grid-wide{display:grid;grid-template-columns:minmax(0,1fr);gap:15px}
+ .card-title{align-items:flex-start}
+ .card-title h2{margin:0}
+ #refresh-actions{align-items:stretch;flex-direction:column}
+ #refresh-actions .button{width:100%}
+ #refresh-status{font-size:11px}
+ #mode-summary{gap:6px!important}
+ .topic-pill{font-size:11px;line-height:1.35}
+ .problem{padding:13px;align-items:flex-start;gap:7px;flex-wrap:wrap}
+ .problem>div{min-width:0;max-width:100%}
+ .problem .button{width:100%;text-align:center}
+ #recent .game-row{padding:15px 12px}
+ .review-head{align-items:stretch;display:flex;flex-direction:column;gap:10px}
+ .review-head select{max-width:100%;width:100%;min-height:48px;font-size:16px}
+ .review-head .button{width:100%}
+ .board{width:min(100%,calc(100dvw - 36px));max-width:450px;border-width:3px;border-radius:7px;margin-left:auto;margin-right:auto}
+ .square{min-width:0;min-height:0}
+ .board .piece{font-size:clamp(24px,9.9vw,47px)}
+ .board .coord,.board .file{font-size:9px}
+ .toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0 18px}
+ .toolbar .button{min-height:var(--tap);min-width:0;font-size:17px}
+ .move-list{gap:6px;max-height:195px;padding:3px 0}
+ .move{font-size:14px;padding:9px 10px;min-height:40px}
+ .puzzle-card{padding:17px 14px}
+ #puzzle-text{font-size:14px;line-height:1.6}
+ #puzzle-feedback{font-size:14px;line-height:1.55;min-height:28px}
+ .puzzle-card button{min-height:46px}
+ .training{margin-top:12px;padding:14px}
+ #coach .grid2 .card{padding:16px}
+ #coach textarea{font-size:16px}
+ #coach #ask-coach{width:100%;min-height:50px}
+ #coach .button.alt{min-height:45px;flex:1}
+ #coach-answer{line-height:1.65}
+ #coach-sources .book-card{padding:13px}
+ #library-search{width:100%;min-width:0!important;min-height:46px;font-size:16px}
+ #daily-tasks .todo{grid-template-columns:24px minmax(0,1fr) 55px;gap:9px}
+ #daily-tasks input{width:20px;height:20px}
+ #daily-tasks .todo button{min-height:42px}
+ .button{min-height:var(--tap)}
+ #study-shelf{margin-top:15px}
+ footer{margin-top:32px}
+}
+@media(max-width:355px){
+ main{padding-left:10px;padding-right:10px}
+ .board{width:min(100%,calc(100dvw - 26px))}
+ .board .piece{font-size:clamp(21px,9.3vw,35px)}
+ .nav{font-size:9px}
+ .metric .num{font-size:27px}
+}
+@media(max-width:750px) and (orientation:landscape){
+ aside{height:48px}
+ main{padding-top:16px}
+ nav{min-height:57px}
+ .nav{min-height:44px;padding:3px;font-size:9px}
+ .nav .nav-icon{font-size:17px}
+ .grid-wide{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .board{width:min(100%,calc(100dvh - 130px))}
+ .board .piece{font-size:clamp(20px,7vh,36px)}
+}
+@media(prefers-reduced-motion:reduce){
+ *{scroll-behavior:auto!important;transition:none!important}
+}
+
+/* Phone experience: a bottom tab bar, chessboard first, reading after practice. */
+@media(max-width:750px){
+ aside{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+ nav{top:auto!important;bottom:0!important;position:fixed!important}
+ #training.view.active{display:flex;flex-direction:column;gap:12px}
+ #training .top{order:0;margin-bottom:0}
+ #training .top h1{font-size:27px;margin:5px 0 2px}
+ #training .top .sub{display:none}
+ #training .puzzle-session{order:1}
+ #training .mini-lesson{order:2;margin:0!important;padding:15px}
+ #training #study-shelf{order:3;margin-top:0!important}
+ #training .puzzle-session .review-head{flex-direction:row;align-items:center;justify-content:space-between;gap:8px}
+ #training .puzzle-session .review-head h2{font-size:15px;margin:0;flex:1;line-height:1.3}
+ #training .puzzle-session .review-head .button{width:auto;flex-shrink:0;min-height:44px;padding:9px 12px;font-size:12px}
+ #training .puzzle-session .board{margin-top:0}
+ #lesson-source p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden}
+}

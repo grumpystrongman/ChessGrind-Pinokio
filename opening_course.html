@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#142126"><title>Opening Mastery Academy | Chess Grind</title>
+<style>
+:root{color-scheme:dark;--bg:#10191d;--surface:#1a2b2e;--surface2:#273b3b;--stroke:#436058;--accent:#d5edab;--text:#f0f6eb;--soft:#b7cfc1;--gold:#f5d28b;--red:#e8a69a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(800px 480px at 80% -270px,#456d52,transparent 90%),var(--bg);color:var(--text);font:15px/1.6 "Segoe UI",Inter,Arial,sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.5;cursor:default}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+a{color:var(--accent);text-decoration:none}h1,h2,h3,p{margin:0}h1{font-size:clamp(29px,4vw,43px);line-height:1.15;letter-spacing:-1.1px}h2{font-size:21px;letter-spacing:-.4px}h3{font-size:16px}
+header{display:flex;align-items:center;gap:16px;height:67px;padding:0 clamp(12px,3vw,36px);background:#142528;border-bottom:1px solid var(--stroke);position:sticky;top:0;z-index:35}
+.logo{font-size:20px;font-weight:900;letter-spacing:-.8px;white-space:nowrap}.logo strong{color:var(--accent)}
+.header-info{color:var(--soft);font-size:12px;border-left:1px solid var(--stroke);padding-left:16px}.header-back{margin-left:auto;color:#e2eee2;font-size:12px;border:1px solid var(--stroke);padding:10px 13px;background:#293f3e;border-radius:9px}
+.wrap{max-width:1510px;margin:auto;padding:27px clamp(12px,3vw,40px) 75px}
+.hero{padding:25px 28px;border-radius:19px;background:linear-gradient(114deg,#284a38,#213f3e);border:1px solid #587963;position:relative;overflow:hidden}
+.hero:after{content:"♟";font-size:230px;color:#d5edab;opacity:.06;right:23px;top:-45px;position:absolute;pointer-events:none}.hero>*{position:relative;z-index:1}
+.hero p{color:#d1e2d2;max-width:850px;margin-top:11px}
+.kicker{text-transform:uppercase;letter-spacing:1.55px;font-size:10px;font-weight:900;color:#c6e6a1}
+.grid{display:grid;grid-template-columns:360px minmax(0,1fr);align-items:start;gap:17px;margin-top:18px}
+.panel{background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:19px;min-width:0}
+.panel+.panel{margin-top:13px}.muted{color:var(--soft)}.small{font-size:12px}.tiny{font-size:11px}
+.btn{min-height:44px;background:var(--accent);color:#1c2e20;border:1px solid var(--accent);padding:10px 14px;border-radius:10px;font-weight:850}
+.btn.alt{background:#314a45;color:#e9f3e7;border-color:#5e7c71}.btn.ghost{background:transparent;color:#d9e9cd;border-color:#4d6a5e}
+.btn:hover:not(:disabled){filter:brightness(1.09)}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.space{justify-content:space-between}
+.colorbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.colorbtn{padding:12px;border-radius:11px;border:1px solid #526d62;background:#283e3b;color:var(--text);text-align:center;font-weight:850}
+.colorbtn.active{background:#d5edab;color:#203225;border-color:#d5edab}
+input[type=search],input[type=text],textarea{width:100%;border-radius:10px;min-height:43px;border:1px solid #5c776a;padding:10px 12px;background:#273e3c;color:#f1f6e9}
+textarea{resize:vertical;min-height:95px}
+.statrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.stat{background:#273c37;padding:11px;border-radius:11px;border:1px solid #4c695c}.stat b{font-size:24px;line-height:1.2;display:block}.stat small{font-size:10px;color:var(--soft)}
+.catalog{display:grid;gap:8px;margin-top:12px;max-height:600px;overflow:auto}
+.opening-item{width:100%;padding:12px;border:1px solid #4e695e;border-radius:11px;background:#263c3a;text-align:left;color:var(--text)}
+.opening-item:hover{border-color:#d1e8a1}.opening-item.active{background:#35573f;border-color:#c8e69f}
+.opening-item strong{font-size:13px;display:block}.opening-item small{font-size:11px;color:#bdd0c2;display:block;margin-top:3px}
+.tag{display:inline-flex;background:#395943;color:#dff2d0;border-radius:99px;padding:4px 10px;font-size:10px;font-weight:850}
+.stage{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.step{padding:7px 10px;border-radius:9px;background:#293f3c;border:1px solid #4b635c;font-size:11px;font-weight:800;color:#b8cfc2}
+.step.active{background:var(--accent);color:#213524;border-color:var(--accent)}
+.stage-body{display:grid;grid-template-columns:minmax(0,540px) minmax(0,1fr);gap:18px;align-items:start}
+.board-shell{padding:9px;background:#2b4640;border:1px solid #5a7969;border-radius:12px}
+.board{aspect-ratio:1;width:100%;position:relative;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border:3px solid #4c645a;border-radius:7px;overflow:hidden;isolation:isolate}
+.square{position:relative;aspect-ratio:1;min-width:0;border:0;padding:0;display:grid;place-items:center}
+.square.light{background:#e3e9dc;color:#496355}.square.dark{background:#799b94;color:#f2f4ec}
+.square.selected{box-shadow:inset 0 0 0 5px #ddf19d}
+.piece{font:clamp(24px,4.1vw,55px)/1 "Segoe UI Symbol","DejaVu Sans",serif}
+.piece.white{color:#fffdf3;text-shadow:0 1px 3px #25413a,-1px -1px 2px #25413a}.piece.black{color:#122729;text-shadow:0 1px 1px #fffeee}
+.coord{position:absolute;font:900 10px Arial;top:1px;left:3px;opacity:.8}
+.board svg{position:absolute;width:100%;height:100%;inset:0;z-index:6;pointer-events:none}
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.controls .btn{flex:0 1 auto}
+.chapter{border:1px solid #50735d;border-radius:12px;background:#274236;padding:15px;margin-top:12px}
+.chapter h3{margin-bottom:6px}.chapter p{color:#d6e6d7;font-size:13px;line-height:1.7}
+.prompt{background:#473e2e;border:1px solid #897248;border-radius:11px;color:#f5e1b9;padding:14px;font-size:13px;line-height:1.65;margin-top:13px}
+.feedback{padding:13px;background:#274235;border:1px solid #567a5d;border-radius:11px;margin-top:12px;font-size:13px;line-height:1.65}
+.feedback.error{background:#463633;border-color:#996c5f;color:#f5cbc3}
+.progress-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.metric{border:1px solid #486659;border-radius:11px;padding:12px;background:#243936}
+.metric b{font-size:17px;display:block}.metric small{font-size:11px;color:#c2d5c7}
+.quote{border-left:3px solid #bdda91;padding:12px;background:#273d33;color:#dfeee0;font-size:13px;margin-top:12px}
+#bookmarks{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.bookmark{border:1px solid #537161;border-radius:8px;padding:7px 10px;color:#dce9da;background:#2b443d;font-size:12px}
+.bookmark.active{background:#d0e8a9;color:#203225}
+.hidden{display:none!important}
+#lesson-details{max-height:565px;overflow-y:auto}
+#review-choices{display:grid;gap:9px;margin-top:12px}
+#course-status{margin-top:12px;color:#c9dbca;font-size:12px}
+@media(max-width:1150px){.grid{grid-template-columns:285px 1fr}.stage-body{grid-template-columns:1fr}}
+@media(max-width:720px){header{height:59px;padding:0 11px}.header-info{display:none}.logo{font-size:17px}
+.wrap{padding:14px 10px 60px}.hero{padding:19px 17px}.hero:after{font-size:150px}
+.grid{display:flex;flex-direction:column;gap:12px}.sidebar{width:100%}.catalog{max-height:245px}
+.stage-body{display:block}.stage-body>.panel{margin-top:12px}
+.board-shell{padding:5px}.piece{font-size:clamp(27px,10vw,47px)}
+.panel{padding:14px}.controls .btn{flex:1}.progress-metrics{gap:6px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style></head>
+<body>
+<header><a class="logo" href="/learn">CHESS<strong>GRIND</strong></a><span class="header-info">Opening Mastery · White & Black</span><a class="header-back" href="/masters">♚ Study Masters</a><a class="header-back" href="/strategy">← Strategy Studio</a></header>
+<main class="wrap">
+ <section class="hero"><div class="kicker">A real curriculum, not a list of moves</div>
+  <h1>Know the plan. Understand the reply. Prove it on a new board.</h1>
+  <p>Explore the complete named ECO catalog, study both sides with real chessboard explanations, schedule reviews, and demonstrate skill on a held-out variation. Recalling a move isn't the same as understanding it.</p>
+ </section>
+ <div class="grid">
+  <aside class="sidebar">
+   <div class="panel">
+    <div class="kicker">Equal study for both colors</div>
+    <div class="colorbar"><button id="white-track" class="colorbtn active">♙ Playing White</button><button id="black-track" class="colorbtn">♟ Playing Black</button></div>
+    <div class="statrow">
+      <div class="stat"><b id="studying-stat">0</b><small>Studying</small></div>
+      <div class="stat"><b id="due-stat">0</b><small>Due reviews</small></div>
+      <div class="stat"><b id="transfer-stat">0</b><small>Transfer demonstrated</small></div>
+    </div>
+    <h3 style="margin-bottom:9px">Your openings from real games</h3>
+    <p class="small muted">Start with positions you've reached most often as this color.</p>
+    <div id="my-opening-list" class="catalog" style="max-height:220px;margin-bottom:17px"></div>
+    <h3 style="margin-bottom:9px">Explore the full ECO library</h3>
+    <input id="opening-search" type="search" placeholder="Sicilian, Italian, B20…" aria-label="Search ECO opening names">
+    <div class="muted small" id="catalog-caption" style="margin-top:10px">Loading catalog…</div>
+    <div id="eco-list" class="catalog" aria-label="Opening choices"></div>
+    <div class="small muted" style="margin-top:12px">Opening names are from the Lichess CC0 catalog. Not every ECO line is an engine recommendation.</div>
+   </div>
+  </aside>
+  <div class="workspace">
+   <div class="panel" id="no-lesson"><div class="kicker">Choose your path</div><h2 style="margin:8px 0">Start with an opening you encounter.</h2>
+    <p class="muted">Select White or Black and pick an opening from the list. You'll see a real position, why each move changes the board, and what your opponent can do. Then test your recall and your ability to handle a different line.</p>
+   </div>
+   <div id="course-lesson" class="hidden">
+    <div class="panel">
+     <div class="row space"><div><div class="kicker" id="eco-label">ECO</div><h2 id="eco-title">Loading…</h2><p class="small muted" id="eco-subtitle"></p></div><span class="tag" id="eco-color">White</span></div>
+     <div class="stage" id="course-steps"><span class="step active">1 · See the idea</span><span class="step">2 · Reconstruct</span><span class="step">3 · Delayed review</span><span class="step">4 · New variation</span></div>
+     <div class="progress-metrics">
+       <div class="metric"><b id="knowledge-score">0</b><small>Knowledge checks passed</small></div>
+       <div class="metric"><b id="recall-score">0</b><small>Review repetitions</small></div>
+       <div class="metric"><b id="transfer-score">0</b><small>Independent held-out passes</small></div>
+       <div class="metric"><b id="due-label">Not started</b><small>Next review</small></div>
+     </div>
+     <div class="row" style="margin-top:10px">
+      <button class="btn" id="mode-learn">Explore the lesson</button>
+      <button class="btn alt" id="mode-recall">Test my recall</button>
+      <button class="btn alt" id="mode-transfer">Test a new variation</button>
+      <button class="btn alt" id="mode-knowledge">Check opening knowledge</button>
+     </div>
+    </div>
+    <div class="stage-body" style="margin-top:14px">
+     <div class="panel">
+      <div class="row space"><h3 id="board-label">Opening position</h3><span class="tag" id="board-turn">White to move</span></div>
+      <div class="board-shell" style="margin-top:12px"><div class="board" id="study-board" aria-label="Interactive chess opening board"></div></div>
+      <div id="board-caption" class="small muted" style="margin-top:11px">Study both sides of the position.</div>
+      <div class="controls" id="lesson-stepper"><button id="prev-move" class="btn alt">← Previous</button><button id="next-move" class="btn alt">Next move →</button></div>
+      <div id="bookmarks"></div>
+     </div>
+     <div class="panel">
+      <div id="learn-mode">
+       <div class="kicker">Visual opening coaching</div><h2 style="margin:8px 0" id="plan-heading">What are you trying to achieve?</h2>
+       <p class="muted" id="plan-purpose"></p>
+       <div class="chapter"><h3>The plan for <span id="theory-side">your side</span></h3><p id="theory-you"></p></div>
+       <div class="chapter"><h3>What your opponent is trying to accomplish</h3><p id="theory-them"></p></div>
+       <div class="chapter"><h3>Pawn structure and key breaks</h3><p id="theory-structure"></p></div>
+       <div class="chapter"><h3>Calculation traps and common mistakes</h3><p id="theory-traps"></p></div>
+       <div class="chapter"><h3>What changed on this board?</h3><p id="coach-explanation"></p></div>
+       <div class="chapter"><h3>What the opponent has planned</h3><p id="opponent-explanation"></p></div>
+       <div class="prompt" id="coach-question"></div>
+       <div class="controls"><button id="ask-coach" class="btn alt">♞ Ask my conversational coach ↗</button></div>
+      </div>
+      <div id="assessment-mode" class="hidden">
+       <div class="kicker" id="assessment-type">Independent practice</div>
+       <h2 id="assessment-title" style="margin:9px 0">Think before you move.</h2>
+       <p id="assessment-prompt" class="muted"></p>
+       <div id="assessment-feedback" class="feedback hidden" role="status"></div>
+       <div id="assessment-actions" class="controls"></div>
+      </div>
+      <div id="knowledge-mode" class="hidden">
+       <div class="kicker">Theory knowledge check</div>
+       <h2 style="margin:9px 0">Do you understand the plan?</h2>
+       <p class="muted" id="knowledge-prompt">Loading your color-specific plan question…</p>
+       <div id="knowledge-options" style="display:grid;gap:9px;margin-top:13px"></div>
+       <div class="controls">
+         <label class="small muted"><input type="checkbox" id="knowledge-help"> I reviewed the lesson while answering</label>
+         <button id="knowledge-submit" class="btn">Commit my explanation</button>
+       </div>
+       <div id="knowledge-feedback" class="feedback hidden" role="status"></div>
+       <div class="prompt">Identify the strategic plan for your side. This tests family-level understanding; the independent held-out board is a separate assessment.</div>
+      </div>
+      <div id="lesson-bottom" class="small muted" style="margin-top:14px">Try to explain the reason behind the move before memorizing it.</div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <footer class="small muted" style="margin-top:23px">CC0 ECO names: lichess-org/chess-openings. Chess positions are validated with python-chess. Engine transfer grading is depth-limited and does not certify tournament strength. White and Black have separate records and equal access to the curriculum.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id),esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const glyph={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+let color="White",list=[],course=null,stepIndex=0,mode="learn",question=null,selected=null,busy=false,answerResult=null,latestCatalogSearch=0,sessionToken=0,conceptQuiz=null,conceptChoice=null;
+async function api(url,post=undefined){
+ const r=await fetch(url,post===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(post)});
+ const obj=await r.json();if(!r.ok)throw Error(obj.error||"Request failed");return obj;
+}
+function pieces(fen){let a=[];for(const row of fen.split(" ")[0].split("/"))for(const c of row){if(/[1-8]/.test(c))for(let i=0;i<Number(c);i++)a.push("");else a.push(c)}return a}
+function square(i,side){const f=i%8,r=Math.floor(i/8);return side==="White"?String.fromCharCode(97+f)+(8-r):String.fromCharCode(104-f)+(r+1)}
+function point(sq,side){const f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;return side==="White"?[f*100+50,(7-r)*100+50]:[(7-f)*100+50,r*100+50]}
+function at(fen,sq){const p=pieces(fen),f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;return p[(7-r)*8+f]}
+function turn(fen){return fen.split(" ")[1]==="b"?"Black":"White"}
+function board(fen,arrows=[],mark=null){
+ const source=pieces(fen),html=[];
+ if(source.length!==64){$("study-board").textContent="Invalid board";return}
+ for(let i=0;i<64;i++){
+  const sq=square(i,color),f=sq.charCodeAt(0)-97,r=Number(sq[1])-1;
+  const pc=source[(7-r)*8+f],dark=(f+r)%2===1;
+  html.push('<button type="button" class="square '+(dark?"dark":"light")+
+   (selected===sq?" selected":"")+'" data-square="'+sq+'" aria-label="'+sq+(pc?" "+pc:" empty")+'">'+
+   (pc?'<span class="piece '+(pc===pc.toUpperCase()?"white":"black")+'">'+glyph[pc]+'</span>':"")+
+   (i%8===0?'<span class="coord">'+sq[1]+'</span>':"")+'</button>');
+ }
+ $("study-board").innerHTML=html.join("");
+ if(arrows.length||mark){
+  let str='<defs><marker id="course-arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5Z" fill="#d5eda7"/></marker></defs>';
+  if(mark){const [x,y]=point(mark,color);str+='<circle cx="'+x+'" cy="'+y+'" r="39" stroke="#f9d38b" stroke-width="8" fill="none"/>'}
+  for(const a of arrows){if(!a?.from||!a?.to)continue;
+   const [x,y]=point(a.from,color),[u,v]=point(a.to,color),dx=u-x,dy=v-y,l=Math.hypot(dx,dy);
+   if(l<5)continue;
+   str+='<line x1="'+(x+dx*24/l)+'" y1="'+(y+dy*24/l)+'" x2="'+(u-dx*30/l)+'" y2="'+(v-dy*30/l)+'" stroke="#d5eda7" stroke-width="10" marker-end="url(#course-arrow)"/>';
+  }
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 800 800");svg.setAttribute("aria-hidden","true");
+  svg.innerHTML=str;$("study-board").append(svg);
+ }
+ $("board-turn").textContent=turn(fen)+" to move";
+}
+function activeMode(next){
+ mode=next;selected=null;
+ $("learn-mode").classList.toggle("hidden",next!=="learn");
+ $("assessment-mode").classList.toggle("hidden",!["recall","transfer"].includes(next));
+ $("knowledge-mode").classList.toggle("hidden",next!=="knowledge");
+ $("lesson-stepper").classList.toggle("hidden",next!=="learn");
+ $("bookmarks").classList.toggle("hidden",next!=="learn");
+ document.querySelectorAll(".step").forEach((s,i)=>s.classList.toggle("active",
+   i===({learn:0,knowledge:1,recall:2,transfer:3}[next])));
+}
+async function track(next){
+ if(color===next)return;
+ color=next;course=null;question=null;sessionToken++;
+ $("white-track").classList.toggle("active",next==="White");
+ $("black-track").classList.toggle("active",next==="Black");
+ $("course-lesson").classList.add("hidden");$("no-lesson").classList.remove("hidden");
+ $("opening-search").value=next==="Black"?"Sicilian":"Italian Game";
+ await Promise.all([loadCatalog(),loadDashboard(),loadPersonal()]);
+}
+$("white-track").onclick=()=>track("White");$("black-track").onclick=()=>track("Black");
+async function loadPersonal(){
+ try{
+  const c=color;
+  const r=await api("/api/opening-course/my-openings?color="+c);
+  if(c!==color)return;
+  $("my-opening-list").innerHTML=r.top.map(x=>
+   '<button class="opening-item" data-personal="'+x.id+'"><strong>'+
+   esc(x.eco)+" · "+esc(x.name)+'</strong><small>Reached in '+
+   x.games+' of your '+r.analyzedGames+' analyzed '+c+' games</small></button>').join("")||
+   '<div class="small muted">No named openings found yet. Use the full ECO library below.</div>';
+  document.querySelectorAll("[data-personal]").forEach(b=>b.onclick=()=>
+    openCourse(Number(b.dataset.personal)));
+ }catch(error){$("my-opening-list").textContent="Game-based recommendations unavailable: "+error.message}
+}
+async function loadDashboard(){
+ try{
+  const d=await api("/api/opening-course/dashboard");
+  const stats=d.colors[color];
+  $("studying-stat").textContent=stats.studying;
+  $("due-stat").textContent=stats.due;
+  $("transfer-stat").textContent=stats.transferDemonstrated;
+ }catch(error){$("catalog-caption").textContent="Progress unavailable: "+error.message}
+}
+async function loadCatalog(){
+ const token=++latestCatalogSearch;
+ try{
+  const q=$("opening-search").value.trim();
+  const data=await api("/api/eco?color="+color+"&q="+encodeURIComponent(q)+"&limit=60");
+  if(token!==latestCatalogSearch)return;
+  list=data.openings;
+  $("catalog-caption").textContent=data.matching+" matching opening entries · "+data.total+" named ECO entries available";
+  $("eco-list").innerHTML=list.map(r=>
+   '<button type="button" class="opening-item" data-id="'+r.id+'"><strong>'+esc(r.eco)+" · "+esc(r.name)+
+   '</strong><small>'+esc(r.pgn)+' · '+r.plies+' half-moves</small></button>').join("")||
+   '<div class="muted small">No matching entries. Try the opening name or ECO code.</div>';
+  document.querySelectorAll("#eco-list [data-id]").forEach(b=>b.onclick=()=>openCourse(Number(b.dataset.id)));
+ }catch(error){$("catalog-caption").textContent="Catalog error: "+error.message}
+}
+$("opening-search").oninput=()=>loadCatalog();
+async function openCourse(id){
+ const token=++sessionToken;
+ try{
+  const data=await api("/api/opening-course/lesson?id="+id+"&color="+color);
+  if(token!==sessionToken)return;
+  course=data;stepIndex=0;answerResult=null;question=null;
+  $("no-lesson").classList.add("hidden");$("course-lesson").classList.remove("hidden");
+  $("eco-label").textContent=data.eco+" · Named opening course";
+  $("eco-title").textContent=data.name;
+  $("eco-subtitle").textContent=data.pgn+" · ECO catalog positions, not necessarily engine-optimal moves";
+  $("eco-color").textContent="Studying as "+color;
+  $("plan-heading").textContent="Your plan as "+color;
+  $("plan-purpose").textContent=data.plan.goal;
+  $("theory-side").textContent=color;
+  $("theory-you").textContent=data.theory.yourPlan;
+  $("theory-them").textContent=data.theory.opponentPlan;
+  $("theory-structure").textContent=data.theory.structure;
+  $("theory-traps").textContent=data.theory.calculation+" Common mistake: "+data.theory.pitfall;
+
+  document.querySelectorAll("#eco-list [data-id]").forEach(b=>b.classList.toggle("active",Number(b.dataset.id)===id));
+  updateProgress(data.progress);activeMode("learn");drawLesson();
+  document.querySelector("#course-lesson").scrollIntoView({behavior:"smooth",block:"start"});
+ }catch(error){$("no-lesson").textContent="Could not open this variation: "+error.message}
+}
+function updateProgress(p){
+ $("knowledge-score").textContent=p.knowledgePasses;
+ $("recall-score").textContent=p.repetitions;
+ $("transfer-score").textContent=p.independentTransferPasses;
+ $("due-label").textContent=p.nextDue?(p.due?"Due now":p.nextDue.slice(0,10)):"Not scheduled";
+}
+function drawLesson(){
+ if(!course||mode!=="learn")return;
+ const previous=stepIndex?course.steps[stepIndex-1]:null;
+ const fen=previous?previous.fen:course.steps[0].before;
+ const arrow=previous?[{from:previous.uci.slice(0,2),to:previous.uci.slice(2,4)}]:[];
+ board(fen,arrow);
+ $("prev-move").disabled=stepIndex===0;
+ $("next-move").disabled=stepIndex===course.steps.length;
+ $("board-label").textContent="Move "+stepIndex+" / "+course.steps.length;
+ $("board-caption").textContent=previous?"After "+previous.san+" · "+
+   (turn(fen)===color?"Your turn to prepare the plan.":"Opponent to move."):"Before the first move";
+ $("bookmarks").innerHTML=course.steps.map((s,i)=>
+  '<button type="button" class="bookmark '+(stepIndex===i+1?"active":"")+
+  '" data-step="'+(i+1)+'">'+(Math.floor(i/2)+1)+(i%2?"…":".")+
+  " "+esc(s.san)+'</button>').join("");
+ document.querySelectorAll("#bookmarks [data-step]").forEach(b=>b.onclick=()=>{stepIndex=Number(b.dataset.step);drawLesson()});
+ const step=previous;
+ const decision=step&&course.decisions.find(d=>d.ply===stepIndex);
+ const next=course.steps[stepIndex];
+ if(decision){
+  $("coach-explanation").textContent=decision.plan;
+  $("opponent-explanation").textContent=decision.opponentReply?
+    "The next recorded reply is "+decision.opponentReply+
+    ". Evaluate its threats, central control and piece activity. A named line is an example, not a forced response.":
+    "The named line ends at this position; the opponent is free to choose other legal replies. "+
+    "A typical opponent plan in this family is: "+course.theory.opponentPlan+
+    " Check its feasibility on this board rather than assuming it must happen.";
+  $("coach-question").textContent="Coach asks: "+decision.prompt;
+ }else if(step){
+  $("coach-explanation").textContent="This was the opponent's move "+step.san+
+    ". What did it attack, protect, or leave undefended? Compare the center and your next developing move.";
+  const following=next?next.san:"the move you calculate";
+  $("opponent-explanation").textContent="Your candidate in this recorded variation is "+following+
+    ". Your opponent was not required to enter this line—use the board to understand why this branch was played.";
+  $("coach-question").textContent="Before continuing, choose a response for "+color+" and explain your reason.";
+ }else{
+  $("coach-explanation").textContent="Start position: all sixteen pawns are on their original squares. "+
+   "Your aim is to develop pieces, influence the center and keep your king safe.";
+  $("opponent-explanation").textContent=course.plan.goal;
+  $("coach-question").textContent="Before clicking Next, which center square would you like to influence and why?";
+ }
+}
+$("prev-move").onclick=()=>{stepIndex=Math.max(0,stepIndex-1);drawLesson()};
+$("next-move").onclick=()=>{stepIndex=Math.min(course.steps.length,stepIndex+1);drawLesson()};
+$("mode-learn").onclick=()=>{activeMode("learn");drawLesson()};
+async function assessment(role){
+ if(!course||busy)return;
+ activeMode(role);busy=true;
+ $("assessment-type").textContent=role==="recall"?"Review · remembered line":"Independent transfer · different position";
+ $("assessment-title").textContent=role==="recall"?"Reconstruct your planned move":"Can you handle a different opening branch?";
+ $("assessment-prompt").textContent="Loading an appropriate board…";
+ $("assessment-feedback").classList.add("hidden");$("assessment-actions").innerHTML="";
+ const token=sessionToken;
+ try{
+  const q=await api("/api/opening-course/"+role+"?id="+course.id+"&color="+color);
+  if(token!==sessionToken||mode!==role)return;
+  question=q;selected=null;answerResult=null;
+  $("assessment-prompt").textContent=(q.prompt||q.reason)+
+    (q.fen?" You get three tries; the answer stays hidden until you succeed or exhaust them.":"");
+  if(!q.fen){board(course.steps[0].before);$("assessment-actions").textContent="No unseen position available. Nothing has been marked complete.";return}
+  board(q.fen);
+  $("board-label").textContent=role==="transfer"?"Unrehearsed opening variation":"Reconstruct your studied line";
+  $("board-caption").textContent="No answer arrows or engine scores until you submit a legal move.";
+  $("assessment-actions").innerHTML='<label class="small muted"><input type="checkbox" id="used-help"> I used help or looked up this position</label>'+
+    '<button class="btn alt" id="cancel-assessment">Return to lesson</button>';
+  $("cancel-assessment").onclick=()=>{question=null;activeMode("learn");drawLesson()};
+ }catch(error){
+  $("assessment-prompt").textContent="Unable to load an assessment: "+error.message;
+ }finally{busy=false}
+}
+$("mode-recall").onclick=()=>assessment("recall");$("mode-transfer").onclick=()=>assessment("transfer");
+$("mode-knowledge").onclick=async()=>{
+ if(!course||busy)return;
+ activeMode("knowledge");busy=true;conceptQuiz=null;conceptChoice=null;
+ $("knowledge-help").checked=false;
+ $("knowledge-options").textContent="Preparing your plan assessment…";
+ $("knowledge-submit").disabled=false;
+ $("knowledge-feedback").classList.add("hidden");
+ const token=sessionToken;
+ try{
+  const data=await api("/api/opening-course/concept?id="+course.id+"&color="+color);
+  if(token!==sessionToken||mode!=="knowledge")return;
+  conceptQuiz=data;
+  $("knowledge-prompt").textContent=data.prompt;
+  $("knowledge-options").innerHTML=data.options.map(x=>
+   '<button type="button" class="opening-item" data-choice="'+x.id+'"><strong>'+
+   esc(x.text)+'</strong></button>').join("");
+  $("knowledge-options").querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{
+   conceptChoice=Number(b.dataset.choice);
+   $("knowledge-options").querySelectorAll("[data-choice]").forEach(el=>
+     el.classList.toggle("active",el===b));
+  });
+  board(course.decisions[0].fen);
+  $("board-label").textContent="Opening plan recognition";
+  $("board-caption").textContent="Think about the typical plan for "+color+
+    " in "+course.name+". Try to identify the right approach, not a memorized move.";
+ }catch(error){$("knowledge-prompt").textContent="Could not load concept question: "+error.message}
+ finally{busy=false}
+};
+$("knowledge-submit").onclick=async()=>{
+ if(!course||busy||!conceptQuiz)return;
+ if(conceptChoice===null){
+  $("knowledge-feedback").classList.remove("hidden");
+  $("knowledge-feedback").textContent="Select the plan you think applies before committing.";
+  return;
+ }
+ busy=true;
+ try{
+  const r=await api("/api/opening-course/concept-grade",{
+   id:course.id,color,choice:conceptChoice,assisted:$("knowledge-help").checked,
+   roundId:conceptQuiz.roundId});
+  $("knowledge-feedback").classList.remove("hidden");
+  if(r.retry){
+   $("knowledge-feedback").textContent=r.interpretation+
+     " "+r.remaining+" attempt(s) remain. The correct plan is still hidden.";
+   conceptChoice=null;
+   $("knowledge-options").querySelectorAll("[data-choice]").forEach(el=>el.classList.remove("active"));
+   return;
+  }
+  $("knowledge-feedback").textContent=(r.correct?"Yes. ":"Not this time. ")+
+   "Typical plan: "+r.correctPlan+". "+r.why+
+   (r.assisted?" This was marked as assisted.":"");
+  $("knowledge-options").querySelectorAll("[data-choice]").forEach(el=>el.disabled=true);
+  $("knowledge-submit").disabled=true;
+  updateProgress(r.progress);loadDashboard();
+ }catch(error){$("knowledge-feedback").classList.remove("hidden");$("knowledge-feedback").textContent=error.message}
+ finally{busy=false}
+};
+$("study-board").onclick=async e=>{
+ if(!["recall","transfer"].includes(mode)||!question?.fen||answerResult||busy)return;
+ const b=e.target.closest("[data-square]");if(!b)return;
+ const sq=b.dataset.square,pc=at(question.fen,sq),isWhite=color==="White";
+ if(!selected){
+  if(!pc||(isWhite?pc!==pc.toUpperCase():pc!==pc.toLowerCase()))return;
+  selected=sq;board(question.fen);return;
+ }
+ if(pc&&(isWhite?pc===pc.toUpperCase():pc===pc.toLowerCase())){selected=sq;board(question.fen);return}
+ let promotion="";
+ const original=at(question.fen,selected);
+ if(original?.toLowerCase()==="p"&&(sq[1]==="1"||sq[1]==="8"))promotion="q";
+ const uci=selected+sq+promotion;selected=null;busy=true;
+ $("assessment-feedback").classList.remove("hidden");
+ $("assessment-feedback").textContent="Checking that move…";
+ try{
+  const help=$("used-help")?.checked||false;
+  const r=await api("/api/opening-course/submit",{
+   id:course.id,color,role:mode,fen:question.fen,uci,assisted:help,
+   roundId:question.roundId});
+  answerResult=r.finished===false?null:r;
+  const recommended=r.finished===false?null:(r.bestUci||r.studiedUci||null);
+  board(question.fen,[{from:uci.slice(0,2),to:uci.slice(2,4)},
+    ...(recommended?[{from:recommended.slice(0,2),to:recommended.slice(2,4)}]:[])]);
+  $("assessment-feedback").textContent=
+    (r.accepted?"Good result. ":"A useful correction. ")+r.interpretation+
+    (r.bestSan?" Engine prefers "+r.bestSan+". "+
+      (r.reply||"")+" "+
+      (r.reasons||[]).join(" "):"")+
+    (r.studiedSan?" Studied move: "+r.studiedSan+".":"");
+  updateProgress(r.progress);loadDashboard();
+  if(r.retry){
+   $("assessment-feedback").textContent=r.interpretation;
+   $("board-caption").textContent="Attempt "+r.attemptNumber+" of 3. Try a different move. No solution is shown.";
+   selected=null;
+   return;
+  }
+  $("board-caption").textContent=r.revealed?
+    "Three attempts used. Compare your move with the displayed stronger continuation.":
+    "Nice work. Compare your choice against the recorded or engine move.";
+  $("assessment-actions").innerHTML='<button class="btn" id="review-done">Review what I learned →</button>';
+  $("review-done").onclick=()=>{activeMode("learn");drawLesson()};
+ }catch(error){
+  $("assessment-feedback").textContent=error.message+
+   " Choose another legal move to continue.";
+ }finally{busy=false}
+};
+$("ask-coach").onclick=()=>{
+ if(!course)return;
+ const prev=stepIndex?course.steps[stepIndex-1]:null;
+ const fen=prev?prev.fen:course.steps[0].before;
+ const msg="I am studying "+course.name+" ("+course.eco+") as "+color+
+  ". The studied variation is "+course.pgn+
+  ". Please explain the plan for "+color+", Black's responses or White's attacking ideas as appropriate, "+
+  "the important pawn breaks, what changes after the next move, and common mistakes. "+
+  "Use concrete legal continuations for this exact board and quiz me with a follow-up question.";
+ sessionStorage.setItem("chessgrind-academy-handoff",JSON.stringify({
+   fen,question:msg.slice(0,780),candidate:null,source:"opening-course"}));
+ location.href="/learn?tab=ask";
+};
+$("opening-search").value="Italian Game";
+loadDashboard();loadCatalog();loadPersonal();
+const params=new URLSearchParams(location.search);
+if(params.get("color")==="Black")track("Black");
+if(params.get("id"))openCourse(Number(params.get("id")));
+</script></body></html>

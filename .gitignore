@@ -1,0 +1,9 @@
+userdata/
+.venv/
+__pycache__/
+*.pyc
+*.log
+engine/
+.env
+_capture_marketing.js
+_recapture_release.js

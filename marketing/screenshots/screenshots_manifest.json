@@ -1,0 +1,54 @@
+{
+  "manifest": [
+    {
+      "file": "01-account-settings.png",
+      "label": "Add your own Chess.com account",
+      "title": "Account Settings — Chess Grind",
+      "wide": 0,
+      "hero": "CHESSGRIND ← Back to Chess Grind PERSONAL ACCOUNT SETUP Make Chess Grind your chess school. Connect your own Chess.com public profile to bu"
+    },
+    {
+      "file": "02-study-masters.png",
+      "label": "Historic master games with automatic move lessons",
+      "title": "Study the Masters | Chess Grind",
+      "wide": 0,
+      "hero": "CHESSGRIND Study the Masters · Historical Chess School ← Strategy Studio CHESS HISTORY · ACTIVE LEARNING · LOCAL COACH Study the Masters. G"
+    },
+    {
+      "file": "03-opening-mastery.png",
+      "label": "Opening mastery for both colors",
+      "title": "Opening Mastery Academy | Chess Grind",
+      "wide": 0,
+      "hero": "CHESSGRIND Opening Mastery · White & Black ♚ Study Masters ← Strategy Studio A REAL CURRICULUM, NOT A LIST OF MOVES Know the plan. Understan"
+    },
+    {
+      "file": "04-endgame-lab.png",
+      "label": "Endgame laboratory and tactical practice",
+      "title": "Strategy Studio · Chess Grind",
+      "wide": 0,
+      "hero": "CHESSGRIND Strategy Studio · Openings & Endgames ♞ Sparring ♚ Study Masters ← Learning Lab STRATEGY STUDIO · BATCH 4 Learn the plan. Not jus"
+    },
+    {
+      "file": "05-play-ai-and-history.png",
+      "label": "Practice against Stockfish and revisit saved games",
+      "title": "Coach Arena · Chess Grind",
+      "wide": 0,
+      "hero": "CHESSGRIND Your personal Coach Arena Calculation Workshop ← Learning Lab PRACTICE WITH PURPOSE · BATCH 5 Make better decisions, one game at "
+    },
+    {
+      "file": "06-learning-lab.png",
+      "label": "Visual five-stage learning lab",
+      "title": "Learning Lab · Chess Grind",
+      "wide": 0,
+      "hero": "CHESSGRIND / Learn See it. Calculate it. Explain it. Prove it. ← Training Room ♞ Train ♟ Academy ♟ Workshop ◎ Campaigns ▤ Skills ▦ Lessons ✦"
+    },
+    {
+      "file": "07-dashboard-first-run.png",
+      "label": "Personalized dashboard and setup guidance",
+      "title": "Chess Grind · Your Training Room",
+      "wide": 0,
+      "hero": "CHESSGRIND THE TRAINING ROOM ⚙ Chess.com Account Settings ◫ Home ♟ Games ◎ Train ✦ Coach ▤ Books FOCUS ON THE PROCESS One thoughtful rapid "
+    }
+  ],
+  "errors": []
+}

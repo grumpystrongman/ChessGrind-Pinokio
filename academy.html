@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111c20"><title>Chess Vision Academy · Chess Grind</title>
+<style>
+:root{color-scheme:dark;--bg:#10181c;--panel:#1b2a2d;--panel2:#243539;--rim:#39514c;--mint:#d4eca2;--mint2:#a5d68d;--ink:#f2f6ed;--soft:#b9cbc4;--gold:#f6cc79;--blue:#83bef4;--red:#f39a90}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 500px at 67% -300px,#335149 1%,transparent 95%),var(--bg);color:var(--ink);font:15px/1.55 "Segoe UI",Inter,Arial,sans-serif}
+h1,h2,h3,p{margin:0}h1{font-size:clamp(30px,3.2vw,43px);letter-spacing:-1.15px;line-height:1.12}h2{font-size:22px;line-height:1.2;letter-spacing:-.4px}h3{font-size:16px}
+button{font:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible,a:focus-visible{outline:3px solid var(--mint);outline-offset:3px}
+a{color:var(--mint);text-decoration:none}
+header{height:69px;background:#132125;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--rim);padding:0 clamp(14px,3vw,35px);position:sticky;top:0;z-index:40}
+.brand{font-size:19px;font-weight:900;letter-spacing:-.6px}.brand strong{color:var(--mint)}
+.header-mid{font-size:12px;color:var(--soft);padding-left:17px;border-left:1px solid #47605b}
+.header-actions{margin-left:auto;display:flex;gap:10px}
+.link{display:inline-flex;align-items:center;gap:8px;background:#283e3e;border:1px solid #47625d;border-radius:10px;color:#e6eee5;padding:9px 13px;font-size:12px;font-weight:750}
+.shell{max-width:1500px;min-height:calc(100vh - 69px);margin:auto;display:grid;grid-template-columns:300px minmax(0,1fr)}
+aside{padding:23px 17px 40px 25px;border-right:1px solid var(--rim);background:#121e21}
+.navheading{font-size:11px;letter-spacing:1.8px;color:#b5d59f;font-weight:850;text-transform:uppercase;margin:7px 9px 17px}
+.nav-tiles{display:grid;gap:9px}
+.course{display:grid;grid-template-columns:39px 1fr 19px;gap:10px;align-items:center;text-align:left;border:1px solid transparent;background:transparent;padding:13px 12px;color:#d7e6db;border-radius:13px;width:100%}
+.course:hover{background:#223635;border-color:#405a50}
+.course.active{background:#2b4738;border-color:#56775a;box-shadow:inset 3px 0 var(--mint)}
+.course-icon{height:39px;width:39px;display:grid;place-items:center;background:#304849;border:1px solid #4a635f;border-radius:10px;font-size:26px}
+.course-label{font-size:13px;font-weight:800;display:block}.course-kicker{display:block;font-size:10px;color:#a8bfb5}
+.course-mark{color:#abc69f;font-size:14px}
+.aside-note{margin:20px 6px;border:1px solid #375749;background:#1d3029;border-radius:12px;padding:15px;color:#c5dbc8;font-size:12px}
+.main{padding:28px clamp(16px,3.3vw,42px) 75px;min-width:0}
+.kicker{color:#c3dfa2;font-size:11px;font-weight:850;letter-spacing:1.5px;text-transform:uppercase}
+.hero{border:1px solid #507662;border-radius:19px;padding:23px 28px;background:linear-gradient(115deg,#264236 0%,#203b3c 75%,#183138);position:relative;overflow:hidden}
+.hero:after{content:"♞";position:absolute;font-size:230px;color:#d1f3b8;opacity:.045;right:19px;top:-40px;pointer-events:none}
+.hero>*{position:relative;z-index:1}
+.hero p{max-width:670px;margin-top:12px;color:#cbddd0;font-size:14px}
+.top-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:16px 0 21px}
+.stat{border:1px solid #38554d;background:#1c302f;border-radius:13px;padding:16px 19px}
+.stat b{font-size:26px;line-height:1.2;display:block;color:#edf9dc}.stat small{color:#a9c3b7;font-size:11px}
+.plan{padding:17px 20px;background:#233830;border:1px solid #466d58;border-radius:14px;display:flex;gap:14px;align-items:start}
+.avatar{width:42px;height:42px;border-radius:12px;background:#466a50;display:grid;place-items:center;font-size:27px;flex:none}
+.plan h3{color:#d8f3c2;margin-bottom:5px}.plan p{color:#c8dacf;font-size:13px}
+.course-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:21px}
+.course-card{width:100%;text-align:left;background:var(--panel);border:1px solid #40554f;border-radius:15px;padding:20px;color:var(--ink);min-height:183px;display:grid;gap:10px;transition:border-color .12s,transform .12s}
+.course-card:hover{border-color:#a2ca92;transform:translateY(-2px)}
+.card-top{display:flex;align-items:center;gap:12px}
+.course-card .bigicon{display:grid;place-items:center;width:49px;height:49px;border:1px solid #507466;border-radius:13px;background:#29473d;color:#e5f7d9;font-size:32px}
+.course-card h3{font-size:18px}.course-card p{color:#b9cfc3;font-size:12px}
+.tag{display:inline-flex;align-items:center;width:fit-content;background:#304f3f;color:#ddf0cf;border-radius:100px;font-size:10px;font-weight:800;padding:5px 10px}
+.tag.amber{background:#59442d;color:#f7dbb2}.tag.blue{background:#284657;color:#c0e2fa}
+.progressline{width:100%;height:7px;background:#2d4140;border-radius:99px;overflow:hidden;margin-top:6px}
+.progressline span{display:block;height:100%;background:#bce49a;border-radius:99px}
+.btn{background:var(--mint);color:#172719;border:0;border-radius:11px;font-weight:850;padding:12px 17px;min-height:46px}
+.btn.alt{background:#304849;color:#eaf2e7;border:1px solid #527068}
+.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.row.space{justify-content:space-between}
+.back{background:transparent;border:0;color:var(--mint);font-weight:750;padding:9px 0}
+.lesson-head{margin-bottom:17px}
+.lesson-head .sub{color:var(--soft);font-size:13px;margin-top:7px;max-width:700px}
+.lesson-layout{display:grid;grid-template-columns:minmax(0,550px) minmax(270px,1fr);gap:22px;align-items:start}
+.chess-panel{background:#1a2a2d;border:1px solid #4a6259;border-radius:16px;padding:14px}
+.board{width:100%;aspect-ratio:1/1;border:3px solid #50645e;border-radius:9px;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));position:relative;overflow:hidden;isolation:isolate;box-shadow:0 14px 20px #0003}
+.square{aspect-ratio:1;border:0;padding:0;display:grid;place-items:center;position:relative;min-width:0}
+.square.light{background:#e3e8db;color:#4c6257}.square.dark{background:#759494;color:#f1fae5}
+.square.correct{box-shadow:inset 0 0 0 5px #cff17c}
+.square.wrong{box-shadow:inset 0 0 0 5px #ec9589}
+.square:focus-visible{outline:4px solid #fbd985;outline-offset:-5px;z-index:3}
+.piece{font-family:"Segoe UI Symbol","DejaVu Sans",serif;font-size:clamp(25px,3.9vw,53px);line-height:1}
+.piece.white{color:#fffef3;text-shadow:-1px -1px 2px #18302d,1px 1px 2px #18302d}
+.piece.black{color:#172426;text-shadow:0px 1px 1px #f8f6e6}
+.coord{position:absolute;top:2px;left:3px;font-size:10px;font-weight:800;opacity:.7}
+.board svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.board-foot{display:flex;justify-content:space-between;gap:10px;align-items:center;color:#acc7ba;font-size:11px;margin-top:12px}
+.board-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:#b5c9bd}
+.swatch{height:10px;width:10px;border-radius:3px;display:inline-block;margin-right:4px;background:#bbef8c}
+.swatch.gold{background:var(--gold)}.swatch.red{background:var(--red)}
+.lesson-sidebar{display:grid;gap:14px}
+.panel{border:1px solid #425b53;background:var(--panel);border-radius:15px;padding:20px}
+.panel p{color:#c7d9cd;font-size:14px;margin-top:10px;line-height:1.65}
+.note{background:#253d32;border:1px solid #4e785e;border-radius:11px;padding:14px;color:#deeedb;font-size:13px;line-height:1.65}
+.note.gold{background:#413a2d;border-color:#79613d;color:#f4dfb3}
+.note.red{background:#443332;border-color:#875e55;color:#f4cdc2}
+.tiny{font-size:11px;color:var(--soft)}
+.stepdots{display:flex;gap:6px;margin:17px 0}
+.stepdots span{width:37px;height:7px;background:#38504a;border-radius:99px}
+.stepdots span.done{background:#bbdf97}.stepdots span.now{background:#efcf8a}
+.action-footer{margin-top:17px;display:flex;gap:10px;flex-wrap:wrap}
+.feedback{margin-top:13px;display:grid;gap:9px}
+.qa-hint{font-size:13px;border:1px dashed #617761;background:#243a34;padding:12px;border-radius:11px}
+.result-view{text-align:center;border:1px solid #456957;border-radius:17px;background:#203a30;padding:30px 24px;margin:20px 0}
+.result-view .symbol{font-size:61px;color:#dcf3ae}.result-view h2{margin:7px 0 13px}
+.result-view p{max-width:590px;color:#d3e1d5;margin:0 auto 18px}
+.hidden{display:none!important}
+#status-line{color:#b7d0bc;font-size:12px;margin-top:8px}
+@media(max-width:1080px){.lesson-layout{grid-template-columns:minmax(0,1fr)}.main{padding:24px}.shell{grid-template-columns:240px minmax(0,1fr)}}
+@media(max-width:740px){
+ header{height:59px;padding:0 13px}.header-mid{display:none}.brand{font-size:17px}.header-actions .link{font-size:11px;padding:8px}
+ .shell{display:block}
+ aside{padding:10px 9px;border-bottom:1px solid var(--rim);border-right:0}
+ .navheading,.aside-note{display:none}
+ .nav-tiles{display:flex;overflow-x:auto;gap:6px;padding:0 3px;scrollbar-width:thin}
+ .course{width:141px;flex:none;grid-template-columns:25px 1fr;padding:9px 8px;gap:6px}
+ .course-icon{width:27px;height:30px;font-size:19px}.course-label{font-size:10px}.course-kicker{font-size:9px}
+ .course-mark{display:none}
+ .main{padding:15px 12px 75px}
+ .hero{padding:19px 17px}.hero:after{font-size:150px}
+ h1{font-size:28px}
+ .top-stats{gap:7px}.stat{padding:11px}.stat b{font-size:20px}.stat small{font-size:10px}
+ .plan{padding:13px}.plan p{font-size:12px}
+ .course-grid{grid-template-columns:1fr;gap:10px}.course-card{min-height:153px;padding:15px}
+ .lesson-layout{gap:12px}.chess-panel{padding:7px}
+ .piece{font-size:clamp(27px,10vw,44px)}
+ .panel{padding:16px}
+ #assessment-actions:has(#next-check){position:sticky;bottom:7px;z-index:15;background:#1d302f;border:1px solid #4f7161;border-radius:11px;padding:8px}
+ #next-check{width:100%}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><a href="/learn" class="brand">CHESS<strong>GRIND</strong></a><div class="header-mid">Chess Vision Academy</div>
+ <div class="header-actions"><a href="/workshop" class="link">♞ Workshop</a><a href="/strategy" class="link">♚ Strategy</a><a href="/arena" class="link">♞ Sparring</a><a href="/learn" class="link">← Learning Lab</a></div></header>
+<div class="shell">
+ <aside>
+  <div class="navheading">Your learning path</div>
+  <nav class="nav-tiles" id="unit-nav" aria-label="Academy lessons"></nav>
+  <div class="aside-note">♞ <b>Learn, then recognize.</b>
+    <div style="margin-top:6px">Lesson examples are original and verified against the chessboard. Practice positions are different from the demonstration.</div>
+  </div>
+ </aside>
+ <main class="main">
+  <div id="academy-home">
+   <div class="hero"><div class="kicker">The Academy · Foundations</div>
+    <h1>Build the eyes of a stronger player.</h1>
+    <p>Understand the pattern, watch it happen on a real board, then recognize it independently. Your coach gives you one idea at a time, without overwhelming you with engine numbers.</p>
+   </div>
+   <div class="top-stats">
+    <div class="stat"><b id="stat-units">—</b><small>Foundational lessons</small></div>
+    <div class="stat"><b id="stat-practiced">—</b><small>Practiced independently</small></div>
+    <div class="stat"><b id="stat-retained">—</b><small>Delayed recalls confirmed</small></div>
+   </div>
+   <div class="plan"><span class="avatar">♞</span><div><h3>Your Academy coach</h3>
+    <p id="academy-plan">We will start with a tactical pattern, show how it works, and let you find it yourself in two new positions. If you need a hint, you can have one—but assisted work is recorded honestly.</p>
+   </div></div>
+   <div class="course-grid" id="course-grid" aria-label="Available lessons"></div>
+  </div>
+  <section id="academy-lesson" class="hidden">
+   <button class="back" id="back-to-academy">← All lessons</button>
+   <div class="lesson-head"><div class="kicker" id="lesson-category">Academy</div>
+    <h1 id="lesson-heading">Learn the pattern</h1><p class="sub" id="lesson-subheading"></p>
+   </div>
+   <div class="stepdots" id="step-progress" aria-label="Lesson progress"></div>
+   <div class="lesson-layout">
+    <div class="chess-panel">
+     <div class="board" id="academy-board" aria-label="Chess Vision demonstration and practice board"></div>
+     <div class="board-foot"><span id="board-color">White to move</span><span id="board-state">Observe the position</span></div>
+     <div id="board-legend" class="board-legend" style="margin-top:12px"></div>
+    </div>
+    <div class="lesson-sidebar">
+     <div class="panel"><div class="kicker" id="task-kicker">First, understand</div>
+      <h2 id="task-title" style="margin-top:10px">Look at the board.</h2><p id="task-description"></p>
+      <div class="feedback" id="task-feedback" aria-live="polite"></div>
+      <div class="action-footer" id="assessment-actions"></div>
+      <div id="status-line" role="status"></div>
+     </div>
+     <div class="note" id="teaching-principle"></div>
+     <div class="note gold" id="teaching-habit"></div>
+     <div class="panel" id="coach-handoff-panel">
+      <div class="kicker">Ask a deeper question</div>
+      <p>Want to understand the position rather than memorize the answer? Bring this exact board to your local conversational coach.</p>
+      <button class="btn alt" id="academy-ask-coach" style="margin-top:12px">♞ Discuss this position ↗</button>
+     </div>
+    </div>
+   </div>
+  </section>
+  <section id="academy-results" class="hidden">
+   <button class="back" id="result-back">← All lessons</button>
+   <div class="result-view">
+    <div class="symbol">♞</div><div class="kicker" id="result-kicker">Lesson completed</div>
+    <h2 id="result-heading">What did you recognize?</h2>
+    <p id="result-summary"></p>
+    <div class="row" style="justify-content:center;margin-top:10px">
+     <button class="btn" id="result-next">Explore another lesson →</button>
+     <button class="btn alt" id="result-retry">Practice again</button>
+     <a href="/learn" class="link">Apply this in my games ↗</a>
+    </div>
+   </div>
+  </section>
+ </main>
+</div>
+<script>
+const $=id=>document.getElementById(id),esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pieces={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+const isMove=kind=>["fork","pin","center"].includes(kind);
+let overview=null,unit=null,challenge=null,mode="home",testIndex=0;
+let played=[],hinted=false,answered=false,lessonStarted=Date.now(),stateAfter=false,latestAnswer=null,replayIndex=null;
+async function request(url,data){
+ const r=await fetch(url,data===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+ const j=await r.json();
+ if(!r.ok)throw Error(j.error||"Something went wrong.");
+ return j;
+}
+function fenPieces(fen){
+ const rows=fen.split(" ")[0].split("/"),arr=[];
+ if(rows.length!==8)throw Error("Invalid chess board");
+ for(const row of rows)for(const ch of row){
+  if(/^[1-8]$/.test(ch))for(let j=0;j<Number(ch);j++)arr.push("");
+  else arr.push(ch);
+ }
+ if(arr.length!==64)throw Error("Chess board is invalid");
+ return arr;
+}
+function squareAt(index,orientation){
+ const c=index%8,r=Math.floor(index/8);
+ return orientation==="Black"?String.fromCharCode(104-c)+(r+1):
+   String.fromCharCode(97+c)+(8-r);
+}
+function coord(sq,orientation){
+ const file=sq.charCodeAt(0)-97,rank=Number(sq[1])-1;
+ return orientation==="Black"?[(7-file)*100+50,rank*100+50]:
+  [file*100+50,(7-rank)*100+50];
+}
+function drawBoard(fen,orientation,overlay={},selected=null){
+ const arr=fenPieces(fen),node=$("academy-board");
+ const squares=[];
+ for(let i=0;i<64;i++){
+  const sq=squareAt(i,orientation),file=sq.charCodeAt(0)-97,rank=Number(sq[1])-1;
+  const ch=arr[(7-rank)*8+file],dark=(file+rank)%2!==0;
+  squares.push('<button type="button" class="square '+(dark?"dark":"light")+
+   (selected===sq?" correct":"")+'" data-square="'+sq+'" aria-label="'+sq+(ch?" "+ch:" empty")+'">'+
+   (ch?'<span class="piece '+(ch===ch.toUpperCase()?"white":"black")+'">'+pieces[ch]+'</span>':"")+
+   (i%8===0?'<span class="coord">'+sq[1]+'</span>':"")+'</button>');
+ }
+ node.innerHTML=squares.join("");
+ if(!overlay.arrows?.length&&!overlay.rings?.length)return;
+ let svg='<defs><marker id="academy-arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0 L5 2.5 L0 5 Z" fill="#c6ee9a"/></marker>'+
+ '<marker id="academy-target" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0 L5 2.5 L0 5 Z" fill="#ffce78"/></marker></defs>';
+ for(const [i,ring] of (overlay.rings||[]).entries()){
+  const [x,y]=coord(ring.sq,orientation);
+  svg+='<circle cx="'+x+'" cy="'+y+'" r="39" fill="none" stroke="'+(ring.color||"#f7cb76")+
+   '" stroke-width="8" stroke-dasharray="12 7"/>';
+ }
+ for(const a of overlay.arrows||[]){
+  if(!a.from||!a.to||a.from===a.to)continue;
+  const [x,y]=coord(a.from,orientation),[tx,ty]=coord(a.to,orientation),dx=tx-x,dy=ty-y,l=Math.hypot(dx,dy);
+  if(l<20)continue;
+  const x1=x+dx*22/l,y1=y+dy*22/l,x2=tx-dx*28/l,y2=ty-dy*28/l;
+  const target=a.kind==="target",color=target?"#ffce78":"#c6ee9a",marker=target?"academy-target":"academy-arrow";
+  svg+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#112321" stroke-width="14" opacity=".75"/>'+
+       '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+color+'" stroke-width="9" marker-end="url(#'+marker+')"/>';
+ }
+ const layer=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ layer.setAttribute("viewBox","0 0 800 800");layer.setAttribute("aria-hidden","true");
+ layer.innerHTML=svg;node.append(layer);
+}
+function demoOverlay(item,kind,after=false){
+ let arrows=[],rings=[];
+ if(isMove(kind)){
+  if(!after)arrows.push({from:item.origin,to:item.answer,kind:"move"});
+  else{
+   if(kind==="fork"||kind==="pin")
+    arrows=item.targets.map(to=>({from:item.answer,to,kind:"target"}));
+   else rings=[{sq:item.answer,color:"#c6ee9a"}];
+  }
+ }else if(kind==="loose"){
+  const source=item.targets.find(x=>x!==item.answer);
+  if(source)arrows.push({from:source,to:item.answer,kind:"target"});
+  rings=[{sq:item.answer,color:"#ffd382"}];
+ }else if(kind==="passed"){rings=[{sq:item.answer,color:"#c6ee9a"}]}
+ else if(kind==="opposition"){
+  rings=[{sq:item.answer,color:"#ffd382"}];
+  arrows=item.targets.map(from=>({from,to:item.answer,kind:"target"}));
+ }
+ return {arrows,rings};
+}
+function showView(name){
+ mode=name;
+ $("academy-home").classList.toggle("hidden",name!=="home");
+ $("academy-lesson").classList.toggle("hidden",name!=="lesson");
+ $("academy-results").classList.toggle("hidden",name!=="results");
+ document.querySelectorAll(".course").forEach(b=>b.classList.toggle("active",
+  !!unit&&mode==="lesson"&&b.dataset.unit===unit.id));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function stateLabel(row){
+ return row.state==="retained"?"Delayed recall ✓":
+ row.state==="practice-complete"?"Practice complete":
+ row.state==="in-progress"?"In progress":"Not started";
+}
+function stateTag(row){
+ return row.state==="retained"?"tag":row.state==="practice-complete"?"tag":
+  row.state==="in-progress"?"tag blue":"tag amber";
+}
+function updateOverview(){
+ if(!overview)return;
+ $("stat-units").textContent=overview.total;
+ $("stat-practiced").textContent=overview.completed;
+ $("stat-retained").textContent=overview.retained;
+ const candidate=overview.units.find(u=>u.state==="in-progress")||
+   overview.units.find(u=>u.state==="not-started")||
+   overview.units.find(u=>u.state==="practice-complete")||overview.units[0];
+ $("academy-plan").textContent=candidate?
+  "Next up: "+candidate.title+". We'll demonstrate one specific idea and let you recognize it on two different boards. A correct answer after a hint is still useful practice—but it isn't counted as independent first-try recognition.":
+  "Let's choose your first lesson and learn to see the board one pattern at a time.";
+ $("unit-nav").innerHTML=overview.units.map((u,i)=>
+  '<button class="course" data-unit="'+esc(u.id)+'" type="button"><span class="course-icon">'+esc(u.symbol)+'</span>'+
+  '<span><span class="course-label">'+esc(u.title)+'</span><span class="course-kicker">'+esc(stateLabel(u))+'</span></span>'+
+  '<span class="course-mark">'+(u.state==="retained"?"✓":String(i+1))+'</span></button>').join("");
+ $("course-grid").innerHTML=overview.units.map((u,i)=>
+  '<button class="course-card" data-unit="'+esc(u.id)+'" type="button"><div class="card-top">'+
+  '<span class="bigicon">'+esc(u.symbol)+'</span><div><span class="kicker">Lesson '+(i+1)+' · '+esc(u.label)+'</span><h3>'+esc(u.title)+'</h3></div></div>'+
+  '<p>'+esc(u.tagline)+' '+esc(u.principle)+'</p><div class="row space"><span class="'+stateTag(u)+'">'+esc(stateLabel(u))+'</span>'+
+  '<span class="tiny">Open lesson ↗</span></div><div class="progressline"><span style="width:'+
+  (u.state==="retained"?100:u.state==="practice-complete"?70:u.state==="in-progress"?25:0)+'%"></span></div></button>').join("");
+ document.querySelectorAll("[data-unit]").forEach(b=>b.onclick=()=>openLesson(b.dataset.unit));
+}
+async function loadAcademy(){
+ try{overview=await request("/api/academy");updateOverview();}
+ catch(e){$("academy-plan").textContent="I couldn't load the lesson library: "+e.message;}
+}
+async function openLesson(id){
+ try{
+  unit=await request("/api/academy/lesson?id="+encodeURIComponent(id));
+  played=[];testIndex=0;
+  $("lesson-heading").textContent=unit.title;
+  $("lesson-category").textContent="Lesson "+unit.level+" · "+unit.label;
+  $("lesson-subheading").textContent=unit.tagline;
+  $("teaching-principle").textContent="THE IDEA · "+unit.principle;
+  $("teaching-habit").textContent="YOUR HABIT · "+unit.habit;
+  showView("lesson");showDemo();
+ }catch(e){alert("Unable to open lesson: "+e.message)}
+}
+function progressDots(index){
+ $("step-progress").innerHTML=[0,1,2].map(n=>'<span class="'+(n<index?"done":n===index?"now":"")+'"></span>').join("");
+}
+function boardFoot(fen,state){
+ $("board-color").textContent=(fen.split(" ")[1]==="b"?"Black":"White")+" to move · Select squares to learn";
+ $("board-state").textContent=state;
+}
+function renderLegend(show){
+ $("board-legend").innerHTML=show?
+ '<span><i class="swatch"></i>Example move</span><span><i class="swatch gold"></i>Verified target</span>':
+ '<span>Squares are clickable. Choose only after considering the position.</span>';
+}
+function showDemo(returnTo=null){
+ answered=false;stateAfter=false;challenge=null;replayIndex=returnTo;progressDots(0);
+ const item=unit.demo,kind=unit.kind;
+ $("task-kicker").textContent="Step 1 / 3 · See the idea";
+ $("task-title").textContent="Watch the pattern.";
+ $("task-description").textContent=item.prompt;
+ $("task-feedback").innerHTML='<div class="note">♞ '+esc(item.why)+'</div>';
+ $("status-line").textContent="This demonstration is not scored.";
+ $("assessment-actions").innerHTML='<button type="button" class="btn alt" id="toggle-demo">'+
+  (item.afterFen?"Show position after the move":"Highlight the pattern")+'</button>'+
+  '<button type="button" class="btn" id="begin-tests">I see it. Let me try →</button>';
+ $("toggle-demo").onclick=()=>{
+  stateAfter=!stateAfter;
+  $("toggle-demo").textContent=stateAfter?"Show original board":
+    item.afterFen?"Show position after the move":"Highlight the pattern";
+  const fen=stateAfter?(item.afterFen||item.fen):item.fen;
+  drawBoard(fen,fen.split(" ")[1]==="b"?"Black":"White",demoOverlay(item,kind,stateAfter));
+  boardFoot(fen,stateAfter?"Pattern highlighted":"Before the idea is applied");
+ };
+ $("begin-tests").textContent=replayIndex===null?"I see it. Let me try →":"Return to the test →";
+ $("begin-tests").onclick=()=>showTest(replayIndex===null?0:replayIndex,replayIndex!==null);
+ drawBoard(item.fen,item.fen.split(" ")[1]==="b"?"Black":"White",demoOverlay(item,kind));
+ boardFoot(item.fen,"Demonstration · before");
+ renderLegend(true);
+}
+async function showTest(index,assistedFromDemo=false){
+ try{
+  testIndex=index;
+  challenge=await request("/api/academy/challenge?id="+encodeURIComponent(unit.id)+"&number="+index);
+  hinted=assistedFromDemo;answered=false;latestAnswer=null;lessonStarted=Date.now();
+  progressDots(index+1);
+  $("coach-handoff-panel").classList.add("hidden"); // Don't reveal an answer through the coach before grading.
+  $("task-kicker").textContent="Step "+(index+2)+" / 3 · Recognition test";
+  $("task-title").textContent="Your turn. Find the square.";
+  $("task-description").textContent=challenge.prompt;
+  $("task-feedback").innerHTML='<div class="qa-hint">Before tapping, name the idea to yourself. There are no arrows yet; you are making the decision.</div>';
+  $("assessment-actions").innerHTML='<button class="btn alt" type="button" id="request-nudge">Give me a thinking hint</button>'+
+    '<button class="btn alt" type="button" id="replay-concept">See the demonstration again</button>';
+  $("request-nudge").onclick=showHint;
+  $("request-nudge").disabled=assistedFromDemo;
+  $("replay-concept").onclick=()=>showDemo(index);
+  $("status-line").textContent=assistedFromDemo?
+    "You revisited the example. This test will be marked as assisted practice.":
+    "Independent recognition: no hints used.";
+  drawBoard(challenge.fen,challenge.side);
+  boardFoot(challenge.fen,"Try "+(index+1)+" / "+unit.testCount);
+  renderLegend(false);
+ }catch(e){$("task-feedback").textContent="Could not load test: "+e.message}
+}
+function showHint(){
+ if(answered||hinted)return;
+ hinted=true;
+ const hints={
+ fork:"Find the knight. Imagine every legal jump, then count how many enemy pieces it attacks.",
+ pin:"Follow a bishop diagonal until you see a piece, then look behind that piece for a king.",
+ loose:"Find an attacked enemy piece and ask whether any friendly piece protects it.",
+ center:"Which pawn could advance to d4, e4, d5 or e5 while opening lines for other pieces?",
+ passed:"Look at the pawn's file and adjacent files, ahead in its direction of travel.",
+ opposition:"Look for the kings facing across one empty square."
+ };
+ $("task-feedback").innerHTML='<div class="note gold">Coach nudge · '+esc(hints[unit.kind])+'</div>';
+ $("status-line").textContent="Hint used. This attempt will count as assisted practice.";
+ $("request-nudge").disabled=true;
+}
+$("academy-board").onclick=async event=>{
+ const square=event.target.closest("[data-square]");
+ if(!square||mode!=="lesson"||!challenge||answered)return;
+ const sq=square.dataset.square;
+ answered=true;
+ const duration=Math.max(0,Math.round((Date.now()-lessonStarted)/1000));
+ $("assessment-actions").innerHTML='<span class="tiny">Checking your decision…</span>';
+ try{
+  const result=await request("/api/academy/answer",{
+   unitId:unit.id,challengeId:challenge.id,answer:sq,assisted:hinted,seconds:duration});
+  latestAnswer=result;
+  $("coach-handoff-panel").classList.remove("hidden");
+  played.push({id:challenge.id,correct:result.correct,assisted:hinted});
+  const answerItem={...challenge,...result};
+  const outlines=[{sq:result.answer,color:"#bceb9e"}];
+  if(!result.correct)outlines.push({sq,color:"#f39a90"});
+  const overlays=demoOverlay(answerItem,unit.kind);
+  overlays.rings.push(...outlines);
+  drawBoard(challenge.fen,challenge.side,overlays,result.correct?result.answer:null);
+  $("task-kicker").textContent=result.correct?"Good recognition":"Useful correction";
+  $("task-title").textContent=result.correct?"You found the pattern.":"Let's make the pattern clearer.";
+  $("task-feedback").innerHTML='<div class="note '+(result.correct?"":"red")+'">'+esc(result.message)+'</div>'+
+    (result.assisted?'<div class="tiny">This was assisted practice. It does not count toward independent accuracy.</div>':'');
+  $("assessment-actions").innerHTML='<button class="btn" type="button" id="next-check">'+
+    (testIndex+1<unit.testCount?"Another position →":"Review this lesson →")+'</button>';
+  $("next-check").onclick=()=>testIndex+1<unit.testCount?showTest(testIndex+1):showResults();
+  $("status-line").textContent="Selected "+sq+". Correct square: "+result.answer+".";
+  boardFoot(challenge.fen,"Answer revealed · "+(result.correct?"Correct":"Review"));
+ }catch(error){
+  answered=false;
+  $("task-feedback").innerHTML='<div class="note red">Unable to grade: '+esc(error.message)+'</div>';
+  $("assessment-actions").innerHTML='<button class="btn alt" onclick="showTest(testIndex)">Retry loading this position</button>';
+ }
+};
+async function showResults(){
+ await loadAcademy();
+ const correct=played.filter(x=>x.correct).length,independent=played.filter(x=>x.correct&&!x.assisted).length;
+ const latest=overview.units.find(x=>x.id===unit.id);
+ const first=latest?.firstTryPass;
+ $("result-kicker").textContent=independent===unit.testCount?"Independent recognition completed":"Learning checkpoint";
+ $("result-heading").textContent=independent===unit.testCount?
+  "You recognized the pattern independently.":"You are building the pattern.";
+ $("result-summary").textContent="On this session, you recognized "+correct+" of "+unit.testCount+
+   " positions, including "+independent+" without help. "+
+   (first?"Both positions were correct on your first unaided attempt. ":
+     "Only first-attempt correct responses establish unfamiliar-position recognition. ") +
+   (latest?.state==="retained"?
+     "You also have a correct independent review from another day—a delayed recall check.":
+    latest?.state==="practice-complete"?
+     "Practice is complete. Return on another day to check whether the idea stuck.":
+     "Review this concept and try the positions again; the coach will keep your results separate.");
+ showView("results");
+}
+$("academy-ask-coach").onclick=()=>{
+ if(!unit||mode!=="lesson")return;
+ // Demo and graded decisions are okay. An ungraded test is NOT revealed.
+ if(challenge&&!answered)return;
+ const item=challenge&&latestAnswer?{...challenge,...latestAnswer}:unit.demo;
+ const question="I'm studying "+unit.title.toLowerCase()+" in Chess Vision Academy. "+
+   "On this exact board, the demonstrated idea is: "+item.why+
+   " Please walk through the key chess principle, how to recognize it before moving, "+
+   "and what the opponent could try in reply. If the candidate move is given, "+
+   "treat it as a hypothetical move from the initial position.";
+ const handoff={fen:item.fen,question,candidate:item.candidateSan||null,
+   topic:unit.title,source:"academy"};
+ try{
+  sessionStorage.setItem("chessgrind-academy-handoff",JSON.stringify(handoff));
+  location.href="/learn?tab=ask";
+ }catch(error){
+  alert("Couldn't open the coach: "+error.message);
+ }
+};
+$("result-retry").onclick=()=>unit&&openLesson(unit.id);
+$("result-back").onclick=()=>{unit=null;showView("home")};
+$("back-to-academy").onclick=()=>{unit=null;showView("home")};
+$("result-next").onclick=()=>{
+ if(!overview||!unit){showView("home");return}
+ const index=overview.units.findIndex(x=>x.id===unit.id),next=overview.units[index+1];
+ if(next)openLesson(next.id);else{unit=null;showView("home")}
+};
+loadAcademy().then(()=>{
+ const wanted=new URLSearchParams(location.search).get("lesson");
+ if(wanted&&overview?.units.some(u=>u.id===wanted))openLesson(wanted);
+});
+</script>
+</body>
+</html>

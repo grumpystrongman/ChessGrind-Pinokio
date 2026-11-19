@@ -1,0 +1,5 @@
+requests>=2.31
+PyMuPDF>=1.24
+chess>=1.11
+fastembed>=0.7
+PyJWT[crypto]>=2.9,<3

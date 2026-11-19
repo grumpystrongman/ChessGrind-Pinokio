@@ -1,0 +1,438 @@
+{
+  "version": "0.1.0-rc1",
+  "source_count": 55,
+  "hardcoded_defaults_neutralized": 38,
+  "offline_seed": {
+    "masters": 4404,
+    "public_books": 3,
+    "passages": 0,
+    "seed_bytes": 4972544
+  },
+  "files": [
+    {
+      "file": ".gitignore",
+      "size": 62,
+      "sha256": "55fab64c34f3da47a14c94e3df22f38d37bd3b0c0c2c75e0c7fb215cc849cd84"
+    },
+    {
+      "file": "academy.html",
+      "size": 31967,
+      "sha256": "01845b2a976e2705c08d2a62df88f69ef2831ec55e418d37dbc26a94540f7a65"
+    },
+    {
+      "file": "academy_curriculum.py",
+      "size": 19887,
+      "sha256": "2526be556907ee39e237b41df2d134fd5f7e2b89aaec3091e59ee767ae1c96ef"
+    },
+    {
+      "file": "account_settings.html",
+      "size": 7129,
+      "sha256": "76be524845713dc37ed9ee1a21a8a83031a06d8d025c90dc3880de33a302a8db"
+    },
+    {
+      "file": "account_settings.py",
+      "size": 3292,
+      "sha256": "002cfdb78b5c3fcda22b0bc07f593ade1925c38c5d6131f8f2de065f910be29f"
+    },
+    {
+      "file": "archive_public_domain.py",
+      "size": 2410,
+      "sha256": "5735ff5c0ec24c45ebbc74d53aca1f0786ad6f856a202a4ce1176d6ebc018307"
+    },
+    {
+      "file": "arena.html",
+      "size": 36503,
+      "sha256": "ffb08a402463475996b573232b252d1bb9da93d79b42689899a07754a74a1a8a"
+    },
+    {
+      "file": "board_chat.py",
+      "size": 9920,
+      "sha256": "4a51e7d62be7a13848a4955dcadbb9182f0f31415881b92148dcb98c04a1a30c"
+    },
+    {
+      "file": "book_quality.py",
+      "size": 4950,
+      "sha256": "2b6108f14b1f722813d4665f0f83aa07ce7be5c3d6043b2ef0804afaf3856c68"
+    },
+    {
+      "file": "calculation_workshop.py",
+      "size": 14415,
+      "sha256": "b73516abc3d7d568cb9a1cd7601fd6107e44323de7d7b2fb0e0bb7f09a5a3f41"
+    },
+    {
+      "file": "chesscom_api.py",
+      "size": 10455,
+      "sha256": "a4db8659f1b65092d8c31d7fc91e21aae337a936dca4ebcc7a3bfb0af05c53a7"
+    },
+    {
+      "file": "chess_grind.py",
+      "size": 14586,
+      "sha256": "70d9878aed12eb5f2da443d66cbf073f373e9971b07e8def02e3de39d239f2a1"
+    },
+    {
+      "file": "coaching.py",
+      "size": 9697,
+      "sha256": "20e6f5901f2e2bf4fad18caf39792806ac9321eb7b7259ccfb93f822c15570d3"
+    },
+    {
+      "file": "configure_mobile.py",
+      "size": 2275,
+      "sha256": "13626169f5d4295699978bc54c4af5a28445c1bbef1f8e9a3e4808cb54f99252"
+    },
+    {
+      "file": "contextual_reading.py",
+      "size": 19365,
+      "sha256": "07c05bcdceda5f4da3c28476f6e642457ef901ecdc476e42f0ff5c07fbea790d"
+    },
+    {
+      "file": "daily_agent.py",
+      "size": 3709,
+      "sha256": "9734c2749fbd79cf806f684ce88829dd0c2df8fc685c7fcfc9739f645b4a5a0c"
+    },
+    {
+      "file": "daily_coach.py",
+      "size": 6487,
+      "sha256": "e1978c13730806698f09df247a3b1fd3380be642f3e6f58fb554681d7677e34f"
+    },
+    {
+      "file": "dashboard.html",
+      "size": 56753,
+      "sha256": "ceff0480dd544bba5cf84ff433bd6c068e25f86abe4d0e3611f89bc09b6cdd32"
+    },
+    {
+      "file": "eco_catalog.py",
+      "size": 4766,
+      "sha256": "340ad54420dca33aaa13411bbbdb77cc63888cecfb002a52d5b7291a7af3e156"
+    },
+    {
+      "file": "endgame_lab.py",
+      "size": 14031,
+      "sha256": "d8ff0079f45712a8858eb3b9a2da90a0024b9029fea2379dd87214c5e119c0d9"
+    },
+    {
+      "file": "endgame_theory.py",
+      "size": 8834,
+      "sha256": "d3fde20f808b524f0e9b85773a5df8811cd371db76a193c39003988508a60266"
+    },
+    {
+      "file": "engine_grade.py",
+      "size": 1178,
+      "sha256": "d78aa7834e870955a96e5c170fa9c007c99e7c22656e112403ad59e4644ce982"
+    },
+    {
+      "file": "game_analysis.py",
+      "size": 7367,
+      "sha256": "38176b5d380bd7a51223610dfef24ae036d2fe960b8824e2794db6714b927a87"
+    },
+    {
+      "file": "learning_lab.html",
+      "size": 57579,
+      "sha256": "8bd2fea39548296519954a3aa44e208c2ca4043cb971d6dfcca9babd1e90145a"
+    },
+    {
+      "file": "learning_lab.py",
+      "size": 24561,
+      "sha256": "2747079dba9ac8394e7029e049bab2f39475e9db116a7c7fa61dce5025d6cdc3"
+    },
+    {
+      "file": "lesson_explainer.py",
+      "size": 10696,
+      "sha256": "c48ef6be13e3306f50f4a16f3e2949e5ff46be49f58e8565d5733ccde4652e2a"
+    },
+    {
+      "file": "library_pipeline.py",
+      "size": 11807,
+      "sha256": "498fb807ad0069791d5c3d81a68bf917c6a2b144aecde4519950d2861b6259a4"
+    },
+    {
+      "file": "manifest.webmanifest",
+      "size": 627,
+      "sha256": "73a217fb76bae3dd59482eab3f3374b7b4ca9714469d01dc3b51e4eb9045a0e1"
+    },
+    {
+      "file": "masters.html",
+      "size": 47803,
+      "sha256": "e8e0da6d8d266317d3b96342fffc8382a03a8e26fb6a2e07c92fa16d5f3b78b9"
+    },
+    {
+      "file": "masters_curriculum.py",
+      "size": 7677,
+      "sha256": "ee2c8ae8f42092d189a299b3c24274510bc45210263f62c4178b6195244a5332"
+    },
+    {
+      "file": "masters_evidence.py",
+      "size": 3780,
+      "sha256": "e3ecff6234e6390fe31d42201fce9365470472c573ce0d1c33ee0333ea4639a7"
+    },
+    {
+      "file": "masters_library.py",
+      "size": 22253,
+      "sha256": "115160075300e0ebe712239fc0dcfaf389d2a23ea77437ddbafd0427660225eb"
+    },
+    {
+      "file": "masters_move_coach.py",
+      "size": 12007,
+      "sha256": "12fb2be9a124104a6958394b036f1437fc843693add452736d337d73c3594dcb"
+    },
+    {
+      "file": "masters_prediction_retry.py",
+      "size": 3771,
+      "sha256": "093f5ff50c8ef5b38ce8e3ed3f8dc3f05e1c30c462eb3feb24314919eaf680a6"
+    },
+    {
+      "file": "masters_spotlights.py",
+      "size": 6401,
+      "sha256": "2672e30b014d2c0e560306740bee35c4d87f30ed3dfb9fdfd4aad6b40de6fec8"
+    },
+    {
+      "file": "masters_tutor.py",
+      "size": 11108,
+      "sha256": "7dbc5f18f9c0696704069655ab0c3df21897b1fa803663f5740e13b38f2586d5"
+    },
+    {
+      "file": "mobile_security.py",
+      "size": 3209,
+      "sha256": "9ada13d8432216fa3ef44bbb3b895d6af83d7f35babfe07c3d9fe3a02002179d"
+    },
+    {
+      "file": "motifs.py",
+      "size": 4493,
+      "sha256": "34f28ef58f2a6076aba851e73a8f396bb36359bd650162917fa4f37c0b142e7b"
+    },
+    {
+      "file": "move_grading.py",
+      "size": 2883,
+      "sha256": "878b4f92707626a6cdf6a1125730957843fe0bb42a127b074c40475af493fa32"
+    },
+    {
+      "file": "opening_coach.py",
+      "size": 11385,
+      "sha256": "0822d3149bd872bf0fbe0a6d9437da6fdbd1dfc4b2e7644095ef813d0b461e5b"
+    },
+    {
+      "file": "opening_course.html",
+      "size": 34107,
+      "sha256": "843ba193c6dd4820f4aaac88c97423616f3811618495e1c7ae754d1a309394ed"
+    },
+    {
+      "file": "opening_mastery.py",
+      "size": 28958,
+      "sha256": "540a704c1c17f7997327e1b459d6ff946f7ecb84ed2d93376456d20e0c3b6cae"
+    },
+    {
+      "file": "opening_repertoire.py",
+      "size": 12867,
+      "sha256": "f6905fced5ca4436c57fd844dd108024a35aebdab7ec4444bd10d7e0b716a001"
+    },
+    {
+      "file": "opening_theory_cards.py",
+      "size": 13064,
+      "sha256": "7391532e6bf64bdfd2911708855e2da331ce8a2119ca6df83832b9442af047aa"
+    },
+    {
+      "file": "phone.css",
+      "size": 6776,
+      "sha256": "c62039bfe3bb2b589717c95853ee29f6dbd635369f9fd4c088610dea216ee430"
+    },
+    {
+      "file": "requirements.txt",
+      "size": 78,
+      "sha256": "ac7da6a8e5cb9ee48a14f901243bd2cfcc996c73d6bf79d8a1bd1603abbc7bed"
+    },
+    {
+      "file": "semantic_index.py",
+      "size": 4688,
+      "sha256": "21fb12d97b6ca182409c14308e16762273a8b055cd8c3b9a5c0b258b6bd5360c"
+    },
+    {
+      "file": "skill_plan.py",
+      "size": 9059,
+      "sha256": "85a81858000d383f6b4e5a853961455b85968858bd9f830e4f584fc8049565d3"
+    },
+    {
+      "file": "sparring.py",
+      "size": 19073,
+      "sha256": "58597ce8d0e7a2b2aa20959289c9cd7489e3cfc0a6acab7c5dec14891eab0539"
+    },
+    {
+      "file": "strategy.html",
+      "size": 42968,
+      "sha256": "add18bc00ba6dcdbcef04da6579ccacc1c47d0bb961b84781beb04cd2a1f05c0"
+    },
+    {
+      "file": "sw.js",
+      "size": 311,
+      "sha256": "9f20ae9df5d44224f0f916fdffd5d5c16092f98d58ce0ea1c65db7985efc79e0"
+    },
+    {
+      "file": "tutor.py",
+      "size": 4453,
+      "sha256": "4d2474fa19a7107531424e250c7e27df77047d6f48f9da8184f351032cf677c9"
+    },
+    {
+      "file": "visual_coach.py",
+      "size": 9017,
+      "sha256": "89bbbd3b9f0d42cd5b7f27cdf168d95bcf8e40712c903156dbae2edf6d2f19ab"
+    },
+    {
+      "file": "visual_review.py",
+      "size": 1429,
+      "sha256": "e7aa189989aa3d5d6f59a0718b4dae9d2bc1a7bbdeb7677b97c2cdc975cdb860"
+    },
+    {
+      "file": "web_app.py",
+      "size": 28103,
+      "sha256": "4600fc90caf9551d8ebb12289ec9529a9c2f0c0d1d073b32696d01cffdbe183a"
+    },
+    {
+      "file": "workshop.html",
+      "size": 29415,
+      "sha256": "76a65c6a54290d6f9ae62c11e4a626b3218ab5d72a1513718521d8cf08d68db2"
+    },
+    {
+      "file": "_capture_marketing.js",
+      "size": 3361,
+      "sha256": "58419edaa7ff6f4121db8cba3e7ca3aef9ce950a492b8b9d0f2cfdc80a9c948a"
+    },
+    {
+      "file": "_recapture_release.js",
+      "size": 3000,
+      "sha256": "a5d9a904499276291447291e6fe46f12edefc5c75c5cbe6729542261a134f180"
+    },
+    {
+      "file": "data/bootstrap_content.sqlite3",
+      "size": 4972544,
+      "sha256": "25e6d26e911d6e78108074e628c692f6f69812287b0e9d30f3a7cba2e7f18d7b"
+    },
+    {
+      "file": "data/eco/a.tsv",
+      "size": 67257,
+      "sha256": "3282e4c9155289a29224f9a85fba0decb46efa35c2fa5e39662d2ac48fb0f793"
+    },
+    {
+      "file": "data/eco/b.tsv",
+      "size": 78137,
+      "sha256": "2744a3890879bd9dce79093147fe5b6c3a9d9d42a3388af698e67b6829be1c48"
+    },
+    {
+      "file": "data/eco/c.tsv",
+      "size": 132304,
+      "sha256": "447bbd4b15d68067b150faf12bf66aa14b18582cf80d736aaa7c0081131806ef"
+    },
+    {
+      "file": "data/eco/d.tsv",
+      "size": 73318,
+      "sha256": "1cf4057a8aece94f27bb3f278ad410ee2844831a642364eeceaafa091dbcceda"
+    },
+    {
+      "file": "data/eco/e.tsv",
+      "size": 44061,
+      "sha256": "48c6f6645b031a5937c8386839debab0e2e48837251687ba1afb6369677f8546"
+    },
+    {
+      "file": "data/eco/LICENSE-SOURCE.md",
+      "size": 361,
+      "sha256": "dc0e84302d35272d9a06b940f7314611e3dfcdde667f2d9e6f7bb8c6e2b397be"
+    },
+    {
+      "file": "icons/icon-192.png",
+      "size": 3048,
+      "sha256": "08b00ea6a98238fbca9d1fcbf1e4e6e3c39b5b5c3e90f6fec2d53db8a579451b"
+    },
+    {
+      "file": "icons/icon-512.png",
+      "size": 8686,
+      "sha256": "5b0060bbbb4d56678d10efd31e7dd29d9326baabac5b0b98d679766c7af3f3f1"
+    },
+    {
+      "file": "marketing/PINOKIO_LAUNCH_COPY.md",
+      "size": 11134,
+      "sha256": "baa58366418200624831d74a447e6e1efe24130dad1f546fab0b7c2d56e505e4"
+    },
+    {
+      "file": "marketing/screenshots/01-account-settings.png",
+      "size": 149146,
+      "sha256": "e066cba66c2dd0f8ec97ba3097088416d79724ab3989fd2976a56f43ba74728d"
+    },
+    {
+      "file": "marketing/screenshots/02-study-masters.png",
+      "size": 261483,
+      "sha256": "cdb4e9e92fc7c2a9e08627ab9b5a39e1f3d375c1fdfd3b9da2f9504212514c77"
+    },
+    {
+      "file": "marketing/screenshots/03-opening-mastery.png",
+      "size": 179658,
+      "sha256": "46db5a2446b704f9de415d2f2bf7072dd59bad677013aae7a00e65484fbf8d3b"
+    },
+    {
+      "file": "marketing/screenshots/04-endgame-lab.png",
+      "size": 188231,
+      "sha256": "00bc6f3bede298c6ea0f110fb6bcdefb3ccc6730a41e91b3d03c43487c27e07a"
+    },
+    {
+      "file": "marketing/screenshots/05-play-ai-and-history.png",
+      "size": 221421,
+      "sha256": "565e87d0b307c2edf4fd6b19b2917e36543c081969c67d36e6130c39a2332e60"
+    },
+    {
+      "file": "marketing/screenshots/06-learning-lab.png",
+      "size": 190169,
+      "sha256": "d4ede8c41b88cd688e4fb0fde862c741adc672e2b601f55f0707770d9bf051f3"
+    },
+    {
+      "file": "marketing/screenshots/07-dashboard-first-run.png",
+      "size": 154176,
+      "sha256": "6de5babe9b43b74bef7c660deeffe49b5fd3be32d274e14a6337465e27c32df8"
+    },
+    {
+      "file": "marketing/screenshots/08-move-by-move-coaching.png",
+      "size": 116616,
+      "sha256": "9532ecfea8785fa1eb85eca87736e98c06d56ee3c5aec6bb7403f7b3c5ed52d5"
+    },
+    {
+      "file": "marketing/screenshots/screenshots_manifest.json",
+      "size": 2428,
+      "sha256": "0d2eb35417b5d840475bd2709c03a1a47e1170442124ff7693b33ca67e46b7d9"
+    },
+    {
+      "file": "pinokio/bootstrap.py",
+      "size": 5197,
+      "sha256": "e59b2412c7f9c3b8d811d6845cb073e7b1ab184ff232056e2050e79af1293f9a"
+    },
+    {
+      "file": "pinokio/doctor.js",
+      "size": 141,
+      "sha256": "2acb8186818b469ce577b78fd3572917df3e044cb1df249b45da2bb0e0b69f9f"
+    },
+    {
+      "file": "pinokio/ENVIRONMENT",
+      "size": 114,
+      "sha256": "a2fb99f1363b303e88f9846803c5d6b6a03e5ca917b4023305381b9c6b530313"
+    },
+    {
+      "file": "pinokio/install.js",
+      "size": 250,
+      "sha256": "8be573fff23bca99e46794034b108a1f8ef72af6d5d3311474def5f5017ee4f7"
+    },
+    {
+      "file": "pinokio/pinokio.js",
+      "size": 1294,
+      "sha256": "b8fd816bc1efd4d887bded4808caf8c1da33921558acf3d3564c2aed3a0962df"
+    },
+    {
+      "file": "pinokio/pinokio.json",
+      "size": 139,
+      "sha256": "9c938a03b34b86a2fdc46de52a5386dbdd2bb565afd2c5f5e46f3bfee2c8d9c0"
+    },
+    {
+      "file": "pinokio/start.js",
+      "size": 293,
+      "sha256": "d21e900ab7ce977fdb30c73f311b83e05c3b30657f31b6e2b712383be547e5e2"
+    },
+    {
+      "file": "pinokio/update.js",
+      "size": 260,
+      "sha256": "85ce8e3e217ad41d16d7223732be5984f5154224d060085cec00c8e4baecaf5d"
+    }
+  ]
+}
