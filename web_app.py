@@ -284,7 +284,8 @@ class Handler(BaseHTTPRequestHandler):
                 from academy_curriculum import challenge
                 from urllib.parse import parse_qs
                 args=parse_qs(urlparse(self.path).query)
-                self.respond(challenge(args.get("id",[""])[0],int(args.get("number",["0"])[0])))
+                self.respond(challenge(args.get("id",[""])[0],int(args.get("number",["0"])[0]),
+                                       args.get("challengeId",[None])[0]))
             elif path=="/api/lab/profile":
                 from learning_lab import skills
                 self.respond(skills())

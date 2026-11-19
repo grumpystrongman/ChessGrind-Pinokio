@@ -141,7 +141,7 @@ aside{padding:23px 17px 40px 25px;border-right:1px solid var(--rim);background:#
     <div class="stat"><b id="stat-retained">—</b><small>Delayed recalls confirmed</small></div>
    </div>
    <div class="plan"><span class="avatar">♞</span><div><h3>Your Academy coach</h3>
-    <p id="academy-plan">We will start with a tactical pattern, show how it works, and let you find it yourself in two new positions. If you need a hint, you can have one—but assisted work is recorded honestly.</p>
+    <p id="academy-plan">We will start with a tactical pattern, show how it works, and let you find it yourself in eight changing positions. If you need a hint, you can have one—but assisted work is recorded honestly.</p>
    </div></div>
    <div class="course-grid" id="course-grid" aria-label="Available lessons"></div>
   </div>
@@ -285,7 +285,7 @@ function showView(name){
 }
 function stateLabel(row){
  return row.state==="retained"?"Delayed recall ✓":
- row.state==="practice-complete"?"Practice complete":
+ row.state==="practice-complete"?"Milestone reached - keep training":
  row.state==="in-progress"?"In progress":"Not started";
 }
 function stateTag(row){
@@ -301,7 +301,7 @@ function updateOverview(){
    overview.units.find(u=>u.state==="not-started")||
    overview.units.find(u=>u.state==="practice-complete")||overview.units[0];
  $("academy-plan").textContent=candidate?
-  "Next up: "+candidate.title+". We'll demonstrate one specific idea and let you recognize it on two different boards. A correct answer after a hint is still useful practice—but it isn't counted as independent first-try recognition.":
+  "Next up: "+candidate.title+". We'll demonstrate one specific idea and let you recognize it on eight rotating boards. A correct answer after a hint is still useful practice—but it isn't counted as independent first-try recognition.":
   "Let's choose your first lesson and learn to see the board one pattern at a time.";
  $("unit-nav").innerHTML=overview.units.map((u,i)=>
   '<button class="course" data-unit="'+esc(u.id)+'" type="button"><span class="course-icon">'+esc(u.symbol)+'</span>'+
@@ -311,8 +311,8 @@ function updateOverview(){
   '<button class="course-card" data-unit="'+esc(u.id)+'" type="button"><div class="card-top">'+
   '<span class="bigicon">'+esc(u.symbol)+'</span><div><span class="kicker">Lesson '+(i+1)+' · '+esc(u.label)+'</span><h3>'+esc(u.title)+'</h3></div></div>'+
   '<p>'+esc(u.tagline)+' '+esc(u.principle)+'</p><div class="row space"><span class="'+stateTag(u)+'">'+esc(stateLabel(u))+'</span>'+
-  '<span class="tiny">Open lesson ↗</span></div><div class="progressline"><span style="width:'+
-  (u.state==="retained"?100:u.state==="practice-complete"?70:u.state==="in-progress"?25:0)+'%"></span></div></button>').join("");
+  '<span class="tiny">Practice  ↗</span></div><div class="progressline"><span style="width:'+
+  Math.max(u.state==="retained"?70:u.state==="practice-complete"?45:0,Math.round(100*u.coverage/u.checks))+'%"></span></div></button>').join("");
  document.querySelectorAll("[data-unit]").forEach(b=>b.onclick=()=>openLesson(b.dataset.unit));
 }
 async function loadAcademy(){
@@ -332,7 +332,7 @@ async function openLesson(id){
  }catch(e){alert("Unable to open lesson: "+e.message)}
 }
 function progressDots(index){
- $("step-progress").innerHTML=[0,1,2].map(n=>'<span class="'+(n<index?"done":n===index?"now":"")+'"></span>').join("");
+ $("step-progress").innerHTML=Array.from({length:unit.testCount+1},(_,n)=>'<span class="'+(n<index?"done":n===index?"now":"")+'"></span>').join("");
 }
 function boardFoot(fen,state){
  $("board-color").textContent=(fen.split(" ")[1]==="b"?"Black":"White")+" to move · Select squares to learn";
@@ -346,7 +346,7 @@ function renderLegend(show){
 function showDemo(returnTo=null){
  answered=false;stateAfter=false;challenge=null;replayIndex=returnTo;progressDots(0);
  const item=unit.demo,kind=unit.kind;
- $("task-kicker").textContent="Step 1 / 3 · See the idea";
+ $("task-kicker").textContent="Demonstration - See the idea";
  $("task-title").textContent="Watch the pattern.";
  $("task-description").textContent=item.prompt;
  $("task-feedback").innerHTML='<div class="note">♞ '+esc(item.why)+'</div>';
@@ -371,11 +371,11 @@ function showDemo(returnTo=null){
 async function showTest(index,assistedFromDemo=false){
  try{
   testIndex=index;
-  challenge=await request("/api/academy/challenge?id="+encodeURIComponent(unit.id)+"&number="+index);
+  challenge=await request("/api/academy/challenge?id="+encodeURIComponent(unit.id)+"&number="+index+"&challengeId="+encodeURIComponent(unit.challengeIds[index]));
   hinted=assistedFromDemo;answered=false;latestAnswer=null;lessonStarted=Date.now();
   progressDots(index+1);
   $("coach-handoff-panel").classList.add("hidden"); // Don't reveal an answer through the coach before grading.
-  $("task-kicker").textContent="Step "+(index+2)+" / 3 · Recognition test";
+  $("task-kicker").textContent="Position "+(index+1)+" / "+unit.testCount+" - Recognition test";
   $("task-title").textContent="Your turn. Find the square.";
   $("task-description").textContent=challenge.prompt;
   $("task-feedback").innerHTML='<div class="qa-hint">Before tapping, name the idea to yourself. There are no arrows yet; you are making the decision.</div>';
@@ -448,7 +448,7 @@ async function showResults(){
  const first=latest?.firstTryPass;
  $("result-kicker").textContent=independent===unit.testCount?"Independent recognition completed":"Learning checkpoint";
  $("result-heading").textContent=independent===unit.testCount?
-  "You recognized the pattern independently.":"You are building the pattern.";
+  "You recognized the pattern independently. More positions remain for your next session.":"You are building the pattern.";
  $("result-summary").textContent="On this session, you recognized "+correct+" of "+unit.testCount+
    " positions, including "+independent+" without help. "+
    (first?"Both positions were correct on your first unaided attempt. ":
@@ -456,7 +456,7 @@ async function showResults(){
    (latest?.state==="retained"?
      "You also have a correct independent review from another day—a delayed recall check.":
     latest?.state==="practice-complete"?
-     "Practice is complete. Return on another day to check whether the idea stuck.":
+     "Practice milestone reached. Come back for new positions and delayed recall.":
      "Review this concept and try the positions again; the coach will keep your results separate.");
  showView("results");
 }

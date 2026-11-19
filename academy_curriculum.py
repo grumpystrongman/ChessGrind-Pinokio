@@ -7,6 +7,8 @@ curriculum does not require Chess.com credentials, OCR books, or user games.
 from __future__ import annotations
 import datetime as dt
 import json
+import random
+import hashlib
 import sqlite3
 import chess
 from chess_grind import db
@@ -138,8 +140,108 @@ UNITS=[
       "targets":["g4","g6"]}
   ]}
 ]
+
+# Extra positions are constructed from verified original examples, then individually
+# checked for legality and for the claimed chess pattern. Original question IDs persist.
+SESSION_SIZE=8
+BANK_TARGET=40
+def _shift(square,dx,dy,flip=False):
+    f=chess.square_file(chess.parse_square(square))
+    r=chess.square_rank(chess.parse_square(square))
+    if flip:f=7-f
+    f+=dx;r+=dy
+    if not (0<=f<8 and 0<=r<8):return None
+    return chess.square_name(chess.square(f,r))
+
+def _variation(unit,seed,dx,dy,flip,extras=()):
+    base=chess.Board(seed["fen"])
+    mapped={}
+    for old,piece in base.piece_map().items():
+        to=_shift(chess.square_name(old),dx,dy,flip)
+        if to is None or to in mapped:return None
+        mapped[to]=piece.symbol()
+    origin=_shift(seed["origin"],dx,dy,flip) if seed.get("origin") else None
+    answer=_shift(seed["answer"],dx,dy,flip)
+    targets=[_shift(t,dx,dy,flip) for t in seed["targets"]]
+    if not answer or (origin is None and seed.get("origin")) or any(t is None for t in targets):return None
+    for sq,piece in extras:
+        if sq in mapped:return None
+        mapped[sq]=piece
+    try: fen=pos(mapped,"w" if base.turn else "b")
+    except ValueError:return None
+    kind=unit["kind"]
+    if kind=="fork":
+        prompt="Find the knight move that attacks two enemy pieces at once."
+        why=f"The knight jumps from {origin} to {answer}, forking the pieces on {targets[0]} and {targets[1]}."
+    elif kind=="pin":
+        prompt="Move the bishop to make an absolute pin against the enemy king."
+        why=f"The bishop on {answer} pins the piece on {targets[0]} against the king on {targets[1]}."
+    elif kind=="loose":
+        prompt="Tap the attacked enemy piece that has no defender."
+        why=f"The enemy piece on {answer} is attacked but not protected by its own side."
+    elif kind=="center":
+        prompt="Find the central pawn advance that claims space and opens development."
+        why=f"The pawn advances from {origin} to {answer} and establishes central presence."
+    elif kind=="passed":
+        prompt="Tap the passed pawn: no enemy pawn ahead on its file or adjacent files."
+        why=f"The pawn on {answer} has no enemy pawn ahead on its file or either neighboring file."
+    else:
+        prompt="Tap the empty square separating the two kings in direct opposition."
+        why=f"The kings face each other across {answer}; the side to move influences the endgame."
+    entry={"fen":fen,"answer":answer,"prompt":prompt,"why":why,"targets":targets}
+    if origin:entry["origin"]=origin
+    try:_validate_item(unit,entry,kind)
+    except (ValueError,AssertionError):return None
+    return entry
+
+def _expand_banks():
+    for unit in UNITS:
+        original=list(unit["checks"])
+        occupied={x["fen"].split(" ")[0] for x in [unit["demo"]]+original}
+        rng=random.Random("chessgrind-academy-bank-v2-"+unit["id"])
+        results=[]
+        # Chess-relevant geometric shifts first, then add unobtrusive context pieces
+        # if needed (especially central pawn lessons, whose destination is fixed).
+        for attempt in range(12000):
+            seed=original[attempt%len(original)]
+            dx=rng.randint(-5,5);dy=rng.randint(-5,5);flip=bool(rng.randrange(2))
+            extras=()
+            if attempt>600 or unit["kind"]=="center":
+                options=[("a2","P"),("b2","P"),("g2","P"),("h2","P"),
+                         ("a7","p"),("b7","p"),("g7","p"),("h7","p")]
+                rng.shuffle(options)
+                extras=tuple(options[:rng.randint(1,3)])
+            item=_variation(unit,seed,dx,dy,flip,extras)
+            if item is None:continue
+            placement=item["fen"].split(" ")[0]
+            if placement in occupied:continue
+            occupied.add(placement)
+            item["id"]=unit["id"]+"-extra-"+str(len(results)+1).zfill(3)
+            results.append(item)
+            if len(results)>=BANK_TARGET-len(original):break
+        unit["checks"].extend(results)
+        if len(unit["checks"])<BANK_TARGET:
+            raise RuntimeError("Insufficient verified Academy positions for "+unit["id"]+
+                               ": "+str(len(unit["checks"])))
+
+def _session_ids(unit,events):
+    seen={}
+    for event in events:
+        key=event["challenge_id"]
+        row=seen.setdefault(key,{"attempts":0,"correct":0,"last":""})
+        row["attempts"]+=1
+        row["correct"]+=int(bool(event["correct"]) and not bool(event["assisted"]))
+        row["last"]=event["at"]
+    candidates=list(unit["checks"])
+    # Randomize ties, prefer never-seen examples, then missed/assisted questions,
+    # then older practice. The returned IDs remain fixed for this session.
+    random.SystemRandom().shuffle(candidates)
+    candidates.sort(key=lambda x:(seen.get(x["id"],{}).get("correct",0)>0,
+                                  seen.get(x["id"],{}).get("last","")))
+    return [x["id"] for x in candidates[:SESSION_SIZE]]
+
 INDEX={unit["id"]:unit for unit in UNITS}
-COUNT=sum(len(u["checks"]) for u in UNITS)
+COUNT=0  # Filled after verified bank expansion
 
 def _validate_item(unit,item,kind):
     board=chess.Board(item["fen"])
@@ -202,8 +304,9 @@ def validate():
         if len(set(fens))<3:raise ValueError("Demonstration reused as a test")
     return True
 
+_expand_banks()
+COUNT=sum(len(u["checks"]) for u in UNITS)
 validate()
-
 def ensure(con):
     con.executescript("""CREATE TABLE IF NOT EXISTS academy_attempts(
        id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -228,14 +331,17 @@ def _rows(con,unit_id):
 def status(unit,events):
     """First pass means 2 independently correct on distinct test boards.
     Confirmed requires a delayed, unaided independent check on another day."""
-    checks={x["id"] for x in unit["checks"]}
-    fresh=[r for r in events if r["challenge_id"] in checks and r["correct"] and not r["assisted"]]
+    checks={x["id"] for x in unit["checks"][:2]}
+    fresh=[r for r in events if r["challenge_id"] in {x["id"] for x in unit["checks"]} and r["correct"] and not r["assisted"]]
     # Distinct correct boards can be solved on separate days; the day the
     # last needed board is first solved is the initial completion date.
     first_by_challenge={}
     for row in fresh:
-        first_by_challenge.setdefault(row["challenge_id"],row["at"][:10])
-    first_day=max(first_by_challenge.values()) if len(first_by_challenge)==len(checks) else None
+        if row["challenge_id"] in checks:first_by_challenge.setdefault(row["challenge_id"],row["at"][:10])
+    legacy_day=max(first_by_challenge.values()) if len(first_by_challenge)==len(checks) else None
+    all_correct={r["challenge_id"]:r["at"][:10] for r in fresh}
+    # Preserve early beta achievements, but new learners need eight distinct boards.
+    first_day=legacy_day or (max(all_correct.values()) if len(all_correct)>=SESSION_SIZE else None)
     # Do not confuse learned-on-retry with unseen first-try recognition.
     first_attempts={}
     for row in events:
@@ -244,10 +350,13 @@ def status(unit,events):
     first_try_pass=bool(len(first_attempts)==len(checks) and
         all(r["correct"] and not r["assisted"] for r in first_attempts.values()))
     confirmed=bool(first_day and any(r["at"][:10]>first_day for r in fresh))
+    coverage=len({r["challenge_id"] for r in events})
+    unique_correct=len({r["challenge_id"] for r in fresh})
     return {"state":"retained" if confirmed else "practice-complete" if first_day else
            "in-progress" if events else "not-started",
       "firstPassDate":first_day,"firstTryPass":first_try_pass,"confirmed":confirmed,
-      "independentCorrect":len(fresh),"totalAttempts":len(events),
+      "independentCorrect":len(fresh),"uniqueCorrect":unique_correct,"coverage":coverage,
+      "totalAttempts":len(events),
       "lastAttempt":events[-1]["at"] if events else None}
 
 def overview():
@@ -260,11 +369,11 @@ def overview():
                 "label":unit["label"],"level":unit["level"],
                 "symbol":unit["symbol"],"tagline":unit["tagline"],
                 "principle":unit["principle"],"habit":unit["habit"],
-                "checks":len(unit["checks"]),**result})
+                "checks":len(unit["checks"]),"sessionSize":SESSION_SIZE,**result})
         return {"units":results,"total":len(UNITS),
              "completed":sum(x["state"] in ("practice-complete","retained") for x in results),
              "retained":sum(x["confirmed"] for x in results),
-             "method":"Two different positions solved unaided earn practice completion, even across days. First-attempt accuracy is separate from correct answers after retries. An independent check on a later day is delayed recall, not proof of unseen transfer."}
+              "method":"Eight distinct independently correct boards earn a new practice milestone. Existing beta milestones are preserved. Every session brings less-practiced positions; delayed checks are tracked separately."}
     finally:con.close()
 
 def _presentation(item,kind,reveal=False):
@@ -286,21 +395,28 @@ def lesson(unit_id):
     if unit_id not in INDEX:raise ValueError("Unknown Academy lesson")
     unit=INDEX[unit_id]
     con=db();ensure(con)
-    try:progress=status(unit,_rows(con,unit_id))
+    try:
+        events=_rows(con,unit_id)
+        progress=status(unit,events)
+        selected=_session_ids(unit,events)
     finally:con.close()
     return {"id":unit_id,"title":unit["title"],"label":unit["label"],
             "symbol":unit["symbol"],"level":unit["level"],
             "tagline":unit["tagline"],"principle":unit["principle"],
             "habit":unit["habit"],"kind":unit["kind"],"progress":progress,
             "demo":_presentation(unit["demo"],unit["kind"],True),
-            "testCount":len(unit["checks"])}
+            "testCount":len(selected),"bankSize":len(unit["checks"]),"challengeIds":selected}
 
-def challenge(unit_id,number):
+def challenge(unit_id,number,challenge_id=None):
     if unit_id not in INDEX:raise ValueError("Unknown Academy lesson")
     unit=INDEX[unit_id]
-    if not isinstance(number,int) or number<0 or number>=len(unit["checks"]):
-        raise ValueError("Unknown Academy test position")
-    item=unit["checks"][number]
+    if challenge_id:
+        item=next((x for x in unit["checks"] if x["id"]==challenge_id),None)
+        if item is None:raise ValueError("Unknown Academy test position")
+    else:
+        if not isinstance(number,int) or number<0 or number>=len(unit["checks"]):
+            raise ValueError("Unknown Academy test position")
+        item=unit["checks"][number]
     return {"id":item["id"],"unitId":unit_id,"number":number+1,
             "total":len(unit["checks"]),**_presentation(item,unit["kind"])}
 
