@@ -8,7 +8,9 @@ from chess_grind import db
 from game_analysis import find_engine
 from lesson_explainer import move_reasons
 
-USER="player"
+def current_username():
+ from account_settings import username
+ return username() or 'player'
 MAX_PLIES=16
 
 def ensure(con):
@@ -37,7 +39,7 @@ def _game_record(row):
  # PGNs may be absent or invalid. Don't infer missing games or moves.
  game=chess.pgn.read_game(io.StringIO(row["pgn"]))
  if not game:return None
- player=USER.lower()
+ player=current_username().lower()
  white=str(row["white_username"] or "").lower()==player
  black=str(row["black_username"] or "").lower()==player
  if not (white or black):return None
@@ -55,7 +57,7 @@ def _game_record(row):
 
 def _data(con):
  rows=con.execute("""SELECT game_id,pgn,white_username,black_username,result,
-     time_class FROM chesscom_games WHERE username=?""",(USER,)).fetchall()
+     time_class FROM chesscom_games WHERE username=?""",(current_username(),)).fetchall()
  games=[]
  for row in rows:
   try:
@@ -77,14 +79,14 @@ def overview():
  try:
   games=_data(con)
   saved=con.execute("SELECT position_key,move_uci FROM repertoire_choices WHERE username=?",
-                   (USER,)).fetchall()
+                   (current_username(),)).fetchall()
   by_color={}
   for color in ("White","Black"):
    group=[g for g in games if g["color"]==color]
    first=Counter(next((s["san"] for s in g["steps"] if s["mover"]==color),"?") for g in group)
    # First move for Black is the response to White's move.
    by_color[color]={"games":len(group),"firstMoves":[{"move":m,"games":n} for m,n in first.most_common(8)]}
-  reviews=con.execute("""SELECT correct,assisted FROM repertoire_reviews WHERE username=?""",(USER,)).fetchall()
+  reviews=con.execute("""SELECT correct,assisted FROM repertoire_reviews WHERE username=?""",(current_username(),)).fetchall()
   ind=[r for r in reviews if not r["assisted"]]
   return {"games":len(games),"colors":by_color,"savedPositions":len(saved),
     "attempts":len(reviews),"independentAccuracy":round(100*sum(r["correct"] for r in ind)/len(ind)) if ind else None,
@@ -154,7 +156,7 @@ def position(fen):
     counts[s["uci"]]+=1;count+=1
     if len(examples[s["uci"]])<4:examples[s["uci"]].append(g["id"])
   saved=con.execute("SELECT move_uci FROM repertoire_choices WHERE username=? AND position_key=?",
-       (USER,key)).fetchone()
+       (current_username(),key)).fetchone()
   options=[]
   for uci,n in counts.most_common(12):
    m=chess.Move.from_uci(uci)
@@ -163,7 +165,7 @@ def position(fen):
      "frequency":round(100*n/count) if count else 0,
      "reasons":move_reasons(board,m)[:2]})
   saved_note=con.execute("SELECT note FROM repertoire_takeaways WHERE username=? AND position_key=?",
-                         (USER,key)).fetchone()
+                         (current_username(),key)).fetchone()
   chosen=saved["move_uci"] if saved else None
   if chosen and chess.Move.from_uci(chosen) not in board.legal_moves:chosen=None
   return {"fen":board.fen(),"positionKey":key,
@@ -187,7 +189,7 @@ def save(fen,uci):
   con.execute("""INSERT INTO repertoire_choices VALUES(?,?,?,?)
     ON CONFLICT(username,position_key) DO UPDATE SET
      move_uci=excluded.move_uci,saved_at=excluded.saved_at""",
-    (USER,r["positionKey"],uci,dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")))
+    (current_username(),r["positionKey"],uci,dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")))
   con.commit()
   return {"saved":True,"move":board.san(move),"positionKey":r["positionKey"],
    "note":"Saved a preference, not an engine best-move claim."}
@@ -197,11 +199,11 @@ def review():
  con=db();ensure(con)
  try:
   rows=con.execute("SELECT position_key,move_uci FROM repertoire_choices WHERE username=?",
-     (USER,)).fetchall()
+     (current_username(),)).fetchall()
   completed={}
   for row in con.execute("""SELECT position_key,COUNT(*) n,
      MAX(reviewed_at) last_time FROM repertoire_reviews WHERE username=?
-     GROUP BY position_key""",(USER,)):
+     GROUP BY position_key""",(current_username(),)):
    completed[row["position_key"]]=dict(row)
   for r in sorted(rows,key=lambda r:completed.get(r["position_key"],{}).get("last_time","")):
    key=r["position_key"];board=chess.Board(key+" 0 1")
@@ -222,11 +224,11 @@ def grade_review(fen,uci,assisted=False,seconds=0):
  key=board_key(board)
  con=db();ensure(con)
  try:
-  saved=con.execute("SELECT move_uci FROM repertoire_choices WHERE username=? AND position_key=?",(USER,key)).fetchone()
+  saved=con.execute("SELECT move_uci FROM repertoire_choices WHERE username=? AND position_key=?",(current_username(),key)).fetchone()
   if not saved:raise ValueError("Save a repertoire move first")
   chosen=chess.Move.from_uci(saved[0]);correct=chosen==played
   con.execute("INSERT INTO repertoire_reviews(username,position_key,move_uci,chosen_uci,correct,assisted,seconds,reviewed_at) VALUES(?,?,?,?,?,?,?,?)",
-    (USER,key,chosen.uci(),played.uci(),int(correct),int(assisted),max(0,min(float(seconds),3600)),
+    (current_username(),key,chosen.uci(),played.uci(),int(correct),int(assisted),max(0,min(float(seconds),3600)),
      dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")))
   con.commit()
   return {"correct":correct,"yourSan":board.san(played),"savedSan":board.san(chosen),
@@ -244,7 +246,7 @@ def save_takeaway(fen,note):
   con.execute("""INSERT INTO repertoire_takeaways VALUES(?,?,?,?)
     ON CONFLICT(username,position_key) DO UPDATE SET
     note=excluded.note,updated_at=excluded.updated_at""",
-    (USER,r["positionKey"],note.strip(),dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")))
+    (current_username(),r["positionKey"],note.strip(),dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")))
   con.commit()
   return {"saved":True,"takeaway":note.strip(),
     "note":"Saved your own explanation; this does not count as independent chess mastery."}
