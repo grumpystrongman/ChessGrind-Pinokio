@@ -76,6 +76,10 @@ def hardware():
     return {"ramGiB":ram,"freeInstallDiskGiB":round(available_gib,1)}
 
 def choose_model(ram_gib):
+    # Advanced explicit override (used for reproducible low-memory CI checks).
+    # An unknown value is ignored rather than passed to an arbitrary model pull.
+    override=os.getenv("CHESSGRIND_INSTALL_MODEL")
+    if override in MODEL_SIZES:return override
     if ram_gib is None:return "qwen3.5:2b"
     if ram_gib>=12:return "qwen3.5:4b"
     if ram_gib>=8:return "qwen3.5:2b"
