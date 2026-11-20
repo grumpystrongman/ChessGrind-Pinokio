@@ -265,7 +265,7 @@ def setup(only="all",strict=False):
                 if not probe_chat(preferred):
                     raise RuntimeError("Local model was installed but did not answer a test question")
                 summary["steps"]["conversationalAI"]={"ready":True,"model":preferred}
-            except (OSError,ValueError,RuntimeError,subprocess.SubprocessError) as exc:
+            except (OSError,ValueError,RuntimeError,ImportError,subprocess.SubprocessError) as exc:
                 summary["steps"]["conversationalAI"]={"ready":False,"error":str(exc)[:300]}
                 print("Conversational AI installation warning: "+str(exc),flush=True)
                 if strict:raise
@@ -273,7 +273,7 @@ def setup(only="all",strict=False):
             try:
                 install_voices()
                 summary["steps"]["neuralVoices"]={"ready":True}
-            except (OSError,ValueError,RuntimeError,subprocess.SubprocessError) as exc:
+            except (OSError,ValueError,RuntimeError,ImportError,subprocess.SubprocessError) as exc:
                 summary["steps"]["neuralVoices"]={"ready":False,"error":str(exc)[:300]}
                 print("Neural voice installation warning: "+str(exc),flush=True)
                 if strict:raise
