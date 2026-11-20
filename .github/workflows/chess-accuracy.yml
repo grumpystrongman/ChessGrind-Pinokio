@@ -42,7 +42,7 @@ jobs:
       - name: Validate expanded source and tactical evaluation suites
         run: |
           python -m unittest discover -s tests -p "test_chess_accuracy_suite.py" -v
-          python chess_accuracy_suite.py
+          python chess_accuracy_suite.py --full
       - name: Upload human-readable benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
