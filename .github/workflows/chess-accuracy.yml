@@ -52,3 +52,32 @@ jobs:
             docs/CHESS_QUALITY_BASELINE.json
             docs/CHESS_ACCURACY_SUITE_REPORT.json
           if-no-files-found: ignore
+
+  windows-pinokio-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out app
+        uses: actions/checkout@v4
+      - name: Set up Python on Windows
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Windows test dependencies
+        run: python -m pip install --disable-pip-version-check "chess>=1.11" "requests>=2.31"
+      - name: Set isolated test data location
+        shell: pwsh
+        run: |
+          $tmp = Join-Path $env:RUNNER_TEMP "ChessGrind-QA"
+          New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+          "CHESS_GRIND_HOME=$tmp" >> $env:GITHUB_ENV
+      - name: Check Windows source compilation
+        run: python -m compileall -q pinokio/bootstrap.py chess_knowledge.py verified_chess.py endgame_lab.py install_syzygy.py academy_quality_audit.py conversational_chess.py web_app.py
+      - name: Check all Academy teaching examples
+        run: python academy_quality_audit.py
+      - name: Check conversation chess-claim rules
+        run: python tests/test_chess_claim_guard.py
+      - name: Install compact exact endgame data on Windows
+        run: python install_syzygy.py --pieces 3
+      - name: Verify Windows Syzygy probing and source behavior
+        run: python -m unittest discover -s tests -p "test_exact_endgames.py" -v
