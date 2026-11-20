@@ -85,6 +85,11 @@ def doctor():
  from verified_chess import tablebase_status
  tb=tablebase_status()
  print("Exact Syzygy tablebases:",str(tb["pairs"])+" WDL/DTZ pairs; up to "+str(tb["maxCompletePieces"])+" pieces",flush=True)
+ from local_ai_setup import readiness
+ ai=readiness()
+ print("Conversational AI:",ai["conversationalAIReady"],
+       "("+str(ai["selectedChatModel"] or "no local model")+")",flush=True)
+ print("Neural character voices:",ai["neuralVoicesReady"],flush=True)
  print("Personal Chess.com account:",get_account() or "Not yet connected",flush=True)
  print("External listening: OFF. Online invites: OFF.",flush=True)
 def main():
@@ -117,11 +122,26 @@ def main():
     print("Semantic vectors unavailable; exact and full-text study remain active: "+str(exc)[:180],flush=True)
   except Exception as exc:
    print("Knowledge graph setup warning: "+str(exc)[:250],flush=True)
+  # Full Pinokio installation includes conversation AI and neural voices.
+  # External installers and large models are explicitly announced in logs.
+  # Failures remain visible with a one-click Repair action.
+  from local_ai_setup import setup as setup_local_ai
+  ready=setup_local_ai("all")
+  if not ready["success"]:
+   print("WARNING: ChessGrind setup is PLAYABLE, but conversational AI or neural voice was not fully installed.",flush=True)
+   print("Use Pinokio > Repair local AI & character voices to complete the missing parts.",flush=True)
   doctor()
  elif opts.action=="doctor":doctor()
  else:
   if not (HOME/"chess.db").exists():seed_data()
   install_engine(skip_download=True)
+  # Ollama's Windows background process may not be running after restart.
+  # Starting a preinstalled local server does not download or modify models.
+  try:
+   from local_ai_setup import launch_server,executable
+   if executable():launch_server()
+  except (OSError,RuntimeError,ValueError) as exc:
+   print("Local AI startup warning: "+str(exc)[:160],flush=True)
   print("Starting Chess Grind on http://127.0.0.1:"+str(opts.port),flush=True)
   sys.exit(subprocess.call([sys.executable,"chess_grind.py","serve"],cwd=ROOT,env=env(opts.port)))
 if __name__=="__main__":main()

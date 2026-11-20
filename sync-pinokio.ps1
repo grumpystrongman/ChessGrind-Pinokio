@@ -120,6 +120,9 @@ try {
             Write-Warning "Semantic vectors could not finish. Exact-position and text retrieval still work. $($_.Exception.Message)"
         }
     }
+    # Refresh the local conversation engine and neural character voices.
+    # A missing optional download never destroys existing chess installation.
+    Run-Checked $python @("local_ai_setup.py","install")
     Run-Checked $python @("pinokio/bootstrap.py","doctor")
     Write-Host ""
     Write-Host "SUCCESS: ChessGrind source and available local knowledge updated." -ForegroundColor Green

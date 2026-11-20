@@ -19,10 +19,11 @@ def choose_model():
     try:
         with urllib.request.urlopen("http://127.0.0.1:11434/api/tags",timeout=1.5) as response:
             installed={x.get("name") for x in json.loads(response.read(100000)).get("models",[])}
-        for preference in ("ornith:9b","qwen3.5:4b","llama3.2:3b"):
+        for preference in ("ornith:9b","qwen3.5:9b","qwen3.5:4b",
+                           "qwen3.5:2b","qwen3.5:0.8b","llama3.2:3b"):
             if preference in installed:return preference
     except (OSError,ValueError):pass
-    return "qwen3.5:4b"
+    return "qwen3.5:2b"
 
 MODEL=choose_model()
 _SEMAPHORE=threading.BoundedSemaphore(2)

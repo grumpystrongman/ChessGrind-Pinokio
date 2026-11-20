@@ -169,6 +169,9 @@ class Handler(BaseHTTPRequestHandler):
             if path=="/api/arena/voice/status":
                 from coach_voice import status
                 self.respond(status());return
+            if path=="/api/chess/setup/status":
+                from local_ai_setup import readiness
+                self.respond(readiness());return
             if path=="/":
                 self.send_bytes((ROOT/"dashboard.html").read_bytes(),mime="text/html; charset=utf-8")
             elif path=="/learn":

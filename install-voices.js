@@ -1,8 +1,7 @@
-// Optional neural voices (not part of core chess installation).
+// Neural voices are normally installed during the core Pinokio setup.
 module.exports = {
-  run:[{method:"shell.run",params:{
-    path:".",venv:".venv",
-    message:["python -m pip install kokoro-onnx==0.6.1",
-             "python coach_voice.py install-assets"]
-  }}]
+ run:[{method:"shell.run",params:{
+   path:".",venv:".venv",
+   message:"python local_ai_setup.py voices"
+ }}]
 };
