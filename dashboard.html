@@ -747,15 +747,11 @@ for(const area of ["puzzle","review"]){
   if(!response.ok)throw Error("Could not load your coaching team");
   const roster=await response.json();
   const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const pictures=["sage","plum","copper","arctic","gold"];
-const coachImage=c=>["coach-mentor","coach-tactics","coach-iris","coach-rook","coach-vera"].includes(c.id)?
-       "/icons/portraits/"+c.id+".png":"/icons/coaches/sage.svg";
-  const portrait=c=>{
- const fixed={"coach-mentor":"sage","coach-tactics":"copper","coach-iris":"plum","coach-rook":"gold","coach-vera":"arctic"};
- return fixed[c.id]||pictures[[...c.id].reduce((a,x)=>a+x.charCodeAt(0),0)%pictures.length];
-};
+  const castIds=new Set(["coach-mentor","coach-tactics","coach-iris","coach-rook","coach-vera"]);
+  const coachImage=c=>castIds.has(c.id)?
+    "/icons/portraits/"+c.id+".webp":"/icons/coaches/sage.svg";
   list.innerHTML=roster.coaches.map((coach,i)=>'<button type="button" class="home-coach-card'+(roster.activeCoach===coach.id?" selected":"")+'" data-coach-id="'+safe(coach.id)+'">'+
-    '<img src="/icons/coaches/'+pictures[i%5]+'.svg" alt="Coach portrait"/><span><strong>'+safe(coach.name)+'</strong><small>'+safe(coach.specialty)+'<br>Stockfish skill '+Number(coach.skill??8)+'/20</small></span></button>').join("")||
+    '<img src="'+coachImage(coach)+'" alt="Portrait of '+safe(coach.name)+'"/><span><strong>'+safe(coach.name)+'</strong><small>'+safe(coach.specialty)+'<br>Stockfish skill '+Number(coach.skill??8)+'/20</small></span></button>').join("")||
     '<div class="small muted">No coaches yet. Create your first custom coach in the Coach Arena.</div>';
   const count=roster.coaches.length;
   info.textContent=count+" of 5 coaching profiles saved. Select one to play against, or create another.";

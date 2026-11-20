@@ -10,7 +10,7 @@ let lastAudio=null;
 function coachPortrait(coach){
  const identity=coach?.id||"";
  const illustrated=["coach-mentor","coach-tactics","coach-iris","coach-rook","coach-vera"];
- if(illustrated.includes(identity))return "/icons/portraits/"+identity+".png";
+ if(illustrated.includes(identity))return "/icons/portraits/"+identity+".webp";
  const variants=["sage","plum","copper","arctic","gold"];
  const idx=[...identity].reduce((sum,c)=>sum+c.charCodeAt(0),0)%variants.length;
  return "/icons/coaches/"+variants[idx]+".svg";

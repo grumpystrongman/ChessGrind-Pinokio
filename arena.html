@@ -447,7 +447,7 @@ function renderGame(g){
  const opponent=g.masterOpponent||g.coachOpponent||g.bot;
  if(opponent){
   rival.classList.remove("hidden");
-  const avatar=g.bot?g.bot.avatar:(g.masterOpponent?g.masterOpponent.avatar:(g.coachOpponent?.character?"/icons/portraits/"+g.coachOpponent.id+".png":"/icons/coaches/sage.svg"));
+  const avatar=g.bot?g.bot.avatar:(g.masterOpponent?g.masterOpponent.avatar:(g.coachOpponent?.character?"/icons/portraits/"+g.coachOpponent.id+".webp":"/icons/coaches/sage.svg"));
   rival.innerHTML='<img src="'+esc(avatar)+'" alt=""><div><strong>'+esc(opponent.name)+'</strong><span>'+esc(opponent.role||opponent.specialty)+' · '+esc(opponent.title||("Stockfish skill "+opponent.skill))+'</span><p>'+esc(opponent.bio||opponent.biography)+'</p></div>';
  }else{rival.classList.add("hidden");rival.textContent="";}
  $("game-state-pill").textContent=g.state==="active"?"In progress":"Finished";
