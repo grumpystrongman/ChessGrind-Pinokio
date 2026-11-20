@@ -50,7 +50,9 @@ The setup then:
 
 The repository includes `tests/test_local_ai_setup.py` and `tests/test_pinokio_provisioning.py` to simulate a fresh install, reusing an existing model, low-memory model selection, and handling a failed network download without modifying a machine's software. Windows CI also compiles the installer code and checks both Pinokio menu variants.
 
-**Validation limitation:** CI does not silently install a multi-gigabyte Ollama model and neural-voice assets on every push. Full network downloads, Windows Authenticode checks, real LLM inference, actual audio synthesis, and the graphical Pinokio first-install UX require a dedicated clean Windows installation acceptance test. A successful mocked test is not proof that all third-party downloads will work on every user's hardware.
+**Real Windows installation verified November 20, 2026:** The dedicated [Windows full AI + voice installation acceptance run](https://github.com/grumpystrongman/ChessGrind-Pinokio/actions/runs/44816079149) passed. A clean Windows runner installed the full requirements, verified the official Ollama Inc. Authenticode signature, installed Ollama per-user, downloaded **qwen3.5:0.8b**, generated a real conversational response, installed `kokoro-onnx==0.6.1` with Kokoro model/voice assets, generated WAV speech, and passed a final combined health assertion. This covers the **real dependency/provisioning commands**, not a graphical click-through of Pinokio itself.
+
+**Validation limitation:** This expensive multi-gigabyte end-to-end download is a specifically triggered acceptance job, not automatically repeated on every push. Separate Windows mocked checks run for normal commits. The graphical Pinokio first-install UX and every user's hardware/network conditions cannot be guaranteed from a GitHub runner.
 
 ### Troubleshooting
 
