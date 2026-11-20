@@ -106,3 +106,26 @@ jobs:
         run: python install_syzygy.py --pieces 3
       - name: Verify Windows Syzygy probing and source behavior
         run: python -m unittest discover -s tests -p "test_exact_endgames.py" -v
+
+  windows-full-ai-install:
+    if: contains(github.event.head_commit.message, '[full-install-test]')
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      CHESSGRIND_INSTALL_MODEL: qwen3.5:0.8b
+    steps:
+      - name: Check out clean install
+        uses: actions/checkout@v4
+      - name: Set up Windows Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install minimal ChessGrind voice dependencies
+        run: python -m pip install --disable-pip-version-check "chess>=1.11"
+      - name: Install real Ollama, local model and Kokoro speech assets
+        run: python local_ai_setup.py install --strict
+      - name: Verify a real generated chess reply and RIFF audio
+        run: python local_ai_setup.py check
+      - name: Assert fully operational local conversational and neural speech services
+        run: |
+          python -c "from local_ai_setup import readiness; r=readiness(test_voice=True,test_chat=True); print(r); assert r['conversationalAIReady'] and r['neuralVoicesReady']"
