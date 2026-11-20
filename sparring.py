@@ -16,6 +16,7 @@ from chess_grind import db
 from game_analysis import find_engine
 from lesson_explainer import move_reasons
 from arena_personas import BOT_INDEX,coaches
+from master_rivals import valid_master, source_move, STRENGTH as MASTER_STRENGTH, STYLES as MASTER_STYLES
 
 USER = "player"
 GAME_LOCK = threading.RLock()
@@ -91,6 +92,8 @@ def _response(row, board, detail=None):
     return {"id":row["id"],"fen":board.fen(),"startFen":row["start_fen"],
         "color":row["user_color"],"difficulty":row["difficulty"],"style":row["style"],
        "bot":BOT_INDEX.get(row["difficulty"][4:]) if row["difficulty"].startswith("bot:") else None,
+       "masterOpponent":_master_metadata(row["difficulty"][7:])
+                      if row["difficulty"].startswith("master:") else None,
        "coachOpponent":next((c for c in coaches() if c["id"]==row["difficulty"][6:]),None)
                       if row["difficulty"].startswith("coach:") else None,
        "turn":"White" if side_white else "Black",
@@ -102,6 +105,15 @@ def _response(row, board, detail=None):
        "detail":detail,
        "note":"No engine hints are shown while playing. Post-game analysis is separate."}
 
+def _master_metadata(key):
+    if not valid_master(key):return None
+    from masters_library import PLAYERS
+    return {"id":key,"name":PLAYERS[key][0],"era":PLAYERS[key][1],
+            "avatar":"/icons/masters/"+key+".svg",
+            "skill":MASTER_STRENGTH.get(key,18),
+            "style":MASTER_STYLES.get(key,"balanced"),
+            "sourceNote":"Moves follow the archived master only when a matching historical position is found. Otherwise Stockfish plays approximately."}
+
 def _engine():
     path=find_engine()
     if not path:raise RuntimeError("Install Stockfish locally before starting a training game")
@@ -110,14 +122,29 @@ def _engine():
 def _bot_move(board,difficulty,style):
     persona=BOT_INDEX.get(difficulty[4:]) if difficulty.startswith("bot:") else None
     coach=next((c for c in coaches() if c["id"]==difficulty[6:]),None) if difficulty.startswith("coach:") else None
+    master_id=difficulty[7:] if difficulty.startswith("master:") else None
     maximum=bool(persona and persona["maxStrength"])
-    skill=persona["skill"] if persona else (coach["skill"] if coach else LEVELS.get(difficulty,8))
-    budget=(1.8 if maximum else .15+skill*.027) if (persona or coach) else (
+    skill=MASTER_STRENGTH.get(master_id,18) if master_id else (
+        persona["skill"] if persona else (coach["skill"] if coach else LEVELS.get(difficulty,8)))
+    budget=(1.8 if maximum else .15+skill*.027) if (persona or coach or master_id) else (
         .11 if difficulty in ("beginner","casual") else .22)
     with chess.engine.SimpleEngine.popen_uci(_engine(),timeout=35) as eng:
         eng.configure({"Threads":2 if maximum else 1,"Hash":96 if maximum else 32,
                        "Skill Level":20 if maximum else skill,"UCI_LimitStrength":False})
         limit=chess.engine.Limit(time=budget)
+        historical=source_move(board,master_id) if master_id else None
+        if historical:
+            # A historical recorded choice is informative, but do not force
+            # a gross tactical blunder just to imitate the source.
+            try:
+                info=eng.analyse(board,chess.engine.Limit(depth=8))
+                top=info["score"].pov(board.turn).score(mate_score=20000)
+                rated=eng.analyse(board,chess.engine.Limit(depth=8),root_moves=[historical])
+                actual=rated["score"].pov(board.turn).score(mate_score=20000)
+                if top is not None and actual is not None and top-actual<=180:
+                    return historical
+            except (chess.engine.EngineError,KeyError,ValueError):
+                pass
         result=eng.play(board,limit)
         move=result.move
         if not move or move not in board.legal_moves:
@@ -166,8 +193,14 @@ def _persist(con,row):
         row["updated_at"],row["id"],USER))
     con.commit()
 
-def start(color="White",difficulty="casual",style="balanced",bot_id=None,coach_opponent_id=None):
+def start(color="White",difficulty="casual",style="balanced",bot_id=None,coach_opponent_id=None,master_id=None):
     if color not in ("White","Black"):raise ValueError("Choose White or Black")
+    if master_id is not None:
+        if not valid_master(master_id):raise ValueError("Choose an available historic master")
+        if bot_id is not None or coach_opponent_id is not None:
+            raise ValueError("Choose one opponent")
+        difficulty="master:"+master_id
+        style=MASTER_STYLES.get(master_id,"balanced")
     if coach_opponent_id is not None:
         if not isinstance(coach_opponent_id,str):
             raise ValueError("Select a saved chess coach")
@@ -184,7 +217,8 @@ def start(color="White",difficulty="casual",style="balanced",bot_id=None,coach_o
         style=BOT_INDEX[bot_id]["style"]
     if difficulty not in LEVELS and not (
         difficulty.startswith("bot:") and difficulty[4:] in BOT_INDEX
-    ) and not (difficulty.startswith("coach:") and difficulty[6:] in {x["id"] for x in coaches()}):
+    ) and not (difficulty.startswith("coach:") and difficulty[6:] in {x["id"] for x in coaches()}) and not (
+        difficulty.startswith("master:") and valid_master(difficulty[7:])):
         raise ValueError("Unknown opponent difficulty")
     if style not in STYLES:raise ValueError("Unknown sparring style")
     with GAME_LOCK:
@@ -289,6 +323,8 @@ def move(game_id,uci):
             chosen=chess.Move.from_uci(uci)
             if chosen not in board.legal_moves:raise ValueError("That move is not legal")
             san=board.san(chosen)
+            from live_coach import grade
+            coaching=grade(board,chosen,game_id,len(json.loads(row["uci_moves"]))+1)
             history=json.loads(row["uci_moves"]);history.append(chosen.uci())
             board.push(chosen)
             row["uci_moves"]=json.dumps(history)
@@ -307,7 +343,7 @@ def move(game_id,uci):
                 row["uci_moves"]=json.dumps(history)
                 _update_state(row,board)
             _persist(con,row)
-            return _response(row,board,{"yourMove":san,"opponentMove":reply})
+            return _response(row,board,{"yourMove":san,"opponentMove":reply,"coaching":coaching})
         finally:con.close()
 
 def continue_opponent(game_id):

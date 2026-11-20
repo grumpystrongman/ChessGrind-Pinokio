@@ -1,0 +1,1433 @@
+{
+  "Morphy": {
+    "master": "Paul Morphy",
+    "era": "Romantic era",
+    "recordedGames": 109,
+    "sampleMoves": 2730,
+    "captureRate": 25.5,
+    "checkRate": 7.8,
+    "castlingRate": 3.2,
+    "commonOpenings": [
+      [
+        "Italian Game: Evans Gambit, McDonnell Defense, Main Line",
+        6
+      ],
+      [
+        "Italian Game: Evans Gambit, McDonnell Defense",
+        4
+      ],
+      [
+        "King's Gambit Declined: Classical Variation",
+        4
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        70
+      ],
+      [
+        "e5",
+        28
+      ],
+      [
+        "f5",
+        3
+      ]
+    ],
+    "fallbackEngineStyle": "active",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Anderssen": {
+    "master": "Adolf Anderssen",
+    "era": "Romantic era",
+    "recordedGames": 123,
+    "sampleMoves": 3418,
+    "captureRate": 21.1,
+    "checkRate": 5.1,
+    "castlingRate": 2.8,
+    "commonOpenings": [
+      [
+        "Italian Game: Evans Gambit, McDonnell Defense, Main Line",
+        7
+      ],
+      [
+        "King's Gambit Accepted: Bishop's Gambit, McDonnell Attack",
+        4
+      ],
+      [
+        "King's Gambit Accepted: Kieseritzky Gambit, Long Whip",
+        4
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        54
+      ],
+      [
+        "e5",
+        49
+      ],
+      [
+        "c5",
+        13
+      ]
+    ],
+    "fallbackEngineStyle": "active",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Steinitz": {
+    "master": "Wilhelm Steinitz",
+    "era": "Classical foundations",
+    "recordedGames": 124,
+    "sampleMoves": 3541,
+    "captureRate": 21.2,
+    "checkRate": 4.3,
+    "castlingRate": 2.6,
+    "commonOpenings": [
+      [
+        "Italian Game: Evans Gambit, Slow Variation",
+        7
+      ],
+      [
+        "Italian Game: Evans Gambit, McDonnell Defense, Main Line",
+        4
+      ],
+      [
+        "Italian Game: Evans Gambit, Alapin-Steinitz Variation",
+        4
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e5",
+        57
+      ],
+      [
+        "e4",
+        37
+      ],
+      [
+        "d4",
+        13
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Lasker": {
+    "master": "Emanuel Lasker",
+    "era": "Classical foundations",
+    "recordedGames": 125,
+    "sampleMoves": 3605,
+    "captureRate": 22.8,
+    "checkRate": 3.2,
+    "castlingRate": 2.7,
+    "commonOpenings": [
+      [
+        "Ruy Lopez: Open",
+        4
+      ],
+      [
+        "Queen's Gambit Declined",
+        4
+      ],
+      [
+        "Queen's Gambit Declined: Three Knights Variation",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        60
+      ],
+      [
+        "e5",
+        22
+      ],
+      [
+        "d5",
+        19
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Capablanca": {
+    "master": "José Raúl Capablanca",
+    "era": "Classical foundations",
+    "recordedGames": 126,
+    "sampleMoves": 3618,
+    "captureRate": 22.0,
+    "checkRate": 3.5,
+    "castlingRate": 3.2,
+    "commonOpenings": [
+      [
+        "Queen's Gambit Declined: Orthodox Defense, Rubinstein Variation",
+        4
+      ],
+      [
+        "Queen's Gambit Declined: Orthodox Defense, Rubinstein Attack",
+        4
+      ],
+      [
+        "Queen's Gambit Declined: Orthodox Defense, Capablanca System",
+        4
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        36
+      ],
+      [
+        "Nf6",
+        31
+      ],
+      [
+        "e4",
+        22
+      ]
+    ],
+    "fallbackEngineStyle": "solid",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Alekhine": {
+    "master": "Alexander Alekhine",
+    "era": "Classical foundations",
+    "recordedGames": 124,
+    "sampleMoves": 3558,
+    "captureRate": 22.6,
+    "checkRate": 2.9,
+    "castlingRate": 2.8,
+    "commonOpenings": [
+      [
+        "Queen's Gambit Declined: Orthodox Defense, Rubinstein Attack",
+        4
+      ],
+      [
+        "Queen's Pawn Game",
+        2
+      ],
+      [
+        "Ruy Lopez: Open, Classical Defense",
+        2
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        41
+      ],
+      [
+        "e4",
+        24
+      ],
+      [
+        "Nf6",
+        18
+      ]
+    ],
+    "fallbackEngineStyle": "active",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Botvinnik": {
+    "master": "Mikhail Botvinnik",
+    "era": "Soviet school",
+    "recordedGames": 127,
+    "sampleMoves": 3642,
+    "captureRate": 20.5,
+    "checkRate": 2.7,
+    "castlingRate": 2.9,
+    "commonOpenings": [
+      [
+        "Nimzo-Indian Defense: Classical Variation, Noa Variation",
+        3
+      ],
+      [
+        "English Opening: Anglo-Indian Defense, Queen's Knight Variation",
+        3
+      ],
+      [
+        "French Defense: Winawer Variation, Advance Variation",
+        2
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        30
+      ],
+      [
+        "c4",
+        17
+      ],
+      [
+        "Nf6",
+        16
+      ]
+    ],
+    "fallbackEngineStyle": "solid",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Tal": {
+    "master": "Mikhail Tal",
+    "era": "Soviet school",
+    "recordedGames": 126,
+    "sampleMoves": 3489,
+    "captureRate": 22.3,
+    "checkRate": 3.1,
+    "castlingRate": 3.2,
+    "commonOpenings": [
+      [
+        "Sicilian Defense: Najdorf Variation",
+        4
+      ],
+      [
+        "Nimzo-Indian Defense: Sämisch Variation",
+        3
+      ],
+      [
+        "Nimzo-Indian Defense: Normal Variation, Gligoric System, Bernstein Defense",
+        2
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        50
+      ],
+      [
+        "Nf6",
+        30
+      ],
+      [
+        "c5",
+        8
+      ]
+    ],
+    "fallbackEngineStyle": "active",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Fischer": {
+    "master": "Bobby Fischer",
+    "era": "Soviet school",
+    "recordedGames": 126,
+    "sampleMoves": 3646,
+    "captureRate": 22.5,
+    "checkRate": 3.0,
+    "castlingRate": 3.2,
+    "commonOpenings": [
+      [
+        "Ruy Lopez: Closed, Chigorin Defense",
+        4
+      ],
+      [
+        "Sicilian Defense: Najdorf Variation, Main Line",
+        4
+      ],
+      [
+        "Sicilian Defense: Sozin Attack, Leonhardt Variation",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        60
+      ],
+      [
+        "Nf6",
+        29
+      ],
+      [
+        "c5",
+        21
+      ]
+    ],
+    "fallbackEngineStyle": "active",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Karpov": {
+    "master": "Anatoly Karpov",
+    "era": "Modern champions",
+    "recordedGames": 130,
+    "sampleMoves": 3711,
+    "captureRate": 20.9,
+    "checkRate": 2.0,
+    "castlingRate": 2.9,
+    "commonOpenings": [
+      [
+        "Nimzo-Indian Defense: Classical Variation",
+        5
+      ],
+      [
+        "Queen's Gambit Declined",
+        4
+      ],
+      [
+        "Ruy Lopez: Closed, Breyer Defense",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        45
+      ],
+      [
+        "Nf6",
+        28
+      ],
+      [
+        "e4",
+        14
+      ]
+    ],
+    "fallbackEngineStyle": "solid",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Kasparov": {
+    "master": "Garry Kasparov",
+    "era": "Modern champions",
+    "recordedGames": 130,
+    "sampleMoves": 3709,
+    "captureRate": 22.1,
+    "checkRate": 3.0,
+    "castlingRate": 3.3,
+    "commonOpenings": [
+      [
+        "Sicilian Defense: Scheveningen Variation, Classical Variation",
+        5
+      ],
+      [
+        "King's Indian Defense: Orthodox Variation, Modern System",
+        3
+      ],
+      [
+        "Sicilian Defense: Scheveningen Variation, English Attack, with f3",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        33
+      ],
+      [
+        "Nf6",
+        28
+      ],
+      [
+        "d4",
+        28
+      ]
+    ],
+    "fallbackEngineStyle": "active",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "PolgarJ": {
+    "master": "Judit Polgár",
+    "era": "Modern champions",
+    "recordedGames": 0,
+    "sampleMoves": 0,
+    "captureRate": 0.0,
+    "checkRate": 0.0,
+    "castlingRate": 0.0,
+    "commonOpenings": [],
+    "commonFirstMoves": [],
+    "fallbackEngineStyle": "active",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Anand": {
+    "master": "Viswanathan Anand",
+    "era": "Modern champions",
+    "recordedGames": 129,
+    "sampleMoves": 3709,
+    "captureRate": 21.5,
+    "checkRate": 2.8,
+    "castlingRate": 3.3,
+    "commonOpenings": [
+      [
+        "Caro-Kann Defense: Advance Variation, Short Variation",
+        5
+      ],
+      [
+        "Sicilian Defense: Najdorf Variation, English Attack",
+        3
+      ],
+      [
+        "Sicilian Defense: Najdorf Variation",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        54
+      ],
+      [
+        "Nf6",
+        22
+      ],
+      [
+        "e5",
+        17
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Carlsen": {
+    "master": "Magnus Carlsen",
+    "era": "Contemporary",
+    "recordedGames": 131,
+    "sampleMoves": 3836,
+    "captureRate": 22.2,
+    "checkRate": 2.7,
+    "castlingRate": 3.0,
+    "commonOpenings": [
+      [
+        "Ruy Lopez: Closed, Martinez Variation",
+        4
+      ],
+      [
+        "Sicilian Defense: Nyezhmetdinov-Rossolimo Attack",
+        4
+      ],
+      [
+        "Ruy Lopez: Berlin Defense, Anti-Berlin Variation",
+        4
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        28
+      ],
+      [
+        "Nf6",
+        23
+      ],
+      [
+        "d4",
+        19
+      ]
+    ],
+    "fallbackEngineStyle": "solid",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Gaprindashvili": {
+    "master": "Nona Gaprindashvili",
+    "era": "Soviet school",
+    "recordedGames": 129,
+    "sampleMoves": 3681,
+    "captureRate": 19.6,
+    "checkRate": 1.4,
+    "castlingRate": 3.2,
+    "commonOpenings": [
+      [
+        "Owen Defense",
+        8
+      ],
+      [
+        "Slav Defense: Exchange Variation",
+        7
+      ],
+      [
+        "Zukertort Opening: Kingside Fianchetto",
+        6
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        55
+      ],
+      [
+        "g6",
+        23
+      ],
+      [
+        "e4",
+        10
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Hou": {
+    "master": "Hou Yifan",
+    "era": "Contemporary",
+    "recordedGames": 129,
+    "sampleMoves": 3786,
+    "captureRate": 21.8,
+    "checkRate": 2.8,
+    "castlingRate": 3.1,
+    "commonOpenings": [
+      [
+        "Queen's Gambit Declined: Ragozin Defense",
+        4
+      ],
+      [
+        "Sicilian Defense: Taimanov Variation, Bastrikov Variation",
+        3
+      ],
+      [
+        "Catalan Opening: Open Defense, Classical Line",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        53
+      ],
+      [
+        "Nf6",
+        30
+      ],
+      [
+        "c5",
+        18
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Kramnik": {
+    "master": "Vladimir Kramnik",
+    "era": "Modern champions",
+    "recordedGames": 127,
+    "sampleMoves": 3605,
+    "captureRate": 21.6,
+    "checkRate": 2.9,
+    "castlingRate": 3.2,
+    "commonOpenings": [
+      [
+        "Ruy Lopez: Berlin Defense, Anti-Berlin Variation",
+        3
+      ],
+      [
+        "English Opening: Anglo-Indian Defense, Nimzo-English",
+        3
+      ],
+      [
+        "Italian Game: Classical Variation, Giuoco Pianissimo",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        24
+      ],
+      [
+        "Nf3",
+        20
+      ],
+      [
+        "d4",
+        19
+      ]
+    ],
+    "fallbackEngineStyle": "solid",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Petrosian": {
+    "master": "Tigran Petrosian",
+    "era": "Soviet school",
+    "recordedGames": 124,
+    "sampleMoves": 3425,
+    "captureRate": 19.6,
+    "checkRate": 1.8,
+    "castlingRate": 3.5,
+    "commonOpenings": [
+      [
+        "King's Indian Defense: Orthodox Variation",
+        3
+      ],
+      [
+        "Sicilian Defense: Boleslavsky Variation",
+        2
+      ],
+      [
+        "Sicilian Defense: Najdorf Variation",
+        2
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        31
+      ],
+      [
+        "c4",
+        22
+      ],
+      [
+        "Nf6",
+        18
+      ]
+    ],
+    "fallbackEngineStyle": "solid",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Nimzowitsch": {
+    "master": "Aron Nimzowitsch",
+    "era": "Classical foundations",
+    "recordedGames": 124,
+    "sampleMoves": 3619,
+    "captureRate": 20.8,
+    "checkRate": 3.0,
+    "castlingRate": 3.1,
+    "commonOpenings": [
+      [
+        "Nimzo-Larsen Attack: Classical Variation",
+        5
+      ],
+      [
+        "Van't Kruijs Opening",
+        5
+      ],
+      [
+        "Queen's Indian Defense: Kasparov Variation",
+        4
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        23
+      ],
+      [
+        "Nf6",
+        22
+      ],
+      [
+        "d4",
+        12
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Spassky": {
+    "master": "Boris Spassky",
+    "era": "Soviet school",
+    "recordedGames": 119,
+    "sampleMoves": 3255,
+    "captureRate": 21.4,
+    "checkRate": 2.4,
+    "castlingRate": 3.3,
+    "commonOpenings": [
+      [
+        "Queen's Gambit Declined: Tartakower Defense",
+        6
+      ],
+      [
+        "King's Indian Defense: Sämisch Variation",
+        4
+      ],
+      [
+        "Ruy Lopez: Closed, Breyer Defense",
+        4
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        38
+      ],
+      [
+        "d4",
+        19
+      ],
+      [
+        "Nf6",
+        18
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Ding": {
+    "master": "Ding Liren",
+    "era": "Contemporary",
+    "recordedGames": 127,
+    "sampleMoves": 3673,
+    "captureRate": 20.7,
+    "checkRate": 2.2,
+    "castlingRate": 3.1,
+    "commonOpenings": [
+      [
+        "Italian Game: Classical Variation, Giuoco Pianissimo",
+        6
+      ],
+      [
+        "Catalan Opening: Open Defense, Classical Line",
+        4
+      ],
+      [
+        "Slav Defense: Chebanenko Variation",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        43
+      ],
+      [
+        "Nf6",
+        20
+      ],
+      [
+        "e5",
+        17
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Gukesh": {
+    "master": "Gukesh Dommaraju",
+    "era": "Contemporary",
+    "recordedGames": 0,
+    "sampleMoves": 0,
+    "captureRate": 0.0,
+    "checkRate": 0.0,
+    "castlingRate": 0.0,
+    "commonOpenings": [],
+    "commonFirstMoves": [],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Smyslov": {
+    "master": "Vasily Smyslov",
+    "era": "Soviet school",
+    "recordedGames": 96,
+    "sampleMoves": 2757,
+    "captureRate": 21.3,
+    "checkRate": 2.5,
+    "castlingRate": 3.4,
+    "commonOpenings": [
+      [
+        "Nimzo-Indian Defense: Classical Variation",
+        3
+      ],
+      [
+        "Petrov's Defense: Classical Attack",
+        3
+      ],
+      [
+        "English Opening: King's English Variation, Four Knights Variation, Fianchetto Line",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "Nf6",
+        30
+      ],
+      [
+        "e5",
+        14
+      ],
+      [
+        "c4",
+        13
+      ]
+    ],
+    "fallbackEngineStyle": "solid",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Euwe": {
+    "master": "Max Euwe",
+    "era": "Classical foundations",
+    "recordedGames": 94,
+    "sampleMoves": 2707,
+    "captureRate": 23.9,
+    "checkRate": 3.5,
+    "castlingRate": 3.2,
+    "commonOpenings": [
+      [
+        "Slav Defense: Quiet Variation, Schallopp Defense",
+        3
+      ],
+      [
+        "Queen's Gambit Declined: Orthodox Defense, Bd3 Line",
+        3
+      ],
+      [
+        "Queen's Gambit Declined",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        31
+      ],
+      [
+        "d5",
+        20
+      ],
+      [
+        "Nf6",
+        12
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Bronstein": {
+    "master": "David Bronstein",
+    "era": "Soviet school",
+    "recordedGames": 99,
+    "sampleMoves": 2831,
+    "captureRate": 19.6,
+    "checkRate": 1.9,
+    "castlingRate": 3.4,
+    "commonOpenings": [
+      [
+        "King's Indian Defense: Fianchetto Variation, Classical Variation",
+        3
+      ],
+      [
+        "Grünfeld Defense: Exchange Variation",
+        3
+      ],
+      [
+        "Caro-Kann Defense: Bronstein-Larsen Variation",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        25
+      ],
+      [
+        "Nf6",
+        19
+      ],
+      [
+        "d4",
+        19
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Rubinstein": {
+    "master": "Akiba Rubinstein",
+    "era": "Classical foundations",
+    "recordedGames": 100,
+    "sampleMoves": 2888,
+    "captureRate": 21.1,
+    "checkRate": 2.7,
+    "castlingRate": 3.2,
+    "commonOpenings": [
+      [
+        "Ruy Lopez: Closed",
+        3
+      ],
+      [
+        "Bishop's Opening: Vienna Hybrid",
+        3
+      ],
+      [
+        "Queen's Pawn Game: Krause Variation",
+        2
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        42
+      ],
+      [
+        "e5",
+        23
+      ],
+      [
+        "d5",
+        15
+      ]
+    ],
+    "fallbackEngineStyle": "solid",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Reti": {
+    "master": "Richard Réti",
+    "era": "Classical foundations",
+    "recordedGames": 0,
+    "sampleMoves": 0,
+    "captureRate": 0.0,
+    "checkRate": 0.0,
+    "castlingRate": 0.0,
+    "commonOpenings": [],
+    "commonFirstMoves": [],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Tarrasch": {
+    "master": "Siegbert Tarrasch",
+    "era": "Classical foundations",
+    "recordedGames": 88,
+    "sampleMoves": 2554,
+    "captureRate": 20.4,
+    "checkRate": 3.2,
+    "castlingRate": 2.9,
+    "commonOpenings": [
+      [
+        "Queen's Pawn Game: Krause Variation",
+        3
+      ],
+      [
+        "Ruy Lopez: Open",
+        3
+      ],
+      [
+        "Queen's Gambit Declined",
+        2
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        32
+      ],
+      [
+        "e5",
+        19
+      ],
+      [
+        "d5",
+        15
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Keres": {
+    "master": "Paul Keres",
+    "era": "Soviet school",
+    "recordedGames": 95,
+    "sampleMoves": 2677,
+    "captureRate": 21.7,
+    "checkRate": 2.2,
+    "castlingRate": 3.4,
+    "commonOpenings": [
+      [
+        "Ruy Lopez: Morphy Defense, Modern Steinitz Defense",
+        4
+      ],
+      [
+        "Ruy Lopez: Closed",
+        4
+      ],
+      [
+        "Sicilian Defense: Keres Variation",
+        4
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        36
+      ],
+      [
+        "Nf6",
+        20
+      ],
+      [
+        "e5",
+        15
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Caruana": {
+    "master": "Fabiano Caruana",
+    "era": "Contemporary",
+    "recordedGames": 99,
+    "sampleMoves": 2858,
+    "captureRate": 20.3,
+    "checkRate": 2.6,
+    "castlingRate": 3.2,
+    "commonOpenings": [
+      [
+        "Ruy Lopez: Berlin Defense, Anti-Berlin Variation",
+        5
+      ],
+      [
+        "Italian Game: Two Knights Defense, Modern Bishop's Opening",
+        4
+      ],
+      [
+        "Sicilian Defense: Nyezhmetdinov-Rossolimo Attack",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        34
+      ],
+      [
+        "Nf6",
+        13
+      ],
+      [
+        "e5",
+        12
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Nakamura": {
+    "master": "Hikaru Nakamura",
+    "era": "Contemporary",
+    "recordedGames": 100,
+    "sampleMoves": 2861,
+    "captureRate": 19.7,
+    "checkRate": 1.7,
+    "castlingRate": 3.0,
+    "commonOpenings": [
+      [
+        "Nimzo-Larsen Attack: Classical Variation",
+        5
+      ],
+      [
+        "Zukertort Opening: Nimzo-Larsen Variation",
+        4
+      ],
+      [
+        "Nimzo-Larsen Attack: Modern Variation",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "Nf3",
+        21
+      ],
+      [
+        "d4",
+        11
+      ],
+      [
+        "Nf6",
+        11
+      ]
+    ],
+    "fallbackEngineStyle": "active",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Kosteniuk": {
+    "master": "Alexandra Kosteniuk",
+    "era": "Contemporary",
+    "recordedGames": 100,
+    "sampleMoves": 2926,
+    "captureRate": 20.9,
+    "checkRate": 3.8,
+    "castlingRate": 3.1,
+    "commonOpenings": [
+      [
+        "Sicilian Defense: Nyezhmetdinov-Rossolimo Attack",
+        3
+      ],
+      [
+        "Caro-Kann Defense: Two Knights Attack",
+        3
+      ],
+      [
+        "Sicilian Defense: Closed, Traditional",
+        2
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        41
+      ],
+      [
+        "Nf6",
+        26
+      ],
+      [
+        "e5",
+        9
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Chiburdanidze": {
+    "master": "Maia Chiburdanidze",
+    "era": "Soviet school",
+    "recordedGames": 100,
+    "sampleMoves": 2784,
+    "captureRate": 20.5,
+    "checkRate": 2.2,
+    "castlingRate": 3.4,
+    "commonOpenings": [
+      [
+        "Sicilian Defense: Dragon Variation, Classical Variation",
+        3
+      ],
+      [
+        "French Defense: Tarrasch Variation, Guimard Defense, Main Line",
+        2
+      ],
+      [
+        "Sicilian Defense: Najdorf Variation",
+        2
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "Nf6",
+        26
+      ],
+      [
+        "e4",
+        24
+      ],
+      [
+        "d4",
+        18
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Stefanova": {
+    "master": "Antoaneta Stefanova",
+    "era": "Contemporary",
+    "recordedGames": 100,
+    "sampleMoves": 2984,
+    "captureRate": 20.4,
+    "checkRate": 2.3,
+    "castlingRate": 2.9,
+    "commonOpenings": [
+      [
+        "Slav Defense: Chebanenko Variation",
+        8
+      ],
+      [
+        "Slav Defense: Modern Line",
+        4
+      ],
+      [
+        "Slav Defense: Quiet Variation, Schallopp Defense",
+        4
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        32
+      ],
+      [
+        "d5",
+        29
+      ],
+      [
+        "e5",
+        13
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Koneru": {
+    "master": "Koneru Humpy",
+    "era": "Contemporary",
+    "recordedGames": 2,
+    "sampleMoves": 60,
+    "captureRate": 18.3,
+    "checkRate": 0.0,
+    "castlingRate": 3.3,
+    "commonOpenings": [
+      [
+        "English Opening: Carls-Bremen System",
+        1
+      ],
+      [
+        "Pirc Defense: Classical Variation, Schlechter Variation",
+        1
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "Nf6",
+        2
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Staunton": {
+    "master": "Howard Staunton",
+    "era": "Romantic era",
+    "recordedGames": 91,
+    "sampleMoves": 2497,
+    "captureRate": 21.6,
+    "checkRate": 4.3,
+    "castlingRate": 3.4,
+    "commonOpenings": [
+      [
+        "Italian Game: Evans Gambit, McDonnell Defense, Main Line",
+        4
+      ],
+      [
+        "Bishop's Opening: Ponziani Gambit",
+        4
+      ],
+      [
+        "Italian Game: Classical Variation, Giuoco Pianissimo",
+        3
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e5",
+        32
+      ],
+      [
+        "e4",
+        30
+      ],
+      [
+        "c5",
+        15
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Reshevsky": {
+    "master": "Samuel Reshevsky",
+    "era": "Soviet school",
+    "recordedGames": 92,
+    "sampleMoves": 2729,
+    "captureRate": 20.3,
+    "checkRate": 1.9,
+    "castlingRate": 3.2,
+    "commonOpenings": [
+      [
+        "Nimzo-Indian Defense: Reshevsky Variation",
+        3
+      ],
+      [
+        "Queen's Indian Defense: Capablanca Variation",
+        2
+      ],
+      [
+        "English Opening: Anglo-Indian Defense, Queen's Indian Formation",
+        2
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        37
+      ],
+      [
+        "Nf6",
+        18
+      ],
+      [
+        "e5",
+        13
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Korchnoi": {
+    "master": "Viktor Korchnoi",
+    "era": "Soviet school",
+    "recordedGames": 13,
+    "sampleMoves": 357,
+    "captureRate": 20.4,
+    "checkRate": 2.5,
+    "castlingRate": 3.6,
+    "commonOpenings": [
+      [
+        "English Opening: Anglo-Indian Defense, Romanishin Variation",
+        1
+      ],
+      [
+        "French Defense: Advance Variation, Wade Variation",
+        1
+      ],
+      [
+        "Queen's Gambit Accepted: Central Variation, McDonnell Defense",
+        1
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "d4",
+        7
+      ],
+      [
+        "d5",
+        2
+      ],
+      [
+        "Nf3",
+        1
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  },
+  "Chigorin": {
+    "master": "Mikhail Chigorin",
+    "era": "Classical foundations",
+    "recordedGames": 86,
+    "sampleMoves": 2479,
+    "captureRate": 20.5,
+    "checkRate": 4.0,
+    "castlingRate": 2.9,
+    "commonOpenings": [
+      [
+        "French Defense: Chigorin Variation",
+        8
+      ],
+      [
+        "Ruy Lopez: Berlin Defense, Anti-Berlin Variation",
+        4
+      ],
+      [
+        "King's Gambit Declined: Classical Variation",
+        4
+      ]
+    ],
+    "commonFirstMoves": [
+      [
+        "e4",
+        43
+      ],
+      [
+        "e5",
+        24
+      ],
+      [
+        "d5",
+        11
+      ]
+    ],
+    "fallbackEngineStyle": "balanced",
+    "note": "Descriptive frequencies from this non-exhaustive archive; tactical preferences cannot be inferred reliably from small samples."
+  }
+}

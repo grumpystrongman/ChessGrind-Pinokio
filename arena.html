@@ -104,7 +104,7 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
 .profile-feature{display:flex;gap:15px;align-items:center;border:1px solid #557b62;border-radius:13px;background:linear-gradient(120deg,#2b4c42,#233a3e);padding:13px;margin:9px 0}
 .profile-feature img{width:68px;height:68px;border-radius:12px;object-fit:cover;flex:none}
 .profile-feature strong{display:block;font-size:19px}.profile-feature span{font-size:12px;color:#cce6c2}.profile-feature p{font-size:12px;color:#d3e4d7;margin-top:4px}
-.coach-match-pick{border:1px solid #789973;background:linear-gradient(125deg,#294a3e,#1e3437);padding:16px;border-radius:16px;margin:16px 0}.coach-match-pick .coach-card{min-height:74px}.coach-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin:13px 0}
+.master-feature{padding:17px;border-radius:15px;border:1px solid #8c815e;background:linear-gradient(130deg,#3d3a2e,#213336);margin:17px 0}.masters-gallery{max-height:300px;overflow-y:auto;grid-template-columns:repeat(auto-fill,minmax(175px,1fr))}.master-feature .coach-card{min-height:78px}.coach-match-pick{border:1px solid #789973;background:linear-gradient(125deg,#294a3e,#1e3437);padding:16px;border-radius:16px;margin:16px 0}.coach-match-pick .coach-card{min-height:74px}.coach-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin:13px 0}
 .coach-card img{width:58px;height:58px;border-radius:10px;object-fit:cover}
 .coach-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:13px 0}
 .coach-fields label{font-size:12px;font-weight:700;color:#bfd4c4;display:grid;gap:4px}
@@ -164,7 +164,14 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
        <div id="coach-match-selection" class="notice" role="status">Choose a coach, or select a rival below.</div>
        <a class="btn alt" href="#coach-studio" style="display:inline-block;margin-top:9px;text-decoration:none">Create or edit my coaches</a>
      </div>
-     <div class="kicker">Choose a rival</div>
+     <section class="master-feature" id="master-challenges">
+  <div class="row between"><div><div class="kicker">Play the masters</div><h2 style="margin:5px 0">Challenge a chess legend</h2></div><a class="btn alt" href="/masters">Study historical games</a></div>
+  <p class="muted small">Master-inspired opponents replay actual recorded opening decisions when the position matches, then Stockfish takes over. These are approximations, not a reproduction of anyone's mind. Style observations come from sampled historical PGNs.</p>
+  <input id="masters-search" placeholder="Find a master — Tal, Capablanca, Carlsen..." aria-label="Search historical chess masters" style="width:100%;margin:12px 0;background:#263d3d;border:1px solid #64806d;color:#edf5eb;border-radius:9px;padding:11px">
+  <div id="master-selected" class="profile-feature" role="status">Choose an archived master.</div>
+  <div id="masters-gallery" class="coach-grid masters-gallery" aria-label="Available historical master-inspired opponents"></div>
+</section>
+<div class="kicker">Choose a rival</div>
      <p class="muted small" style="margin-top:5px">22 fictional opponents: 21 skill steps, plus MAX with unrestricted Stockfish skill and a longer thinking budget. Their biographies are storytelling, not Elo certifications.</p>
      <div class="profile-feature" id="bot-selected" role="status">Loading opponents...</div>
      <div class="rival-board" id="bot-gallery" aria-label="Chess opponent roster"></div>
@@ -185,6 +192,7 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
        <span class="small muted" id="replay-position">Latest position</span>
      </div>
      <div class="row" style="margin-top:9px"><button class="btn alt" id="export-game-pgn">Export game PGN ↓</button></div>
+     <div class="notice" id="move-grade" role="status" style="display:none;margin-top:12px;font-weight:800"></div>
      <div class="notice" id="move-status" role="status" style="margin-top:13px">Select your piece, then its destination.</div>
      <div class="row" style="margin-top:13px">
       <button class="btn alt" id="view-last">Return to current board</button>
@@ -213,7 +221,16 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
        <option value="16">16 - expert challenge</option><option value="18">18 - very strong</option>
        <option value="20">20 - maximum skill</option></select></label>
        <label>Opponent playing style<select id="coach-style"><option value="balanced">Balanced</option><option value="active">Active / tactical</option><option value="solid">Solid / quiet</option></select></label>
-       <label>Coaching tone<select id="coach-tone"><option value="supportive">Encouraging</option><option value="challenging">Demanding</option><option value="analytical">Analytical</option><option value="playful">Playful</option><option value="calm">Calm</option></select></label>
+       <label>Teaching quirk<select id="coach-quirk">
+<option value="threats">Always asks about opponent threats</option>
+<option value="candidates">Demands two candidate moves</option>
+<option value="piece-safety">Obsessed with undefended pieces</option>
+<option value="king-safety">King safety comes first</option>
+<option value="pawn-structure">Pawn structure specialist</option>
+<option value="endgame">Counts king and pawn tempos</option>
+<option value="quiet">Minimalist: only important moments</option>
+</select></label>
+<label>Coaching tone<select id="coach-tone"><option value="supportive">Encouraging</option><option value="challenging">Demanding</option><option value="analytical">Analytical</option><option value="playful">Playful</option><option value="calm">Calm</option></select></label>
        <label>Voice<select id="coach-voice"></select></label>
        <label class="wide">Backstory / approach<textarea id="coach-bio" maxlength="300" placeholder="What kind of chess coach are they?"></textarea></label>
        <label class="wide">Speaking speed: <span id="coach-rate-value">1.00x</span><input id="coach-rate" type="range" min="0.7" max="1.4" step="0.05" value="1"></label>
@@ -232,8 +249,8 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
      <div class="muted small" role="status" id="coach-status" style="margin-top:11px">Choose a coach and listen to a sample.</div>
     </div>
     <div class="panel"><div class="row"><div class="avatar">♞</div><div><div class="kicker" id="active-coach-specialty">Your local chess coach</div><h2 id="active-coach-name">Play, then understand.</h2></div></div>
-     <p class="muted small" style="margin-top:13px">I won't reveal the engine's preferred move while you're deciding. After the game, we'll review what you chose, your opponent's replies, and any missed opportunities.</p>
-     <div id="coach-live" class="notice" style="margin-top:15px">Start a game when you're ready. You can choose a gentler difficulty and change the setting in your next game.</div>
+     <p class="muted small" style="margin-top:13px">Your coach gives short, engine-grounded feedback after meaningful moves. Best moves, mistakes and blunders get recognized; repeated weaknesses trigger a specific board-vision reminder. Coaching is not a substitute for deep post-game analysis.</p>
+     <div id="coach-live" class="notice" style="margin-top:15px">Start a match. I will comment when the position deserves it, not on every move.</div>
     </div>
     <div class="panel">
       <div class="section-head"><h2>My saved games</h2><button class="btn alt" id="refresh-games">Refresh</button></div>
@@ -337,16 +354,20 @@ async function loadPlan(){
 $("daily-minutes").onchange=loadPlan;
 $("game-difficulty").onchange=()=>{difficultyTouched=true};
 function setMessage(message,error=false){$("move-status").textContent=message;$("move-status").classList.toggle("error",error)}
-function setCoach(message){const text=window.ChessGrindCoachFormat?.(message)||message;$("coach-live").textContent=text;window.ChessGrindCoachAuto?.(text)}
+function setCoach(message,important=false){
+ const text=window.ChessGrindCoachFormat?.(message)||message;
+ $("coach-live").textContent=text;
+ if(important)window.ChessGrindCoachAuto?.(text);
+}
 function renderGame(g){
  game=g;orientation=g.color;selected=null;replayPly=null;
  $("game-board-panel").classList.remove("hidden");
- $("game-title").textContent="Playing "+g.color+" vs "+(g.coachOpponent?.name||g.bot?.name||g.difficulty);
+ $("game-title").textContent="Playing "+g.color+" vs "+(g.masterOpponent?.name||g.coachOpponent?.name||g.bot?.name||g.difficulty);
  const rival=$("match-rival");
- const opponent=g.coachOpponent||g.bot;
+ const opponent=g.masterOpponent||g.coachOpponent||g.bot;
  if(opponent){
   rival.classList.remove("hidden");
-  const avatar=g.bot?g.bot.avatar:"/icons/coaches/sage.svg";
+  const avatar=g.bot?g.bot.avatar:(g.masterOpponent?g.masterOpponent.avatar:"/icons/coaches/sage.svg");
   rival.innerHTML='<img src="'+esc(avatar)+'" alt=""><div><strong>'+esc(opponent.name)+'</strong><span>'+esc(opponent.role||opponent.specialty)+' · '+esc(opponent.title||("Stockfish skill "+opponent.skill))+'</span><p>'+esc(opponent.bio||opponent.biography)+'</p></div>';
  }else{rival.classList.add("hidden");rival.textContent="";}
  $("game-state-pill").textContent=g.state==="active"?"In progress":"Finished";
@@ -356,6 +377,15 @@ function renderGame(g){
  $("review-game").classList.toggle("hidden",g.state==="active");
  $("board-side").textContent=g.turn+" to move";
  $("board-move-count").textContent=Math.ceil((g.moves.length+1)/2)+" · "+g.moves.length+" half-moves";
+ const grade=$("move-grade");
+ if(g.detail?.coaching){
+   const c=g.detail.coaching;
+   const label={best:"Best move",strong:"Strong move",inaccuracy:"Inaccuracy",mistake:"Mistake",blunder:"Blunder"}[c.category]||"Move assessed";
+   grade.textContent=label+" · "+c.yourSan+(c.category==="best"?" · matched Stockfish":c.category==="strong"?" · sound choice":" · compare "+c.bestSan)+
+       " (depth "+c.depth+" estimate)";
+   grade.style.display="block";
+   grade.classList.toggle("error",c.category==="blunder"||c.category==="mistake");
+ }else grade.style.display="none";
  const last=g.moves[g.moves.length-1];
  drawBoard(g.fen,last?{from:last.uci.slice(0,2),to:last.uci.slice(2,4)}:null,last?.uci.slice(2,4));
  $("game-move-list").innerHTML=g.moves.map((m,i)=>'<button type="button" class="movetag" data-replay="'+(i+1)+'">'+(i%2===0?(Math.floor(i/2)+1)+'. ':'')+esc(m.san)+'</button>').join("");
@@ -363,16 +393,23 @@ function renderGame(g){
  const list=$("game-move-list");list.scrollTop=list.scrollHeight;
  if(g.state!=="active"){
   setMessage(g.outcome||"Game finished.");
-  setCoach("Good work completing the game. Now let's examine the real decision points, not just the final result.");
+  if(g.detail?.coaching) setCoach(g.detail.coaching.message||"Game complete. Your last move has been evaluated.",g.detail.coaching.speak);
  }else if(g.yourTurn){
   const report=g.detail?.opponentMove?
     "You played "+g.detail.yourMove+"; Stockfish responded "+g.detail.opponentMove+". ":
     "";
   setMessage(report+"Your turn. Click a piece, then its destination.");
-  setCoach("Before you choose: what changed after that last move? Scan checks, captures, threats, then pick a plan. I won't give away the engine's answer.");
+  if(g.detail?.coaching){
+   const c=g.detail.coaching;
+   const text=(c.category==="blunder"?"Blunder":c.category==="mistake"?"Mistake":
+       c.category==="best"?"Best move":c.category==="strong"?"Strong move":"Inaccuracy")+
+       ": "+(c.message||("You played "+c.yourSan+". Engine comparison: "+c.bestSan+" was preferred."))+
+       " (Approximate depth "+c.depth+" evaluation.)";
+   if(c.message) setCoach(text,c.speak);
+  }
  }else{
   setMessage("Stockfish is thinking…");
-  setCoach("The opponent is selecting a legal move.");
+  // No scripted commentary while the opponent thinks.
  }
 }
 function selectGame(id){
@@ -412,7 +449,10 @@ $("start-game").onclick=async()=>{
  const btn=$("start-game");btn.disabled=true;btn.textContent="Starting the local opponent…";
  try{
   const g=await api("/api/sparring/start",{color:$("game-color").value,
-   difficulty:$("game-difficulty").value,style:$("game-style").value,botId:window.ChessGrindSelectedCoachOpponent?null:window.ChessGrindSelectedBot,coachOpponentId:window.ChessGrindSelectedCoachOpponent});
+   difficulty:$("game-difficulty").value,style:$("game-style").value,
+   botId:(window.ChessGrindSelectedCoachOpponent||window.ChessGrindSelectedMaster)?null:window.ChessGrindSelectedBot,
+   coachOpponentId:window.ChessGrindSelectedMaster?null:window.ChessGrindSelectedCoachOpponent,
+   masterId:window.ChessGrindSelectedMaster});
   review=null;$("review-panel").classList.add("hidden");renderGame(g);refreshGames();
   $("game-board-panel").scrollIntoView({behavior:"smooth",block:"nearest"});
   $("start-error").textContent="";

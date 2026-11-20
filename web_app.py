@@ -123,6 +123,18 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_error(404);return
                 self.send_bytes((ROOT/"icons"/"bots"/filename).read_bytes(),mime="image/svg+xml")
                 return
+            if path=="/api/arena/masters":
+                from master_rivals import roster as masters_roster
+                self.respond(masters_roster());return
+            if path.startswith("/icons/masters/"):
+                from master_rivals import valid_master
+                from pathlib import PurePosixPath
+                filename=PurePosixPath(path).name
+                key=filename.removesuffix(".svg")
+                if not filename.endswith(".svg") or not valid_master(key):
+                    self.send_error(404);return
+                self.send_bytes((ROOT/"icons"/"masters"/filename).read_bytes(),mime="image/svg+xml")
+                return
             if path=="/api/arena/roster":
                 from arena_personas import roster
                 self.respond(roster());return
@@ -432,7 +444,7 @@ class Handler(BaseHTTPRequestHandler):
             elif path=="/api/sparring/start":
                 from sparring import start
                 self.respond(start(payload.get("color","White"),payload.get("difficulty","casual"),
-                                   payload.get("style","balanced"),payload.get("botId"),payload.get("coachOpponentId")))
+                                   payload.get("style","balanced"),payload.get("botId"),payload.get("coachOpponentId"),payload.get("masterId")))
             elif path=="/api/sparring/move":
                 from sparring import move
                 self.respond(move(payload.get("gameId",""),payload.get("uci","")))

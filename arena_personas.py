@@ -45,11 +45,20 @@ LOCK=threading.RLock()
 FILE=HOME/"arena_coaches.json"
 ACTIVE_FILE=HOME/"arena_active_coach.json"
 KOKORO_VOICES=("af_heart","af_sarah","af_bella","af_nicole","af_sky","am_adam","am_michael","am_echo","bf_emma","bf_isabella","bm_george","bm_lewis")
+QUIRKS={
+ "threats":"Always asks what the opponent is threatening",
+ "candidates":"Insists on two candidate moves",
+ "piece-safety":"Obsessed with loose pieces",
+ "king-safety":"Checks king safety first",
+ "pawn-structure":"Studies pawn structure before tactics",
+ "endgame":"Counts king and pawn tempos",
+ "quiet":"Says less and only speaks on big decisions"
+}
 DEFAULTS=[
  dict(id="coach-mentor",name="Coach Morgan",specialty="Whole-game mentor",tone="supportive",voice="af_sarah",rate=1.0,
-      biography="A patient club mentor who explains decisions in plain language."),
+      biography="A patient club mentor who explains decisions in plain language.",quirk="threats"),
  dict(id="coach-tactics",name="Coach Quinn",specialty="Calculation and tactics",tone="challenging",voice="am_michael",rate=1.0,
-      biography="A former tactical trainer who asks for candidate moves before conclusions.")
+      biography="A former tactical trainer who asks for candidate moves before conclusions.",quirk="candidates")
 ]
 def _check(record):
     if not isinstance(record,dict):raise ValueError("Invalid coach")
@@ -65,6 +74,8 @@ def _check(record):
     if voice not in KOKORO_VOICES:raise ValueError("Choose an available voice preset")
     rate=record.get("rate",1.0)
     if isinstance(rate,bool) or not isinstance(rate,(int,float)) or not 0.7<=rate<=1.4:raise ValueError("Voice speed must be 0.7-1.4")
+    quirk=record.get("quirk","threats")
+    if quirk not in QUIRKS:raise ValueError("Choose a supported coaching quirk")
     skill=record.get("skill",8)
     if isinstance(skill,bool) or not isinstance(skill,int) or not 0<=skill<=20:
         raise ValueError("Choose Stockfish skill 0-20 for coach challenges")
@@ -72,10 +83,10 @@ def _check(record):
     if style not in ("balanced","active","solid"):
         raise ValueError("Choose a supported play style")
     return dict(name=name,specialty=specialty,biography=biography,tone=tone,
-                voice=voice,rate=float(rate),skill=skill,style=style)
+                voice=voice,rate=float(rate),skill=skill,style=style,quirk=quirk)
 def normalized_coach(coach):
     # Preserve profiles created before playable coaches were introduced.
-    return {"skill":8,"style":"balanced",**coach}
+    return {"skill":8,"style":"balanced","quirk":"threats",**coach}
 
 def coaches():
     with LOCK:

@@ -9,6 +9,7 @@ let bots=[],coaches=[],selectedCoach=null,voiceStatus={available:false};
 let lastAudio=null;
 window.ChessGrindSelectedBot=null;
 window.ChessGrindSelectedCoachOpponent=null;
+window.ChessGrindSelectedMaster=null;
 async function request(path,data){
  const result=await fetch(path,data===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
  if(!result.ok){let obj;try{obj=await result.json()}catch(e){}throw Error(obj?.error||"Request failed");}
@@ -22,6 +23,7 @@ function showBots(){
  $("bot-gallery").querySelectorAll("[data-rival]").forEach(button=>button.onclick=()=>{
    const bot=bots.find(x=>x.id===button.dataset.rival);
    window.ChessGrindSelectedCoachOpponent=null;
+   window.ChessGrindSelectedMaster=null;
    window.ChessGrindSelectedBot=bot.id;
    $("game-style").value=bot.style;
    detail(bot);showBots();
@@ -40,6 +42,7 @@ function showPlayableCoaches(){
  $("coach-opponents").querySelectorAll("[data-play-coach]").forEach(el=>el.onclick=()=>{
   const c=coaches.find(c=>c.id===el.dataset.playCoach);
   window.ChessGrindSelectedCoachOpponent=c.id;
+  window.ChessGrindSelectedMaster=null;
   window.ChessGrindSelectedBot=null;
   selectCoach(c.id);
   showBots();showPlayableCoaches();
@@ -76,6 +79,7 @@ function fill(coach){
  $("coach-rate").value=coach.rate||1;
  $("coach-skill").value=String(coach.skill??8);
  $("coach-style").value=coach.style||"balanced";
+ $("coach-quirk").value=coach.quirk||"threats";
  $("coach-rate-value").textContent=Number(coach.rate||1).toFixed(2)+"x";
  $("delete-coach").disabled=false;
 }
@@ -95,6 +99,7 @@ function clearCoachEditor(){
  $("coach-rate").value="1";
  $("coach-skill").value="8";
  $("coach-style").value="balanced";
+ $("coach-quirk").value="threats";
  $("coach-rate-value").textContent="1.00x";
  $("delete-coach").disabled=true;
 }
@@ -111,7 +116,7 @@ $("save-coach").onclick=async()=>{
  try{
    const data={
      name:$("coach-name").value,specialty:$("coach-specialty").value,biography:$("coach-bio").value,
-     tone:$("coach-tone").value,voice:$("coach-voice").value,rate:Number($("coach-rate").value),skill:Number($("coach-skill").value),style:$("coach-style").value
+     tone:$("coach-tone").value,voice:$("coach-voice").value,rate:Number($("coach-rate").value),skill:Number($("coach-skill").value),style:$("coach-style").value,quirk:$("coach-quirk").value
    };
    const id=$("coach-editor").dataset.id;
    if(id)data.id=id;
@@ -163,14 +168,8 @@ async function say(text){
 $("coach-preview").onclick=()=>say("I'm your chess coach. Before you move, consider your opponent's threats, look for forcing moves, and explain the plan you choose.");
 $("coach-speak").onclick=()=>say($("coach-live").textContent);
 $("coach-stop").onclick=stopTalking;
-window.ChessGrindCoachFormat=message=>{
- const coach=coaches.find(c=>c.id===selectedCoach);
- if(!coach)return message;
- const intros={supportive:"Good work staying engaged. ",challenging:"Test that assumption. ",
-              analytical:"Consider the evidence. ",playful:"Every move tells a story. ",
-              calm:"One decision at a time. "};
- return coach.name+" ("+coach.specialty+"): "+(intros[coach.tone]||"")+message;
-};
+window.ChessGrindCoachFormat=message=>message; // No repetitive introductions.
+
 window.ChessGrindCoachAuto=(message)=>{
  if($("coach-autospeak").checked)say(message);
 };
@@ -178,12 +177,54 @@ $("game-difficulty").addEventListener("change",()=>{
  window.ChessGrindSelectedBot=null;
 window.ChessGrindSelectedCoachOpponent=null;showBots();
 });
+let masterList=[];
+function masterEvidence(m){
+ const e=m.recordedStyle||{};
+ const games=e.recordedGames||m.recordedGames;
+ const opening=e.commonOpenings?.[0]?.[0];
+ return "Historical sample: "+games+" games. "+
+   (opening?"A frequently recorded opening: "+opening+". ":"")+
+   (e.sampleMoves?"Captures in sampled moves: "+e.captureRate+"%. ":"")+
+   "Archive statistics are descriptive, not proof of intent.";
+}
+
+function showMasters(search=""){
+ const text=search.toLocaleLowerCase();
+ const matches=masterList.filter(m=>(m.name+" "+m.era+" "+m.knownFor).toLocaleLowerCase().includes(text));
+ $("masters-gallery").innerHTML=matches.map(m=>
+   '<button type="button" class="coach-card'+(window.ChessGrindSelectedMaster===m.id?" chosen":"")+
+   '" data-master="'+safe(m.id)+'"><img src="'+safe(m.avatar)+'" alt="Illustrated chess insignia">'+
+   '<span><strong>'+safe(m.name)+'</strong><small>'+safe(m.era)+' · '+m.recordedGames+' games</small></span></button>').join("")||
+   '<div class="muted small">No master matched your search.</div>';
+ $("masters-gallery").querySelectorAll("[data-master]").forEach(node=>node.onclick=()=>{
+   const m=masterList.find(x=>x.id===node.dataset.master);
+   window.ChessGrindSelectedMaster=m.id;
+   window.ChessGrindSelectedBot=null;window.ChessGrindSelectedCoachOpponent=null;
+   showBots();showPlayableCoaches();showMasters($("masters-search").value);
+   $("master-selected").innerHTML='<img src="'+safe(m.avatar)+'" alt="Illustrated insignia"><div><strong>'+safe(m.name)+
+    '</strong><span>'+safe(m.era)+' · Master-inspired Stockfish skill '+m.skill+'/20</span><p>'+
+    safe(m.knownFor)+'. '+safe(masterEvidence(m))+'</p></div>';
+ });
+}
+$("masters-search").oninput=()=>showMasters($("masters-search").value);
 async function initialize(){
  try{
+  const masterResponse=await request("/api/arena/masters");
+  masterList=masterResponse.masters;
+  showMasters();
   const roster=await request("/api/arena/roster");
   bots=roster.bots;coaches=roster.coaches;selectedCoach=roster.activeCoach;
   $("coach-voice").innerHTML=roster.voices.map(v=>'<option value="'+safe(v)+'">'+safe(v)+'</option>').join("");
   window.ChessGrindSelectedBot=null;
+  const masterRequested=new URLSearchParams(location.search).get("master");
+  if(masterList.some(m=>m.id===masterRequested)){
+    const m=masterList.find(x=>x.id===masterRequested);
+    window.ChessGrindSelectedMaster=m.id;
+    showMasters();
+    $("master-selected").innerHTML='<img src="'+safe(m.avatar)+'" alt=""><div><strong>'+
+    safe(m.name)+'</strong><span>'+safe(m.era)+' · Stockfish skill '+m.skill+'/20</span><p>'+
+    safe(m.knownFor)+'. '+safe(masterEvidence(m))+'</p></div>';
+  }
   const requested=new URLSearchParams(location.search).get("coach");
   window.ChessGrindSelectedCoachOpponent=coaches.some(c=>c.id===requested)?requested:null;
   if(window.ChessGrindSelectedCoachOpponent)selectedCoach=window.ChessGrindSelectedCoachOpponent;
