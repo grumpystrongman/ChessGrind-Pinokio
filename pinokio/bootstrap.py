@@ -109,6 +109,12 @@ def main():
    from chess_knowledge import build
    summary=build(include_masters=True,max_master_games=150)
    print("Local chess knowledge graph prepared: "+str(summary["examples"])+" sourced examples.",flush=True)
+   try:
+    from chess_knowledge import vector_build
+    vectors=vector_build()
+    print("Chess example embeddings indexed: "+str(vectors["vectors"]),flush=True)
+   except Exception as exc:
+    print("Semantic vectors unavailable; exact and full-text study remain active: "+str(exc)[:180],flush=True)
   except Exception as exc:
    print("Knowledge graph setup warning: "+str(exc)[:250],flush=True)
   doctor()
