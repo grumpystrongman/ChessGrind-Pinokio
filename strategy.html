@@ -422,7 +422,8 @@ async function gradeReview(uci){
 }
 async function loadEndgames(){
  try{endgameList=await api("/api/endgame");$("endgame-count").textContent=endgameList.total;$("endgame-attempts").textContent=endgameList.attempts;
- $("tablebase-state").textContent=endgameList.tablebaseInstalled?"Tablebase available":"Engine only";
+ $("tablebase-state").textContent=endgameList.tablebaseInstalled?
+  "Exact 3-4-piece endgames; larger positions use Stockfish":"Engine estimates only";
  $("endgame-cards").innerHTML=endgameList.lessons.filter(x=>
    egFilter==="All" || x.side===egFilter
  ).map(x=>'<button class="card" data-endgame="'+esc(x.id)+'"><strong>'+
@@ -507,9 +508,15 @@ async function gradeEndgame(){
   }
   egResult=graded;
   $("endgame-result").classList.remove("hidden");
- $("endgame-verdict").textContent=egResult.correct?"A competitive move at this depth.":"There's a stronger continuation to examine.";
+ $("endgame-verdict").textContent=egResult.tablebaseVerified?
+ (egResult.correct?"Exact outcome preserved.":"Exact outcome worsened."):
+ (egResult.correct?"A competitive move at this depth.":"There's a stronger continuation to examine.");
  $("endgame-explanation").textContent=egResult.summary+" "+egResult.principle+
-  " "+(egResult.reasons.join(" ")||"Compare each side's legal reply before deciding the plan.");
+  " "+(egResult.reasons.join(" ")||"Compare each side's legal reply before deciding the plan.")+
+  (egResult.tablebaseVerified?
+   " Exact Syzygy outcome: "+egResult.exactResult+
+   ". WDL-preserving moves include "+egResult.exactBestMoves.join(", ")+
+   ". These are not necessarily the fastest mates.":"");
  $("eg-branches").innerHTML=[{title:"Stockfish's preferred line",line:egResult.bestLine},{title:"Your chosen line",line:egResult.yourLine}].map((b,i)=>
   '<button class="branch '+(!i?"active":"")+'" type="button" data-branch="'+i+'"><strong>'+esc(b.title)+
   '</strong><p>'+esc(b.line.text||"No continuation available.")+'</p></button>').join("");

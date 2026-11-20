@@ -238,8 +238,11 @@ async function showEvidence(mode){
     }
     if(data.tablebase){
       const status=document.createElement("p");
-      status.textContent="Exact local tablebase: WDL "+data.tablebase.wdl+
-         (data.tablebase.dtz===null?"":"; DTZ "+data.tablebase.dtz);
+      status.textContent="Exact local tablebase: "+data.tablebase.wdlMeaning+
+         " for the side to move (WDL "+data.tablebase.wdl+")"+
+         (data.tablebase.dtz===null?"":"; DTZ "+data.tablebase.dtz)+
+         ". WDL-preserving moves: "+(data.tablebase.bestMoves||[]).slice(0,8).map(x=>x.san).join(", ")+
+         ". DTZ is not distance to mate.";
       out.append(status);
     }
    }else{

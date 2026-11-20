@@ -160,7 +160,9 @@ class Handler(BaseHTTPRequestHandler):
                 self.respond(quality_summary());return
             if path=="/api/chess/knowledge/status":
                 from chess_knowledge import status,mastery
-                self.respond({"index":status(),"learning":mastery()});return
+                from verified_chess import tablebase_status
+                self.respond({"index":status(),"learning":mastery(),
+                              "tablebases":tablebase_status()});return
             if path=="/api/arena/roster":
                 from arena_personas import roster
                 self.respond(roster());return

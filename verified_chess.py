@@ -17,23 +17,72 @@ from chess_grind import db
 from game_analysis import find_engine
 from chess_knowledge import ensure,now,position_key
 
-def syzygy_result(board):
-    # Use only existing tablebase files; do not silently download huge sets.
-    directory=os.getenv("CHESSGRIND_SYZYGY_DIR")
-    if not directory:return None
-    path=Path(directory)
-    if not path.is_dir() or not list(path.glob("*.rtbw")):return None
-    if len(board.piece_map())>7:return None
+def tablebase_dir():
+    """Use the player's explicit folder or ChessGrind's compact bundled set."""
+    setting=os.getenv("CHESSGRIND_SYZYGY_DIR") or os.getenv("CHESSGRIND_SYZYGY_PATH")
+    return Path(setting) if setting else Path(__file__).resolve().parent / "engine" / "syzygy"
+
+def tablebase_status():
+    directory=tablebase_dir()
+    if not directory.is_dir():
+        return {"installed":False,"maxCompletePieces":0,"files":0,
+                "pairs":0,"threeFourComplete":False,"directory":str(directory)}
+    import chess.syzygy
+    present={p.name for p in directory.iterdir() if p.suffix in (".rtbw",".rtbz")}
+    names=set(chess.syzygy.tablenames(piece_count=4))
+    pairs=sum(all(name+ext in present for ext in (".rtbw",".rtbz")) for name in names)
+    complete=pairs==len(names)
+    return {"installed":bool(present),"maxCompletePieces":4 if complete else 0,
+            "files":len(present),"pairs":pairs,"threeFourComplete":complete,
+            "directory":str(directory),
+            "note":"Exact results require material covered by installed WDL/DTZ files. Five-plus-piece sets are not part of this installer."}
+
+def syzygy_result(board,include_moves=True):
+    """Return exact covered WDL/DTZ, not distance-to-mate or universal proof."""
+    import chess.syzygy
+    folder=tablebase_dir()
+    if not folder.is_dir() or not list(folder.glob("*.rtbw")) or len(board.piece_map())>7:
+        return None
+    if board.castling_rights:return None
     try:
-        import chess.syzygy
-        with chess.syzygy.open_tablebase(str(path)) as tablebase:
-            wdl=tablebase.probe_wdl(board)
-            try:dtz=tablebase.probe_dtz(board)
-            except chess.syzygy.MissingTableError:dtz=None
-        return {"wdl":wdl,"dtz":dtz,"perspective":"side-to-move",
-                "meaning":"Exact tablebase result subject to 50-move-rule context",
-                "source":"local Syzygy files"}
-    except (OSError,ValueError,chess.syzygy.MissingTableError):return None
+        with chess.syzygy.open_tablebase(str(folder)) as tb:
+            wdl=tb.probe_wdl(board)
+            try:dtz=tb.probe_dtz(board)
+            except (chess.syzygy.MissingTableError,ValueError):dtz=None
+            label={2:"win",1:"cursed win (50-move rule)",0:"draw",
+                   -1:"blessed loss (50-move rule)",-2:"loss"}[wdl]
+            moves=[]
+            if include_moves and not board.is_game_over(claim_draw=True):
+                for move in board.legal_moves:
+                    next_board=board.copy(stack=False)
+                    notation=board.san(move)
+                    next_board.push(move)
+                    if next_board.is_checkmate():
+                        after_wdl=2;zero=1
+                    elif next_board.is_game_over(claim_draw=True) and next_board.outcome(claim_draw=True).winner is None:
+                        after_wdl=0;zero=0
+                    else:
+                        after_wdl=-tb.probe_wdl(next_board)
+                        try:zero=-tb.probe_dtz(next_board)
+                        except (chess.syzygy.MissingTableError,ValueError):zero=None
+                    moves.append({"uci":move.uci(),"san":notation,"wdl":after_wdl,
+                                  "dtzAfterMoveFromMoverPerspective":zero})
+                def order(row):
+                    distance=abs(row["dtzAfterMoveFromMoverPerspective"]) if row["dtzAfterMoveFromMoverPerspective"] is not None else 99999
+                    # Prefer a quicker zeroing conversion in a win, but
+                    # delay an unavoidable loss when all WDL outcomes lose.
+                    return (-row["wdl"],distance if row["wdl"]>=0 else -distance,row["san"])
+                moves.sort(key=order)
+        best=max((row["wdl"] for row in moves),default=None)
+        return {"wdl":wdl,"wdlMeaning":label,"dtz":dtz,"exact":True,
+                "perspective":"side-to-move","pieceCount":len(board.piece_map()),
+                "availableMoveCount":len(moves),
+                "bestMoves":[row for row in moves if row["wdl"]==best][:12],
+                "moveDetails":moves,
+                "source":"local Syzygy WDL and DTZ",
+                "meaning":"Exact WDL/DTZ for covered material with fifty-move-rule caveats; DTZ is not distance to mate."}
+    except (OSError,ValueError,KeyError,chess.syzygy.MissingTableError):
+        return None
 
 def signature(path):
     p=Path(path)
@@ -105,6 +154,8 @@ def verify(fen,played_uci=None,depth=12,multipv=3,force=False):
                 con.execute("""INSERT OR REPLACE INTO kg_position_evaluations
                    VALUES(?,?,?,?,?,?)""",
                    (key,ident,depth,multipv,json.dumps(result),now()))
+        # Newly installed tablebases apply even to older cached Stockfish results.
+        result["tablebase"]=syzygy_result(board)
         if played is not None:
             best=result["candidates"][0] if result["candidates"] else None
             matching=next((x for x in result["candidates"] if x["firstUci"]==played.uci()),None)

@@ -198,9 +198,8 @@ def ensure(con):
  """)
  con.commit()
 def available_tablebase():
- folder=os.getenv("CHESSGRIND_SYZYGY_PATH","")
- if not folder or not os.path.isdir(folder):return None
- return folder if any(x.endswith(".rtbw") for x in os.listdir(folder)) else None
+ from verified_chess import tablebase_status,tablebase_dir
+ return str(tablebase_dir()) if tablebase_status()["threeFourComplete"] else None
 
 def validate():
  for item in LESSONS:
@@ -232,7 +231,8 @@ def overview():
      "lastAttempt":x.get("recent")})
   return {"lessons":items,"total":len(items),"attempts":sum(x["attempts"] for x in items),
     "tablebaseInstalled":bool(available_tablebase()),
-    "disclaimer":"With no installed Syzygy files, Stockfish analysis is depth-limited and cannot certify theoretical win/draw/loss in every endgame."}
+    "tablebasePieceLimit":4 if available_tablebase() else 0,
+    "disclaimer":"Exact Syzygy win/draw/loss applies only to covered 3-4-piece positions. Other positions use bounded Stockfish analysis."}
  finally:con.close()
 
 def lesson(lesson_id):
@@ -240,7 +240,8 @@ def lesson(lesson_id):
  x=BY_ID[lesson_id]
  return {**x,"side":"White" if chess.Board(x["fen"]).turn else "Black",
    "pieceCount":len(chess.Board(x["fen"]).piece_map()),
-   "tablebaseInstalled":bool(available_tablebase())}
+   "tablebaseInstalled":bool(available_tablebase()),
+   "tablebaseEligible":len(chess.Board(x["fen"]).piece_map())<=4 and bool(available_tablebase())}
 
 def _score(info,side):
  p=info["score"].pov(side)
@@ -296,6 +297,17 @@ def play(lesson_id,move_uci,assisted=False,seconds=0,round_id=None):
   if not chosen.get("pv"):raise RuntimeError("Could not analyze candidate")
  root=b.turn;best_cp,best_mate=_score(best,root);move_cp,move_mate=_score(chosen,root)
  gap=engine_gap(best["score"].pov(root),chosen["score"].pov(root));accepted=gap<=65
+ exact=None
+ if len(b.piece_map())<=4:
+  from verified_chess import syzygy_result
+  exact=syzygy_result(b)
+ if exact:
+  verified_moves={row["uci"]:row for row in exact.get("moveDetails",[])}
+  this=verified_moves.get(m.uci())
+  if this is not None:
+   best_wdl=max(x["wdl"] for x in verified_moves.values())
+   accepted=this["wdl"]==best_wdl
+  else:exact=None
  best_info=_line(b,pv)
  cand_pv=chosen["pv"]
  if cand_pv[0]!=m:cand_pv=[m]+cand_pv[1:]
@@ -328,7 +340,16 @@ def play(lesson_id,move_uci,assisted=False,seconds=0,round_id=None):
    "principle":item["principle"],"idea":item["idea"],"reasons":explanation,
    "bestScore":best_cp,"yourScore":move_cp,
    "forcedMate":best_mate if best_mate else None,
-   "tablebaseVerified":False,
-   "summary":("Your move is competitive at this search depth." if accepted else
-              "Stockfish finds a stronger continuation. Replay both branches to see the key difference."),
-   "limit":"The move grading is Stockfish depth 12. No tablebase proof was used; do not interpret the score as an exact win/draw/loss."}
+   "tablebaseVerified":bool(exact),
+   "exactResult":exact["wdlMeaning"] if exact else None,
+   "exactPlayedWdl":this["wdl"] if exact else None,
+   "exactBestWdl":best_wdl if exact else None,
+   "exactBestMoves":[x["san"] for x in exact.get("bestMoves",[])][:12] if exact else [],
+   "summary":(("Your move preserves the best exact tablebase outcome." if accepted else
+               "Your move worsens the exact tablebase outcome. Study the alternative moves.")
+              if exact else
+              ("Your move is competitive at this search depth." if accepted else
+               "Stockfish finds a stronger continuation. Replay both branches to see the key difference.")),
+   "limit":("Exact local Syzygy WDL for this covered 3-4-piece position; preserving the outcome does not imply fastest mate."
+            if exact else
+            "Stockfish depth 12 estimate only. No exact endgame tablebase proof was available for this material.")}
