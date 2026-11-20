@@ -111,6 +111,11 @@ def ensure(con):
       position_key TEXT NOT NULL,concept_id TEXT,grade TEXT,
       move_uci TEXT NOT NULL,loss_cp INTEGER,created_at TEXT NOT NULL);
     CREATE INDEX IF NOT EXISTS kg_player_concept ON kg_player_events(concept_id,created_at);
+    CREATE TABLE IF NOT EXISTS kg_coach_quality(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      persona TEXT NOT NULL,event TEXT NOT NULL,outcome TEXT NOT NULL,
+      reason_codes TEXT NOT NULL,created_at TEXT NOT NULL);
+    CREATE INDEX IF NOT EXISTS kg_coach_quality_time ON kg_coach_quality(created_at);
     """)
     con.commit()
 
@@ -341,6 +346,33 @@ def mastery(limit=8):
             GROUP BY concept_id ORDER BY errors DESC,count DESC LIMIT ?""",
             (min(30,max(1,int(limit))),)).fetchall()
         return [dict(x) for x in rows]
+    finally:con.close()
+
+def record_coach_quality(persona,event,outcome,reason_codes=None):
+    # Intentionally store NO generated text, messages, names or account IDs.
+    # Only a persona's identifier, request type and validation outcome.
+    if outcome not in ("accepted","corrected","fallback"):
+        raise ValueError("Invalid coaching audit outcome")
+    con=db()
+    try:
+        ensure(con)
+        with con:
+            con.execute("INSERT INTO kg_coach_quality(persona,event,outcome,reason_codes,created_at) VALUES(?,?,?,?,?)",
+                (str(persona)[:80],str(event)[:40],outcome,
+                 json.dumps([str(x)[:60] for x in (reason_codes or [])][:6]),now()))
+        return True
+    finally:con.close()
+
+def quality_summary():
+    con=db()
+    try:
+        ensure(con)
+        counts=[dict(r) for r in con.execute("""SELECT outcome,count(*) responses
+           FROM kg_coach_quality GROUP BY outcome ORDER BY outcome""")]
+        total=sum(x["responses"] for x in counts)
+        return {"responses":total,"outcomes":counts,
+                "coverage":"selected rule-checkable claims only; not proof of complete chess correctness",
+                "private":"No player chat text is stored in the audit table."}
     finally:con.close()
 
 def status(con=None):

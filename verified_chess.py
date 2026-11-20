@@ -67,7 +67,11 @@ def verify(fen,played_uci=None,depth=12,multipv=3,force=False):
                 "tablebase":syzygy_result(board),"candidates":[]}
     engine=find_engine()
     if not engine:raise RuntimeError("Stockfish executable missing")
-    key=position_key(board)
+    # Unlike opening/teaching retrieval, engine scores can change with
+    # the fifty-move counter. Do not reuse a cached score across clock states.
+    # FEN alone cannot reconstruct repetition history; callers must treat
+    # analyses as bounded evaluations rather than definitive draw claims.
+    key=position_key(board)+" | halfmove="+str(board.halfmove_clock)
     ident=signature(engine)
     con=db()
     try:
@@ -94,6 +98,7 @@ def verify(fen,played_uci=None,depth=12,multipv=3,force=False):
                    "source":"Stockfish bounded MultiPV","engineId":ident,
                    "depthRequested":depth,"multipvRequested":multipv,
                    "candidateMovesAreNotForced":True,
+                   "drawHistoryCaveat":"Repetition history is not encoded in FEN; engine output is not a proof of the 50-move or repetition result.",
                    "candidates":candidates,"tablebase":syzygy_result(board),
                    "fromCache":False}
             with con:

@@ -155,6 +155,9 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_error(404);return
                 self.send_bytes((ROOT/"icons"/"masters"/filename).read_bytes(),mime="image/svg+xml")
                 return
+            if path=="/api/chess/knowledge/quality":
+                from chess_knowledge import quality_summary
+                self.respond(quality_summary());return
             if path=="/api/chess/knowledge/status":
                 from chess_knowledge import status,mastery
                 self.respond({"index":status(),"learning":mastery()});return

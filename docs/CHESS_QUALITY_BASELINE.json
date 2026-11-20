@@ -1,0 +1,62 @@
+{
+  "scope": "Six curated public positions at depths 8 and 12",
+  "notProof": "Depth agreement and legal PVs do not prove optimal chess decisions.",
+  "sameBest": 5,
+  "positions": 6,
+  "cases": [
+    {
+      "position": "starting-position",
+      "bestDepth8": "e2e4",
+      "bestDepth12": "e2e4",
+      "sameFirstMove": true,
+      "depth8Candidates": 3,
+      "depth12Candidates": 3,
+      "terminal": false
+    },
+    {
+      "position": "fools-mate-threat",
+      "bestDepth8": "d8h4",
+      "bestDepth12": "d8h4",
+      "sameFirstMove": true,
+      "depth8Candidates": 3,
+      "depth12Candidates": 3,
+      "terminal": false
+    },
+    {
+      "position": "scholars-mate-threat",
+      "bestDepth8": "h5f7",
+      "bestDepth12": "h5f7",
+      "sameFirstMove": true,
+      "depth8Candidates": 3,
+      "depth12Candidates": 3,
+      "terminal": false
+    },
+    {
+      "position": "italian-opening",
+      "bestDepth8": "d2d4",
+      "bestDepth12": "d2d3",
+      "sameFirstMove": false,
+      "depth8Candidates": 3,
+      "depth12Candidates": 3,
+      "terminal": false
+    },
+    {
+      "position": "rook-endgame",
+      "bestDepth8": "h1h3",
+      "bestDepth12": "h1h3",
+      "sameFirstMove": true,
+      "depth8Candidates": 3,
+      "depth12Candidates": 3,
+      "terminal": false
+    },
+    {
+      "position": "pawn-endgame",
+      "bestDepth8": "d4c5",
+      "bestDepth12": "d4c5",
+      "sameFirstMove": true,
+      "depth8Candidates": 3,
+      "depth12Candidates": 3,
+      "terminal": false
+    }
+  ]
+}
