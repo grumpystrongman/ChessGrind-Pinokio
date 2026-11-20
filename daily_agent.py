@@ -65,6 +65,12 @@ def run():
             stage("inventory",lambda:inventory(limit=100,workers=6))
             stage("book_index",lambda:index_permitted(limit=20))
             stage("vectors",build)
+            # Importing new games and analyses also refreshes the private
+            # source-attributed chess graph. Embeddings are incremental and
+            # run in small batches to keep daily jobs responsive.
+            from chess_knowledge import build as build_chess_graph,vector_build as embed_chess_examples
+            stage("chess_graph",lambda:build_chess_graph(include_masters=True,max_master_games=150))
+            stage("chess_embeddings",lambda:embed_chess_examples(limit=250))
             plan=stage("daily_plan",today)
             if "error" not in plan:
                 folder=HOME/"daily_plans"

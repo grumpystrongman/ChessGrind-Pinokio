@@ -82,6 +82,9 @@ def doctor():
  try:
   print("History games:",con.execute("SELECT count(*) FROM master_games").fetchone()[0],flush=True)
  finally:con.close()
+ from verified_chess import tablebase_status
+ tb=tablebase_status()
+ print("Exact Syzygy tablebases:",str(tb["pairs"])+" WDL/DTZ pairs; up to "+str(tb["maxCompletePieces"])+" pieces",flush=True)
  print("Personal Chess.com account:",get_account() or "Not yet connected",flush=True)
  print("External listening: OFF. Online invites: OFF.",flush=True)
 def main():
@@ -95,6 +98,19 @@ def main():
  if opts.action=="setup":
   install_engine(opts.skip_engine)
   seed_data()
+  try:
+   from install_syzygy import install
+   result=install(4)
+   print("Exact endgame tablebases: "+str(result["pairs"])+" of "+str(result["expectedPairs"])+" pairs; "+str(result["bytes"])+" bytes.",flush=True)
+  except Exception as exc:
+   # A network outage must not stop Stockfish / local game installation.
+   print("Optional tablebase installation unavailable: "+str(exc)[:250],flush=True)
+  try:
+   from chess_knowledge import build
+   summary=build(include_masters=True,max_master_games=150)
+   print("Local chess knowledge graph prepared: "+str(summary["examples"])+" sourced examples.",flush=True)
+  except Exception as exc:
+   print("Knowledge graph setup warning: "+str(exc)[:250],flush=True)
   doctor()
  elif opts.action=="doctor":doctor()
  else:
