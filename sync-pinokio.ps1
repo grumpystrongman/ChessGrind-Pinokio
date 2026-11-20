@@ -82,6 +82,25 @@ try {
     Pop-Location
 }
 
+# In the older Pinokio layout the outer menu is not part of the app Git
+# checkout. Refresh just its Update action, after preserving its old copy.
+# That makes future menu-based updates use this same safe sync workflow.
+$legacyUpdate = Join-Path $PinokioFolder "update.js"
+if (([IO.Path]::GetFullPath($repo)) -ne ([IO.Path]::GetFullPath($PinokioFolder)) -and
+    (Test-Path $legacyUpdate)) {
+    $updatedLauncher = @'
+module.exports = {
+  run:[{method:"shell.run",params:{
+    path:"app",
+    message:"powershell -NoProfile -ExecutionPolicy Bypass -File sync-pinokio.ps1 -PinokioFolder .."
+  }}]
+};
+'@
+    [IO.File]::WriteAllText($legacyUpdate,$updatedLauncher,
+                            (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "Legacy Pinokio Update menu repaired for future safe releases."
+}
+
 Push-Location $repo
 try {
     if (-not $SkipDependencies) {
