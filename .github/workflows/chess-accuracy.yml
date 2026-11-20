@@ -87,6 +87,8 @@ jobs:
         run: python -m compileall -q pinokio/bootstrap.py chess_knowledge.py verified_chess.py endgame_lab.py install_syzygy.py academy_quality_audit.py conversational_chess.py web_app.py local_ai_setup.py coach_voice.py
       - name: Mock first-time Ollama and neural voice installation
         run: python -m unittest discover -s tests -p "test_local_ai_setup.py" -v
+      - name: Check clean Pinokio install orchestration
+        run: python -m unittest discover -s tests -p "test_pinokio_provisioning.py" -v
       - name: Verify both Pinokio menu layouts and repair actions
         run: |
           node --check pinokio.js
