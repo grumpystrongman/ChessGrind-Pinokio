@@ -26,7 +26,7 @@ The setup then:
 
 - **Windows x64 and Pinokio Python support** are required for the current release.
 - An internet connection is necessary for the one-time download of Ollama, a model, Kokoro voice assets, Stockfish and some training data.
-- First-time downloads may be **several gigabytes**. The chosen model is based on total RAM; a machine's free storage is checked before downloading.
+- First-time downloads may be **several gigabytes**. The chosen model is based on total RAM; a machine's free storage is checked before downloading. Ollama's official signed Windows installer itself may exceed 1.5 GB; the setup checks the temporary drive as well as the game drive and enforces an upper safety limit.
 - The installer does **not** overwrite existing Ollama models, remove or delete personal games, or replace compatible EmberWriter voice files.
 - If installation fails because of network interruptions, low disk space, incompatible runtime, or permission restrictions, chess remains playable. In that case the app explicitly reports **setup incomplete**; characters use authored dialogue and/or browser speech as fallbacks. The Pinokio **Repair local AI & character voices** menu action retries only the missing components.
 - The app checks for and starts an existing Ollama executable on launch to avoid a working model becoming unavailable after reboot.
