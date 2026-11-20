@@ -29,6 +29,8 @@ jobs:
         run: echo "CHESS_GRIND_HOME=$(mktemp -d)" >> "$GITHUB_ENV"
       - name: Verify all 27 bundled portrait images are distinct and referenced
         run: python -m unittest discover -s tests -p "test_portrait_packaging.py" -v
+      - name: Serve all 27 character portraits through the local web server
+        run: python -m unittest discover -s tests -p "test_portrait_http.py" -v
       - name: Check the 3,006 Academy examples
         run: python academy_quality_audit.py
       - name: Validate claim guard and 27 coaching identities
@@ -102,6 +104,8 @@ jobs:
           node -e "const names=['./pinokio.js','./pinokio/pinokio.js']; Promise.all(names.map(async x=>{const m=require(x);const links=await m.menu({}, {exists:()=>true,running:()=>false});if(!links.some(k=>k.href==='install-ai.js'))throw Error(x+' lacks AI repair');if(!links.some(k=>k.href==='install-voices.js'))throw Error(x+' lacks voice repair')})).catch(e=>{console.error(e);process.exit(1)})"
       - name: Verify 27 portrait binaries and Windows avatar paths
         run: python -m unittest discover -s tests -p "test_portrait_packaging.py" -v
+      - name: Serve all 27 character portraits through the Windows web server
+        run: python -m unittest discover -s tests -p "test_portrait_http.py" -v
       - name: Check all Academy teaching examples
         run: python academy_quality_audit.py
       - name: Check conversation chess-claim rules
