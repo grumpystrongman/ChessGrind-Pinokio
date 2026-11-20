@@ -44,7 +44,7 @@ function showPlayableCoaches(){
  $("coach-opponents").innerHTML=coaches.map((c,i)=>
   '<button type="button" class="coach-card'+(choice===c.id?" chosen":"")+
   '" data-play-coach="'+safe(c.id)+'" aria-pressed="'+(choice===c.id)+'">'+
-  '<img src="/icons/coaches/'+["sage","plum","copper","arctic","gold"][i%5]+'.svg" alt=""/>'+
+  '<img src="'+coachPortrait(c)+'" alt=""/>'+
   '<span><strong>'+safe(c.name)+'</strong><small>'+safe(c.specialty)+' · Skill '+c.skill+'/20</small></span></button>'
  ).join("")||'<p class="muted small">No coaches saved. Create one below.</p>';
  $("coach-opponents").querySelectorAll("[data-play-coach]").forEach(el=>el.onclick=()=>{
@@ -62,7 +62,7 @@ function showPlayableCoaches(){
 }
 function showCoaches(){
  $("coach-count").textContent=coaches.length+" / 5 coaches";
- $("coach-gallery").innerHTML=coaches.map((c,i)=>'<button type="button" class="coach-card'+(selectedCoach===c.id?" chosen":"")+'" data-coach="'+safe(c.id)+'"><img src="/icons/coaches/'+["sage","plum","copper","arctic","gold"][i%5]+'.svg" alt="" width="58" height="58"/><span><strong>'+safe(c.name)+'</strong><small>'+safe(c.specialty)+'</small></span></button>').join("");
+ $("coach-gallery").innerHTML=coaches.map((c,i)=>'<button type="button" class="coach-card'+(selectedCoach===c.id?" chosen":"")+'" data-coach="'+safe(c.id)+'"><img src="'+coachPortrait(c)+'" alt="" width="58" height="58"/><span><strong>'+safe(c.name)+'</strong><small>'+safe(c.specialty)+'</small></span></button>').join("");
  $("coach-gallery").querySelectorAll("[data-coach]").forEach(b=>b.onclick=selectCoach.bind(null,b.dataset.coach));
  $("new-coach").disabled=coaches.length>=5;
  showCasting();
