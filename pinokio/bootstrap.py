@@ -71,6 +71,20 @@ def doctor():
  print("Private Chess Grind data:",str(HOME),flush=True)
  print("Stockfish:",ENGINE.is_file(),flush=True)
  print("Learning data:",SEED.is_file(),flush=True)
+ from arena_personas import BOT_ROSTER,COACH_CAST
+ import hashlib
+ available=[]
+ expected=[ROOT/"icons"/"bots"/(p["id"]+".webp") for p in BOT_ROSTER]
+ expected += [ROOT/"icons"/"coaches"/(p["id"]+".webp") for p in COACH_CAST]
+ for image in expected:
+  if image.is_file():
+   data=image.read_bytes()
+   if data[:4]==b"RIFF" and data[8:12]==b"WEBP":
+    available.append(hashlib.sha256(data).hexdigest())
+ print("Character portraits:",str(len(available))+"/"+str(len(expected)),
+       "distinct:"+str(len(set(available))==len(expected)),flush=True)
+ if len(available)!=27 or len(set(available))!=27:
+  print("WARNING: New portraits are missing or duplicated. Update ChessGrind in Pinokio.",flush=True)
  import chess,requests,jwt
  if ENGINE.is_file():
   import chess.engine
