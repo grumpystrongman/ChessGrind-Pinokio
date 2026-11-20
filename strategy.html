@@ -517,7 +517,7 @@ async function gradeEndgame(){
    " Exact Syzygy outcome: "+egResult.exactResult+
    ". WDL-preserving moves include "+egResult.exactBestMoves.join(", ")+
    ". These are not necessarily the fastest mates.":"");
- $("eg-branches").innerHTML=[{title:"Stockfish's preferred line",line:egResult.bestLine},{title:"Your chosen line",line:egResult.yourLine}].map((b,i)=>
+ $("eg-branches").innerHTML=[{title:egResult.tablebaseVerified?"Exact tablebase-preserving line":"Stockfish's preferred line",line:egResult.bestLine},{title:"Your chosen line",line:egResult.yourLine}].map((b,i)=>
   '<button class="branch '+(!i?"active":"")+'" type="button" data-branch="'+i+'"><strong>'+esc(b.title)+
   '</strong><p>'+esc(b.line.text||"No continuation available.")+'</p></button>').join("");
  $("eg-branches").querySelectorAll("[data-branch]").forEach(b=>b.onclick=()=>setEgBranch(Number(b.dataset.branch)));

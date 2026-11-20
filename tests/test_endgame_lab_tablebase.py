@@ -24,6 +24,9 @@ class LabTests(unittest.TestCase):
         self.assertTrue(result["tablebaseVerified"])
         self.assertTrue(result["correct"])
         self.assertIsNotNone(result["exactBestMoves"])
+        self.assertIn(result["bestSan"],result["exactBestMoves"])
+        self.assertEqual(result["bestLine"]["steps"][1]["san"],result["bestSan"])
+        self.assertEqual(result["yourLine"]["steps"][1]["san"],result["yourSan"])
         self.assertIn("Syzygy",result["limit"])
 
 if __name__=="__main__":

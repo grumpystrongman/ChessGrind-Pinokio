@@ -256,6 +256,23 @@ def _line(board,pv):
   steps.append({"fen":work.fen(),"san":san,"uci":m.uci()})
  return {"text":variation(board,pv,max_plies=9),"steps":steps}
 
+def _exact_tablebase_line(board,first_move,plies=9):
+ """Produce a legal outcome-preserving line using exact local Syzygy probes."""
+ from verified_chess import syzygy_result
+ sequence=[]
+ trial=board.copy()
+ for ply in range(plies):
+  if trial.is_game_over(claim_draw=True):break
+  if ply==0:move=first_move
+  else:
+   entry=syzygy_result(trial)
+   if not entry or not entry.get("bestMoves"):break
+   move=chess.Move.from_uci(entry["bestMoves"][0]["uci"])
+  if move not in trial.legal_moves:break
+  sequence.append(move)
+  trial.push(move)
+ return sequence
+
 def play(lesson_id,move_uci,assisted=False,seconds=0,round_id=None):
  item=lesson(lesson_id);b=chess.Board(item["fen"])
  if not isinstance(move_uci,str) or not re.fullmatch("[a-h][1-8][a-h][1-8][qrbn]?",move_uci):raise ValueError("Choose a move on the board")
@@ -312,6 +329,14 @@ def play(lesson_id,move_uci,assisted=False,seconds=0,round_id=None):
  cand_pv=chosen["pv"]
  if cand_pv[0]!=m:cand_pv=[m]+cand_pv[1:]
  cand_info=_line(b,cand_pv)
+ if exact and exact.get("bestMoves"):
+  # Stockfish's shallow PV can disagree with the provable tablebase
+  # result. Show tablebase-preserving principal lines for covered endings.
+  tablebase_first=chess.Move.from_uci(exact["bestMoves"][0]["uci"])
+  if tablebase_first in b.legal_moves:
+   top=tablebase_first
+   best_info=_line(b,_exact_tablebase_line(b,top))
+   cand_info=_line(b,_exact_tablebase_line(b,m))
  explanation=move_reasons(b,top)
  con=db();ensure(con)
  try:
@@ -338,8 +363,9 @@ def play(lesson_id,move_uci,assisted=False,seconds=0,round_id=None):
    "assisted":assisted,"yourSan":b.san(m),
    "bestSan":b.san(top),"gapCp":gap,"yourLine":cand_info,"bestLine":best_info,
    "principle":item["principle"],"idea":item["idea"],"reasons":explanation,
-   "bestScore":best_cp,"yourScore":move_cp,
-   "forcedMate":best_mate if best_mate else None,
+   "bestScore":best_cp if not exact else None,
+   "yourScore":move_cp if not exact else None,
+   "forcedMate":best_mate if best_mate and not exact else None,
    "tablebaseVerified":bool(exact),
    "exactResult":exact["wdlMeaning"] if exact else None,
    "exactPlayedWdl":this["wdl"] if exact else None,
@@ -350,6 +376,6 @@ def play(lesson_id,move_uci,assisted=False,seconds=0,round_id=None):
               if exact else
               ("Your move is competitive at this search depth." if accepted else
                "Stockfish finds a stronger continuation. Replay both branches to see the key difference.")),
-   "limit":("Exact local Syzygy WDL for this covered 3-4-piece position; preserving the outcome does not imply fastest mate."
+   "limit":("Exact local Syzygy WDL/DTZ for this covered 3-4-piece position; principal lines are tablebase-preserving and not proof of fastest mate."
             if exact else
             "Stockfish depth 12 estimate only. No exact endgame tablebase proof was available for this material.")}
