@@ -5,8 +5,14 @@
 (()=>{
 const $=id=>document.getElementById(id);
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let bots=[],coaches=[],selectedCoach=null,voiceStatus={available:false};
+let bots=[],coaches=[],cast=[],selectedCoach=null,voiceStatus={available:false};
 let lastAudio=null;
+function coachPortrait(coach){
+ const fixed={"coach-mentor":"sage","coach-tactics":"copper","coach-iris":"plum","coach-rook":"gold","coach-vera":"arctic"};
+ const list=["sage","plum","copper","arctic","gold"];
+ const id=coach?.id||"";
+ return "/icons/coaches/"+(fixed[id]||list[[...id].reduce((sum,c)=>sum+c.charCodeAt(0),0)%list.length])+".svg";
+}
 window.ChessGrindSelectedBot=null;
 window.ChessGrindSelectedCoachOpponent=null;
 window.ChessGrindSelectedMaster=null;
@@ -57,6 +63,7 @@ function showCoaches(){
  $("coach-gallery").innerHTML=coaches.map((c,i)=>'<button type="button" class="coach-card'+(selectedCoach===c.id?" chosen":"")+'" data-coach="'+safe(c.id)+'"><img src="/icons/coaches/'+["sage","plum","copper","arctic","gold"][i%5]+'.svg" alt="" width="58" height="58"/><span><strong>'+safe(c.name)+'</strong><small>'+safe(c.specialty)+'</small></span></button>').join("");
  $("coach-gallery").querySelectorAll("[data-coach]").forEach(b=>b.onclick=selectCoach.bind(null,b.dataset.coach));
  $("new-coach").disabled=coaches.length>=5;
+ showCasting();
  showPlayableCoaches();
  if(!selectedCoach||!coaches.some(c=>c.id===selectedCoach)){
    selectedCoach=coaches[0]?.id||null;
@@ -71,15 +78,12 @@ function showCoaches(){
 function fill(coach){
  if(!coach)return;
  $("coach-editor").dataset.id=coach.id;
- $("coach-name").value=coach.name;
- $("coach-specialty").value=coach.specialty;
- $("coach-bio").value=coach.biography||"";
- $("coach-tone").value=coach.tone||"supportive";
- $("coach-voice").value=coach.voice||"af_sarah";
+ $("coach-personality").textContent=coach.name+" — "+coach.specialty+". "+coach.biography+" Their habit: "+(coach.signature||"a distinctive way of teaching")+". Voice: "+coach.voice+".";
+
  $("coach-rate").value=coach.rate||1;
  $("coach-skill").value=String(coach.skill??8);
  $("coach-style").value=coach.style||"balanced";
- $("coach-quirk").value=coach.quirk||"threats";
+
  $("coach-rate-value").textContent=Number(coach.rate||1).toFixed(2)+"x";
  $("delete-coach").disabled=false;
 }
@@ -89,43 +93,37 @@ function selectCoach(id){
  $("coach-editor").dataset.id=id;
  showCoaches();
 }
-function clearCoachEditor(){
- $("coach-editor").dataset.id="";
- $("coach-name").value="";
- $("coach-specialty").value="";
- $("coach-bio").value="";
- $("coach-tone").value="supportive";
- $("coach-voice").value="af_sarah";
- $("coach-rate").value="1";
- $("coach-skill").value="8";
- $("coach-style").value="balanced";
- $("coach-quirk").value="threats";
- $("coach-rate-value").textContent="1.00x";
- $("delete-coach").disabled=true;
+function showCasting(){
+ const room=$("coach-casting");
+ const available=cast.filter(c=>!coaches.some(x=>x.id===c.id));
+ room.innerHTML=available.map(c=>'<button class="coach-card" type="button" data-recruit="'+safe(c.id)+'"><span><strong>'+
+  safe(c.name)+'</strong><small>'+safe(c.specialty)+' — '+safe(c.signature)+'</small><small>'+safe(c.biography)+'</small></span></button>').join("")||
+  '<p class="muted small">Every available character has joined your team.</p>';
+ room.querySelectorAll("[data-recruit]").forEach(button=>button.onclick=async()=>{
+   try{
+    const result=await request("/api/arena/coach/recruit",{id:button.dataset.recruit});
+    coaches=result.coaches;selectedCoach=button.dataset.recruit;
+    await request("/api/arena/coach/activate",{id:selectedCoach});
+    room.classList.add("hidden");showCoaches();
+    $("coach-status").textContent="Meet "+coaches.find(c=>c.id===selectedCoach).name+". Their character and voice are ready.";
+   }catch(error){$("coach-status").textContent=error.message;}
+ });
 }
 $("new-coach").onclick=()=>{
- if(coaches.length>=5)return;
- selectedCoach=null;clearCoachEditor();showCoaches();
- // showCoaches selects current; blank fields are an explicit new coach draft
- selectedCoach=null;clearCoachEditor();
- $("coach-name").focus();
- $("coach-status").textContent="New custom coach. Fill in a name and specialty, then Save.";
+ showCasting();
+ $("coach-casting").classList.toggle("hidden");
 };
 $("coach-rate").oninput=()=>$("coach-rate-value").textContent=Number($("coach-rate").value).toFixed(2)+"x";
 $("save-coach").onclick=async()=>{
+ const id=$("coach-editor").dataset.id;
+ const coach=coaches.find(c=>c.id===id);
+ if(!coach)return;
  try{
-   const data={
-     name:$("coach-name").value,specialty:$("coach-specialty").value,biography:$("coach-bio").value,
-     tone:$("coach-tone").value,voice:$("coach-voice").value,rate:Number($("coach-rate").value),skill:Number($("coach-skill").value),style:$("coach-style").value,quirk:$("coach-quirk").value
-   };
-   const id=$("coach-editor").dataset.id;
-   if(id)data.id=id;
+   const data={...coach,skill:Number($("coach-skill").value),style:$("coach-style").value,
+               rate:Number($("coach-rate").value)};
    const result=await request("/api/arena/coach/save",data);
-   coaches=result.coaches;
-   selectedCoach=id||coaches[coaches.length-1].id;
-   await request("/api/arena/coach/activate",{id:selectedCoach});
-   showCoaches();
-   $("coach-status").textContent="Coach saved locally. Your other coaches and training history are unchanged.";
+   coaches=result.coaches;selectedCoach=id;showCoaches();
+   $("coach-status").textContent="Playing strength saved. "+coach.name+"'s personality is unchanged.";
  }catch(e){$("coach-status").textContent=e.message;}
 };
 $("delete-coach").onclick=async()=>{
@@ -133,7 +131,7 @@ $("delete-coach").onclick=async()=>{
  if(!id||!confirm("Delete this coach profile? Saved games and scores remain untouched."))return;
  try{const result=await request("/api/arena/coach/delete",{id});
   coaches=result.coaches;selectedCoach=null;window.ChessGrindSelectedCoachOpponent=null;showCoaches();
-  if(!coaches.length)clearCoachEditor();
+  if(!coaches.length){$("coach-personality").textContent="Choose a new member for your coaching team.";$("coach-editor").dataset.id="";}
   $("coach-status").textContent="Coach removed.";
  }catch(e){$("coach-status").textContent=e.message;}
 };
@@ -214,7 +212,7 @@ async function initialize(){
   showMasters();
   const roster=await request("/api/arena/roster");
   bots=roster.bots;coaches=roster.coaches;selectedCoach=roster.activeCoach;
-  $("coach-voice").innerHTML=roster.voices.map(v=>'<option value="'+safe(v)+'">'+safe(v)+'</option>').join("");
+  cast=roster.coachCast||[];
   window.ChessGrindSelectedBot=null;
   const masterRequested=new URLSearchParams(location.search).get("master");
   if(masterList.some(m=>m.id===masterRequested)){

@@ -206,13 +206,13 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
    <div>
     <div class="panel" id="coach-studio">
      <div class="row between"><div><div class="kicker">Your private coaching staff</div><h2>Meet your chess coaches</h2></div><span class="pill" id="coach-count">0 / 5 coaches</span></div>
-     <p class="muted small" style="margin-top:7px">Customize up to five coaches with a name, specialty, coaching tone, biography and speaking voice. Profiles stay on this PC. Spoken coaching never reveals a puzzle's solution before grading.</p>
+     <p class="muted small" style="margin-top:7px">Choose up to five distinct mentors. Each has a fixed personality, strengths, teaching philosophy, and signature voice. You choose the coach you connect with; their quirks are part of the character.</p>
      <div id="coach-gallery" class="coach-grid" aria-label="Saved chess coaches"></div>
-     <div class="row"><button class="btn alt" id="new-coach" type="button">+ Create coach</button><span class="small muted" id="voice-backend">Checking voice engine...</span></div>
+     <div class="row"><button class="btn alt" id="new-coach" type="button">+ Meet another coach</button><span class="small muted" id="voice-backend">Checking voice engine...</span></div>
+     <div id="coach-casting" class="coach-grid hidden" aria-label="Available coach characters"></div>
      <div id="coach-editor">
+      <p id="coach-personality" class="notice">Choose a coach to learn their teaching style.</p>
       <div class="coach-fields">
-       <label>Coach name<input id="coach-name" maxlength="48" placeholder="Coach name"></label>
-       <label>Specialty<input id="coach-specialty" maxlength="70" placeholder="Tactics, endgames, openings..."></label>
        <label>Opponent strength (Stockfish 0-20)<select id="coach-skill">
        <option value="0">0 - learning the moves</option><option value="2">2 - newcomer</option>
        <option value="4">4 - beginner</option><option value="6">6 - developing</option>
@@ -221,24 +221,12 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
        <option value="16">16 - expert challenge</option><option value="18">18 - very strong</option>
        <option value="20">20 - maximum skill</option></select></label>
        <label>Opponent playing style<select id="coach-style"><option value="balanced">Balanced</option><option value="active">Active / tactical</option><option value="solid">Solid / quiet</option></select></label>
-       <label>Teaching quirk<select id="coach-quirk">
-<option value="threats">Always asks about opponent threats</option>
-<option value="candidates">Demands two candidate moves</option>
-<option value="piece-safety">Obsessed with undefended pieces</option>
-<option value="king-safety">King safety comes first</option>
-<option value="pawn-structure">Pawn structure specialist</option>
-<option value="endgame">Counts king and pawn tempos</option>
-<option value="quiet">Minimalist: only important moments</option>
-</select></label>
-<label>Coaching tone<select id="coach-tone"><option value="supportive">Encouraging</option><option value="challenging">Demanding</option><option value="analytical">Analytical</option><option value="playful">Playful</option><option value="calm">Calm</option></select></label>
-       <label>Voice<select id="coach-voice"></select></label>
-       <label class="wide">Backstory / approach<textarea id="coach-bio" maxlength="300" placeholder="What kind of chess coach are they?"></textarea></label>
        <label class="wide">Speaking speed: <span id="coach-rate-value">1.00x</span><input id="coach-rate" type="range" min="0.7" max="1.4" step="0.05" value="1"></label>
       </div>
       <div class="coach-actions">
-       <button class="btn" id="save-coach" type="button">Save coach</button>
+       <button class="btn" id="save-coach" type="button">Save playing level</button>
        <button class="btn alt" id="coach-preview" type="button">Hear voice sample</button>
-       <button class="btn alt" id="delete-coach" type="button">Delete</button>
+       <button class="btn alt" id="delete-coach" type="button">Remove from my team</button>
       </div>
      </div>
      <div class="voice-line">

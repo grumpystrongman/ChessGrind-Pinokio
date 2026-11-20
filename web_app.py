@@ -374,7 +374,7 @@ class Handler(BaseHTTPRequestHandler):
                         "/api/repertoire/save","/api/repertoire/takeaway","/api/repertoire/grade","/api/endgame/play",
                         "/api/opening-course/submit","/api/opening-course/knowledge","/api/opening-course/concept-grade",
                         "/api/masters/analyze","/api/masters/predict","/api/masters/ask",
-                        "/api/settings/chesscom","/api/sparring/start","/api/sparring/move","/api/sparring/resign","/api/sparring/review","/api/sparring/draw","/api/sparring/continue","/api/arena/coach/save","/api/arena/coach/delete","/api/arena/coach/activate","/api/arena/voice/speak"):
+                        "/api/settings/chesscom","/api/sparring/start","/api/sparring/move","/api/sparring/resign","/api/sparring/review","/api/sparring/draw","/api/sparring/continue","/api/arena/coach/recruit","/api/arena/coach/save","/api/arena/coach/delete","/api/arena/coach/activate","/api/arena/voice/speak"):
             self.send_error(404);return
         host=self.headers.get('Host','').lower().strip()
         origin=self.headers.get('Origin','')
@@ -428,6 +428,9 @@ class Handler(BaseHTTPRequestHandler):
             elif path=="/api/repertoire/takeaway":
                 from opening_repertoire import save_takeaway
                 self.respond(save_takeaway(payload.get("fen",""),payload.get("note","")))
+            elif path=="/api/arena/coach/recruit":
+                from arena_personas import recruit_coach
+                self.respond(recruit_coach(payload.get("id","")))
             elif path=="/api/arena/coach/save":
                 from arena_personas import save_coach
                 self.respond(save_coach(payload))

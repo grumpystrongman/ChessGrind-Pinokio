@@ -54,6 +54,56 @@ QUIRKS={
  "endgame":"Counts king and pawn tempos",
  "quiet":"Says less and only speaks on big decisions"
 }
+# Character canon. Players choose who to work with, never manufacture a quirk.
+# Every coach has a distinct teaching philosophy, cadence and default voice.
+COACH_CAST=[
+ dict(id="coach-mentor",name="Coach Morgan",specialty="Whole-board awareness",
+      tone="supportive",quirk="threats",voice="af_sarah",rate=0.96,skill=8,style="balanced",
+      biography="The patient neighborhood mentor. Encourages good decisions, notices threats before tactics, and celebrates progress without excessive praise.",
+      signature="What changed for your opponent?"),
+ dict(id="coach-tactics",name="Coach Quinn",specialty="Calculation and tactics",
+      tone="challenging",quirk="candidates",voice="am_michael",rate=1.10,skill=12,style="active",
+      biography="A demanding puzzle-room veteran who insists on two candidate moves and concrete variations. Rarely accepts a vague explanation.",
+      signature="Give me the second candidate."),
+ dict(id="coach-iris",name="Coach Iris",specialty="Positional and pawn play",
+      tone="analytical",quirk="pawn-structure",voice="bf_emma",rate=0.94,skill=14,style="solid",
+      biography="A meticulous positional strategist who remembers pawn weaknesses long after flashy tactics fade.",
+      signature="Which weakness stays behind?"),
+ dict(id="coach-rook",name="Coach Rook",specialty="Practical defense and safety",
+      tone="playful",quirk="piece-safety",voice="am_adam",rate=1.12,skill=10,style="active",
+      biography="A warm but mischievous former hustler who spots hanging pieces, tells memorable stories, and gets animated when material is gifted.",
+      signature="Who left that piece unattended?"),
+ dict(id="coach-vera",name="Coach Vera",specialty="Endgame and precision",
+      tone="calm",quirk="endgame",voice="bf_isabella",rate=0.86,skill=16,style="solid",
+      biography="A quiet endgame technician who speaks only when she has something concrete to add. Loves opposition, king activity and tempi.",
+      signature="Count the tempi."),
+]
+CAST_INDEX={c["id"]:c for c in COACH_CAST}
+def _character(c):
+    person=CAST_INDEX.get(c.get("id"))
+    if not person:return {"character":False,"signature":"A coach selected for their individual approach"}
+    # Canonical character identity and personality are fixed and not editable.
+    return {**c,**{k:v for k,v in person.items() if k not in ("skill", "style", "rate")},
+            "character":True}
+
+def recruit_coach(identifier):
+    if identifier not in CAST_INDEX:raise ValueError("Choose an available coach")
+    with LOCK:
+        rows=coaches()
+        if any(row["id"]==identifier for row in rows):raise ValueError("This coach is already on your team")
+        if len(rows)>=COACH_LIMIT:raise ValueError("Your five coaching spots are full")
+        rows.append(dict(CAST_INDEX[identifier]))
+        _write_coaches(rows)
+        return {"coaches":coaches(),"limit":COACH_LIMIT}
+
+def _write_coaches(rows):
+    HOME.mkdir(parents=True,exist_ok=True)
+    tmp=FILE.with_suffix(".tmp")
+    try:
+        tmp.write_text(json.dumps(rows,indent=2),encoding="utf8")
+        tmp.replace(FILE)
+    finally:tmp.unlink(missing_ok=True)
+
 DEFAULTS=[
  dict(id="coach-mentor",name="Coach Morgan",specialty="Whole-game mentor",tone="supportive",voice="af_sarah",rate=1.0,
       biography="A patient club mentor who explains decisions in plain language.",quirk="threats"),
@@ -93,9 +143,9 @@ def coaches():
         if FILE.exists():
             try:
                 raw=json.loads(FILE.read_text("utf8"))
-                if isinstance(raw,list):return [normalized_coach(x) for x in raw[:COACH_LIMIT]]
+                if isinstance(raw,list):return [_character(normalized_coach(x)) for x in raw[:COACH_LIMIT]]
             except (ValueError,OSError):pass
-        return [normalized_coach(x) for x in DEFAULTS]
+        return [_character(normalized_coach(x)) for x in DEFAULTS]
 def save_coach(payload):
     checked=_check(payload)
     with LOCK:
@@ -104,6 +154,9 @@ def save_coach(payload):
         if identifier is not None and (not isinstance(identifier,str) or not re.fullmatch("[a-z0-9-]{3,50}",identifier)):
             raise ValueError("Invalid coach ID")
         matched=next((i for i,x in enumerate(rows) if x["id"]==identifier),None)
+        if matched is not None and identifier in CAST_INDEX:
+            person=CAST_INDEX[identifier]
+            checked.update({k:person[k] for k in ("name","specialty","biography","tone","quirk","voice")})
         if matched is None:
             if len(rows)>=COACH_LIMIT:raise ValueError("Maximum of five coaches reached. Edit or delete one.")
             import secrets
@@ -144,5 +197,5 @@ def select_active_coach(identifier):
         return {"activeCoach":identifier}
 
 def roster():
-    return {"bots":BOT_ROSTER,"coaches":coaches(),"activeCoach":active_coach(),"coachLimit":COACH_LIMIT,
+    return {"bots":BOT_ROSTER,"coaches":coaches(),"coachCast":COACH_CAST,"activeCoach":active_coach(),"coachLimit":COACH_LIMIT,
       "voices":list(KOKORO_VOICES),"disclaimer":"Fictional personas; Stockfish chooses all moves. Skill numbers and thinking budgets are not calibrated human Elo ratings."}

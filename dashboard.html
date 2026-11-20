@@ -163,7 +163,7 @@ footer{color:#819795;font-size:11px;margin-top:26px}.progress-rail{display:flex;
  <div id="home-coach-cards" class="home-coach-cards" aria-label="Your saved chess coaches"><p>Loading your coaches...</p></div>
  <div id="home-coach-status" class="small muted" aria-live="polite"></div>
  <div class="coach-home-quick"><a class="button" href="/arena?tab=play" id="home-coach-play">Play with a coach</a>
- <a class="button alt" href="/arena?tab=play#coach-studio">Create or edit a coach</a>
+ <a class="button alt" href="/arena?tab=play#coach-studio">Meet the coaching team</a>
  <button type="button" class="button alt" onclick="setView('coach')">Ask a chess question</button>
  <a class="button alt" href="/academy">Practice tactical puzzles</a>
  <a class="button alt" href="/arena?tab=play#master-challenges">Challenge a chess master</a></div>
@@ -743,6 +743,10 @@ for(const area of ["puzzle","review"]){
   const roster=await response.json();
   const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const pictures=["sage","plum","copper","arctic","gold"];
+const portrait=c=>{
+ const fixed={"coach-mentor":"sage","coach-tactics":"copper","coach-iris":"plum","coach-rook":"gold","coach-vera":"arctic"};
+ return fixed[c.id]||pictures[[...c.id].reduce((a,x)=>a+x.charCodeAt(0),0)%pictures.length];
+};
   list.innerHTML=roster.coaches.map((coach,i)=>'<button type="button" class="home-coach-card'+(roster.activeCoach===coach.id?" selected":"")+'" data-coach-id="'+safe(coach.id)+'">'+
     '<img src="/icons/coaches/'+pictures[i%5]+'.svg" alt="Coach portrait"/><span><strong>'+safe(coach.name)+'</strong><small>'+safe(coach.specialty)+'<br>Stockfish skill '+Number(coach.skill??8)+'/20</small></span></button>').join("")||
     '<div class="small muted">No coaches yet. Create your first custom coach in the Coach Arena.</div>';
