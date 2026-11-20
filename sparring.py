@@ -349,6 +349,8 @@ def move(game_id,uci):
                 row["uci_moves"]=json.dumps(history)
                 _update_state(row,board)
             _persist(con,row)
+            from conversational_chess import store_grade
+            store_grade(game_id,len(history),coaching)
             return _response(row,board,{"yourMove":san,"opponentMove":reply,"coaching":coaching})
         finally:con.close()
 

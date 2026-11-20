@@ -97,6 +97,16 @@ def grade(board,move,game_id,ply):
     except (chess.engine.EngineError,chess.engine.EngineTerminatedError,OSError,ValueError,KeyError):
         return None
     if score is None or actual is None:return None
+    def san_line(pv):
+        replay=board.copy()
+        out=[]
+        for action in (pv or [])[:5]:
+            if action not in replay.legal_moves:break
+            out.append(replay.san(action))
+            replay.push(action)
+        return out
+    best_line=san_line(first.get("pv",[]))
+    played_line=san_line(chosen.get("pv",[]))
     loss=max(0,score-actual)
     if best==move:category="best"
     elif loss<=45:category="strong"
@@ -127,6 +137,8 @@ def grade(board,move,game_id,ply):
     show=category in ("best","mistake","blunder") or (category=="inaccuracy" and ply%4==1) or repeated
     return {"category":category,"yourSan":played,"bestSan":preferred,
             "lossCp":loss,"depth":9,"topic":topic,"struggling":repeated,
+            "topLine":best_line,"playedLine":played_line,
+            "scoreCp":score,"playedScoreCp":actual,
             "message":comment if show else None,"speak":bool(speak and show),
             "coach":(who or {}).get("name","Coach"),
             "scope":"Shallow, time-limited engine assessment. Not a proof of a forced outcome."}
