@@ -150,6 +150,11 @@ footer{color:#819795;font-size:11px;margin-top:26px}.progress-rail{display:flex;
 </aside><main>
 <section id="overview" class="view active">
 <div class="top"><div><div class="eyebrow">PERSONAL CHESS INTELLIGENCE</div><h1>Get stronger, one move at a time.</h1><p class="sub">Your game history, engine feedback, and training priorities—all in one place.</p></div><span class="chip" id="current-account-chip">● &nbsp; CHESS.COM · YOUR ACCOUNT</span></div>
+<div id="local-ai-health" class="card" style="display:none;margin-bottom:16px;border-color:#59765b" role="status" aria-live="polite">
+  <div class="card-title"><h2>Local AI & character voices</h2><span id="local-ai-health-label" class="tag">Checking</span></div>
+  <p id="local-ai-health-details" class="sub">Checking conversational AI and speech...</p>
+  <p id="local-ai-health-help" class="small muted" style="margin:9px 0 0"></p>
+</div>
 <div id="account-setup-hint" class="card" style="display:none;border-color:#9f8760;margin-bottom:17px">
   <h2>Connect your own Chess.com account</h2><p class="sub">Enter your username once, then Chess Grind can analyze your public games and tailor your chess lessons.</p>
   <a href="/settings" class="button" style="display:inline-block;text-decoration:none;margin-top:8px">Set up my account →</a>
@@ -762,5 +767,35 @@ const coachImage=c=>["coach-mentor","coach-tactics","coach-iris","coach-rook","c
   }
   document.getElementById("home-coach-play").textContent=count?"Choose a coach to play":"Create my first coach";
  }catch(error){list.textContent="Your coaching team could not load: "+error.message;}
+})();
+// Installation readiness appears on the first dashboard only; this is a
+// read-only local status check, not a network or model download.
+(async function showLocalCapabilities(){
+ const panel=document.getElementById("local-ai-health");
+ const label=document.getElementById("local-ai-health-label");
+ const detail=document.getElementById("local-ai-health-details");
+ const help=document.getElementById("local-ai-health-help");
+ try{
+  const response=await fetch("/api/chess/setup/status",{cache:"no-store"});
+  if(!response.ok)throw Error("Installation status unavailable");
+  const status=await response.json();
+  const ai=Boolean(status.conversationalAIReady),voices=Boolean(status.neuralVoicesReady);
+  label.textContent=ai&&voices?"READY":"SETUP INCOMPLETE";
+  detail.textContent="Conversational coaches: "+(ai?"ready ("+status.selectedChatModel+")":"not yet ready")+
+       " · Character neural voices: "+(voices?"ready":"not yet ready")+".";
+  if(!ai||!voices){
+    help.textContent="Chess is playable. Open ChessGrind in Pinokio and choose “Repair local AI & character voices” to install the missing components.";
+    panel.style.borderColor="#9f8760";
+    panel.style.display="block";
+  }else{
+    // Avoid a permanent banner when all capabilities work.
+    panel.style.display="none";
+  }
+ }catch(error){
+  label.textContent="UNKNOWN";
+  detail.textContent="Could not verify local AI and voice readiness.";
+  help.textContent="Use the Pinokio installation check or Repair local AI & character voices.";
+  panel.style.display="block";
+ }
 })();
 </script></body></html>
