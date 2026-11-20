@@ -1,17 +1,21 @@
 """Exercise the real ChessGrind local HTTP portrait handler in a fresh checkout."""
 import hashlib
+import os
 import threading
 import unittest
 import urllib.request
 from http.server import ThreadingHTTPServer
 
+# Security intentionally allows only the configured localhost port.
+# Exercise the exact production authentication path rather than bypassing it.
+os.environ["CHESSGRIND_PORT"]="8765"
 from web_app import Handler
 from test_portrait_packaging import BOTS,COACHES
 
 class PortraitServerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.http=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        cls.http=ThreadingHTTPServer(("127.0.0.1",int(os.environ["CHESSGRIND_PORT"])),Handler)
         cls.server_thread=threading.Thread(target=cls.http.serve_forever,daemon=True)
         cls.server_thread.start()
         cls.base="http://127.0.0.1:"+str(cls.http.server_address[1])
