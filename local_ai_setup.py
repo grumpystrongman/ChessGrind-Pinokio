@@ -144,15 +144,20 @@ def _signed_windows_install():
         verifier.write_text(
             "param([Parameter(Mandatory=$true)][string]$InstallerPath)\n"
             "$sig=Get-AuthenticodeSignature -LiteralPath $InstallerPath\n"
-            "if($sig.Status -ne 'Valid' -or "
-            "$sig.SignerCertificate.Subject -notmatch '(^|, )O=Ollama Inc\\.(,|$)'){exit 12}\n",
+            "Write-Output ('Authenticode: '+$sig.Status+'; Publisher: '+$sig.SignerCertificate.Subject)\n"
+            "if($sig.Status -ne 'Valid'){exit 11}\n"
+            "if($sig.SignerCertificate.Subject -notmatch '(^|, )O=Ollama Inc\\.(,|$)'){exit 12}\n",
             encoding="utf-8")
         signed=subprocess.run(["powershell.exe","-NoProfile",
                                "-ExecutionPolicy","Bypass","-File",
                                str(verifier),str(destination)],
                  capture_output=True,text=True,timeout=35,creationflags=CREATE_NO_WINDOW)
         if signed.returncode:
-            raise RuntimeError("Ollama installer signature or publisher verification failed")
+            # Signature check remains fail-closed; expose only the public
+            # vendor certificate details so package changes can be diagnosed.
+            detail=(signed.stdout+" "+signed.stderr).strip()[:400]
+            raise RuntimeError("Ollama Authenticode/publisher verification failed ("+
+                               str(signed.returncode)+"): "+detail)
         print("Verified Ollama Inc. signature; installing per-user Ollama...",flush=True)
         installed=subprocess.run([str(destination),
                 "/VERYSILENT","/NORESTART","/SUPPRESSMSGBOXES"],
