@@ -1,0 +1,48 @@
+name: Chess Intelligence regression
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  chess-intelligence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      STOCKFISH_PATH: /usr/games/stockfish
+      CHESSGRIND_SYNC_ON_START: "0"
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install chess test dependencies and Stockfish
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq stockfish
+          python -m pip install --disable-pip-version-check "chess>=1.11" "requests>=2.31"
+      - name: Isolate test data
+        run: echo "CHESS_GRIND_HOME=$(mktemp -d)" >> "$GITHUB_ENV"
+      - name: Check the 3,006 Academy examples
+        run: python academy_quality_audit.py
+      - name: Validate claim guard and 27 coaching identities
+        run: python tests/test_chess_claim_guard.py
+      - name: Install compact Syzygy test corpus
+        run: python install_syzygy.py --pieces 4
+      - name: Verify exact Syzygy and chess game endgame grading
+        run: |
+          python -m unittest discover -s tests -p "test_exact_endgames.py" -v
+          python -m unittest discover -s tests -p "test_endgame_lab_tablebase.py" -v
+      - name: Check legal variations at two engine depths
+        run: python chess_quality_benchmark.py
+      - name: Upload human-readable benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chess-quality-benchmark
+          path: docs/CHESS_QUALITY_BASELINE.json
+          if-no-files-found: ignore
