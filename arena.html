@@ -116,6 +116,79 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
 .voice-line label{display:flex;gap:6px;align-items:center}
 @media(max-width:650px){.coach-fields{grid-template-columns:1fr}.rival-board{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.rival-card{padding:4px}}
 
+
+/* Immersive match is fixed to the browser viewport, not the old sidebar grid. */
+body.match-running{overflow:hidden}
+#game-board-panel.match-room{
+ position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+ z-index:250;background:#111d21;border:0;border-radius:0;padding:0;margin:0;
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(310px,420px);
+ grid-template-rows:66px minmax(0,1fr);gap:0;overflow:hidden;
+}
+.match-room .match-top{
+ grid-column:1/-1;grid-row:1;display:flex;align-items:center;
+ padding:12px 22px;background:#1b3033;border-bottom:1px solid #527166;
+ gap:14px;min-height:0;
+}
+.match-room .match-top h2{font-size:clamp(16px,2vw,24px);flex:1}
+.match-top-actions{display:flex;gap:8px;align-items:center;margin-left:auto}
+.match-top-actions .btn{padding:8px 12px;min-height:39px}
+#match-board-zone{
+ grid-column:1;grid-row:2;display:flex;flex-direction:column;gap:8px;align-items:center;
+ padding:10px 18px 18px;overflow:auto;min-width:0;min-height:0;background:#122124;
+}
+#match-board-zone>.boardwrap{
+ width:min(100%,calc(100dvh - 320px),700px);max-width:700px;
+ flex-shrink:0;margin:0!important;
+}
+#match-board-zone>.boardwrap>.board{width:100%}
+#match-board-zone>.boardmeta,#match-board-zone>.movehistory,
+#match-board-zone>.row,#match-board-zone>.notice{
+ width:min(100%,700px);flex-shrink:0;margin-top:0!important;
+}
+#match-board-zone .movehistory{max-height:65px;min-height:32px;overflow-y:auto}
+#match-board-zone .btn{padding:6px 12px;min-height:34px;font-size:12px}
+#match-board-zone #match-rival{display:none!important}
+#match-board-zone .piece{font-size:clamp(22px,4vw,57px)}
+#match-conversation{
+ grid-column:2;grid-row:2;display:flex;flex-direction:column;min-height:0;min-width:0;
+ background:linear-gradient(165deg,#233b39,#17272d);
+ border-left:1px solid #527166;padding:16px;gap:12px;
+}
+.match-rival-head{display:flex;align-items:center;gap:12px;border-bottom:1px solid #5e806d;padding-bottom:14px;min-height:90px}
+.match-rival-head img{width:82px;height:82px;object-fit:cover;flex-shrink:0;border-radius:16px;border:2px solid #9bc3a3}
+.match-rival-head h2{font-size:22px}.match-rival-head p{font-size:11px;color:#c7dfd1}
+.match-convo-title{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#match-voice-mode{font-size:12px;color:#d3e6c9;border:1px solid #61836e;padding:4px 10px;border-radius:99px}
+#match-chat-log{flex:1;min-height:80px;overflow-y:auto;display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:4px 3px 18px}
+.match-bubble{width:95%;max-width:100%;padding:14px 15px;border-radius:15px 15px 15px 2px;background:#355c4a;border:1px solid #71967b;color:#f5f8ec}
+.match-bubble.analysis{width:92%;align-self:flex-end;border-radius:15px 15px 2px 15px;background:#29444e;border-color:#63838f}
+.match-bubble strong{display:block;font-size:12px;color:#e6f4bf;margin-bottom:4px}
+.match-bubble p{font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.match-inline-hear{border:0;background:transparent;color:#d5f2b1;font-size:11px;text-decoration:underline;padding:6px 0 0;cursor:pointer}
+.match-voice-controls{display:grid;grid-template-columns:1fr 1fr 72px;gap:6px}
+.match-voice-controls .btn{font-size:11px;min-height:40px;padding:6px}
+#match-chat-form{display:flex;gap:7px}
+#match-chat-input{flex:1;min-width:0;border:1px solid #658876;background:#162b2b;color:#f6f8ed;
+ border-radius:10px;padding:10px;font:inherit;font-size:13px}
+#match-chat-submit{padding:8px 14px;min-height:39px}
+.match-bubble.user{align-self:flex-end;border-radius:15px 15px 2px 15px;background:#4a433a;border-color:#8d7f65}
+#match-audio-status{min-height:18px}
+.match-eval{border-top:1px solid #577368;padding-top:10px;font-size:13px}
+#match-eval-text{margin-top:4px;color:#e1eadc}
+#match-resume{margin:10px 0 0 10px}
+@media(max-width:820px){
+ #game-board-panel.match-room{grid-template-columns:minmax(0,1fr);grid-template-rows:60px minmax(0,1fr)}
+ #match-board-zone{grid-column:1;grid-row:2;padding:6px 10px 13px}
+ #match-board-zone>.boardwrap{width:min(100%,calc(100dvh - 315px),550px)}
+ #match-conversation{grid-column:1;grid-row:2;position:absolute;right:0;bottom:0;left:0;height:37%;min-height:180px;
+ border-left:0;border-top:2px solid #749f8a;padding:9px 12px;gap:4px;z-index:4}
+ .match-rival-head{min-height:44px;padding-bottom:5px}.match-rival-head img{width:45px;height:45px}
+ .match-rival-head h2{font-size:15px}.match-rival-head p{display:none}
+ #match-chat-log{gap:5px}.match-bubble{padding:7px 10px}.match-bubble p{font-size:12px}
+ .match-voice-controls .btn{min-height:32px}
+ .match-eval{display:none}
+}
 </style></head>
 <body>
 <header><a class="brand" href="/learn">CHESS<b>GRIND</b></a><span class="header-label">Your personal Coach Arena</span><div class="header-actions"><a href="/workshop">Calculation Workshop</a><a href="/learn">← Learning Lab</a></div></header>
@@ -399,6 +472,7 @@ function renderGame(g){
   setMessage("Stockfish is thinking…");
   // No scripted commentary while the opponent thinks.
  }
+ window.ChessGrindMatch?.render(g);
 }
 function selectGame(id){
  return api("/api/sparring/game?id="+encodeURIComponent(id)).then(g=>{review=null;
@@ -442,7 +516,7 @@ $("start-game").onclick=async()=>{
    coachOpponentId:window.ChessGrindSelectedMaster?null:window.ChessGrindSelectedCoachOpponent,
    masterId:window.ChessGrindSelectedMaster});
   review=null;$("review-panel").classList.add("hidden");renderGame(g);refreshGames();
-  $("game-board-panel").scrollIntoView({behavior:"smooth",block:"nearest"});
+
   $("start-error").textContent="";
  }catch(e){$("start-error").textContent=e.message}
  finally{btn.disabled=false;btn.textContent="Start a new game →"}
@@ -593,4 +667,5 @@ loadPlan();refreshGames();
 const q=new URLSearchParams(location.search);if(q.get("tab")==="play")chooseTab("play");
 </script>
 <script src="/arena-personas.js"></script>
+<script src="/arena-match.js"></script>
 </body></html>

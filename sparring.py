@@ -89,8 +89,14 @@ def _response(row, board, detail=None):
         replay.push(move)
         moves.append({"san":san,"uci":uci,"fen":replay.fen(),
                       "by":"White" if not replay.turn else "Black"})
+    from rival_dialogue import dialogue
+    detail=detail or {}
+    grade=(detail.get("coaching") or {}).get("category")
+    mode="intro" if not moves or (len(moves)==1 and row["user_color"]=="Black") else "turn"
+    speech=dialogue(row["difficulty"],mode,len(moves),grade,row["state"]=="finished",detail.get("yourMove"),detail.get("opponentMove"))
     return {"id":row["id"],"fen":board.fen(),"startFen":row["start_fen"],
         "color":row["user_color"],"difficulty":row["difficulty"],"style":row["style"],
+        "rivalDialogue":speech,
        "bot":BOT_INDEX.get(row["difficulty"][4:]) if row["difficulty"].startswith("bot:") else None,
        "masterOpponent":_master_metadata(row["difficulty"][7:])
                       if row["difficulty"].startswith("master:") else None,
