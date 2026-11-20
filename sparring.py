@@ -331,6 +331,7 @@ def move(game_id,uci):
             san=board.san(chosen)
             from live_coach import grade
             coaching=grade(board,chosen,game_id,len(json.loads(row["uci_moves"]))+1)
+            before_fen=board.fen()
             history=json.loads(row["uci_moves"]);history.append(chosen.uci())
             board.push(chosen)
             row["uci_moves"]=json.dumps(history)
@@ -351,6 +352,14 @@ def move(game_id,uci):
             _persist(con,row)
             from conversational_chess import store_grade
             store_grade(game_id,len(history),coaching)
+            if coaching:
+                try:
+                    from chess_knowledge import record_player_move
+                    record_player_move(game_id,len(history)-int(bool(reply)),before_fen,
+                                       chosen.uci(),coaching)
+                except (OSError,ValueError,RuntimeError):
+                    # Knowledge collection cannot invalidate a legal played move.
+                    pass
             return _response(row,board,{"yourMove":san,"opponentMove":reply,"coaching":coaching})
         finally:con.close()
 

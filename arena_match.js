@@ -34,7 +34,8 @@ chat.innerHTML=[
  '<form id="match-chat-form" class="match-send"><input id="match-chat-input" maxlength="300" aria-label="Message your chess rival" placeholder="Ask about the game or say something..." required><button class="btn" type="submit" id="match-chat-submit">Send</button></form>',
  '<div class="match-voice-controls"><button class="btn" id="match-voice-toggle" type="button">Enable voice</button><button class="btn alt" id="match-hear" type="button">Hear last line</button><button class="btn alt" id="match-stop" type="button">Stop</button></div>',
  '<p class="small muted" id="match-audio-status">Every speech bubble is readable. Voice playback is optional.</p>',
- '<div class="match-eval"><span class="kicker">Board evaluation</span><p id="match-eval-text">Your moves will be reviewed at a limited engine depth.</p></div>'
+ '<div class="match-eval"><span class="kicker">Board evaluation</span><p id="match-eval-text">Your moves will be reviewed at a limited engine depth.</p></div>',
+ '<div class="match-evidence"><div class="kicker">Chess intelligence</div><div class="match-evidence-actions"><button class="btn alt" type="button" id="match-study">Related lessons</button><button class="btn alt" type="button" id="match-verify" disabled title="Engine variations unlock after the game ends">Engine variations</button></div><div id="match-evidence-output" aria-live="polite" class="small muted">Related teaching examples are available for this board.</div></div>'
 ].join("");
 let gameId=null,lines=[],lastRival=null,enabled=false,currentAudio=null,speechToken=0;
 try{enabled=localStorage.getItem("chessgrind.rivalSpeech")==="on";}catch(e){}
@@ -211,6 +212,62 @@ $("match-chat-form").onsubmit=async event=>{
   add({key:gameId+":system:"+timestamp,type:"analysis",name:"Connection",text:error.message});
  }finally{send.disabled=false;input.focus();}
 };
+async function showEvidence(mode){
+ if(!gameId)return;
+ const out=$("match-evidence-output");
+ out.textContent=mode==="engine"?"Analyzing the current board with Stockfish...":"Searching local knowledge graph...";
+ try{
+   const r=await fetch(mode==="engine"?"/api/chess/knowledge/verify":"/api/chess/knowledge/evidence",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({gameId,query:"board vision and typical mistakes",depth:12,multipv:3})});
+   const data=await r.json();
+   if(!r.ok)throw Error(data.error||"Evidence not available");
+   out.replaceChildren();
+   if(mode==="engine"){
+    const header=document.createElement("p");
+    header.textContent=data.terminal?
+      "Terminal position: "+data.result:
+      "Depth "+data.depthRequested+" MultiPV ("+data.candidates.length+" candidates). Estimates, not forced truth.";
+    out.append(header);
+    for(const c of data.candidates||[]){
+      const item=document.createElement("p");
+      item.textContent=c.firstSan+" · "+(c.mate!==null&&c.mate!==undefined?
+         "mate "+c.mate:(c.cp/100).toFixed(2)+" pawns")+" · "+
+         c.variation.map(x=>x.san).join(" ");
+      out.append(item);
+    }
+    if(data.tablebase){
+      const status=document.createElement("p");
+      status.textContent="Exact local tablebase: WDL "+data.tablebase.wdl+
+         (data.tablebase.dtz===null?"":"; DTZ "+data.tablebase.dtz);
+      out.append(status);
+    }
+   }else{
+    const header=document.createElement("p");
+    header.textContent=data.examples.length+" sourced examples · "+data.concepts.join(", ")+
+       ". Similarity does not prove a move is best.";
+    out.append(header);
+    for(const example of data.examples.slice(0,5)){
+      const item=document.createElement("div");
+      item.className="match-evidence-item";
+      const title=document.createElement("strong");
+      title.textContent=example.source_kind+" · "+example.match+" · "+(example.concept_id||"general");
+      const description=document.createElement("p");
+      description.textContent=example.text.slice(0,400);
+      item.append(title,description);
+      out.append(item);
+    }
+    if(data.learning?.length){
+      const patterns=document.createElement("p");
+      patterns.textContent="Your recurring study themes: "+
+        data.learning.slice(0,3).map(x=>x.concept_id+" ("+x.errors+" mistakes, "+x.successes+" good moves)").join("; ");
+      out.append(patterns);
+    }
+   }
+ }catch(error){out.textContent="Could not retrieve chess evidence: "+error.message;}
+}
+$("match-study").onclick=()=>showEvidence("study");
+$("match-verify").onclick=()=>showEvidence("engine");
 $("match-hear").onclick=()=>talk(lastRival);
 $("match-stop").onclick=stop;
 $("match-native-fullscreen").onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await panel.requestFullscreen();}catch(e){$("match-audio-status").textContent="The match already fills the browser viewport.";}}; 
@@ -225,6 +282,7 @@ window.ChessGrindMatch={
   }
   open();voiceButtons();
   const finished=game.state!=="active";
+  $("match-verify").disabled=!finished;
   reviewTop.classList.toggle("hidden",!finished);
   if(!finished)viewConversation();
 

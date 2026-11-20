@@ -155,6 +155,9 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_error(404);return
                 self.send_bytes((ROOT/"icons"/"masters"/filename).read_bytes(),mime="image/svg+xml")
                 return
+            if path=="/api/chess/knowledge/status":
+                from chess_knowledge import status,mastery
+                self.respond({"index":status(),"learning":mastery()});return
             if path=="/api/arena/roster":
                 from arena_personas import roster
                 self.respond(roster());return
@@ -394,7 +397,7 @@ class Handler(BaseHTTPRequestHandler):
                         "/api/repertoire/save","/api/repertoire/takeaway","/api/repertoire/grade","/api/endgame/play",
                         "/api/opening-course/submit","/api/opening-course/knowledge","/api/opening-course/concept-grade",
                         "/api/masters/analyze","/api/masters/predict","/api/masters/ask",
-                        "/api/settings/chesscom","/api/sparring/start","/api/sparring/move","/api/sparring/resign","/api/sparring/review","/api/sparring/draw","/api/sparring/continue","/api/sparring/chat","/api/sparring/dialogue","/api/arena/coach/recruit","/api/arena/coach/save","/api/arena/coach/delete","/api/arena/coach/activate","/api/arena/voice/speak"):
+                        "/api/settings/chesscom","/api/sparring/start","/api/sparring/move","/api/sparring/resign","/api/sparring/review","/api/sparring/draw","/api/sparring/continue","/api/chess/knowledge/evidence","/api/chess/knowledge/verify","/api/sparring/chat","/api/sparring/dialogue","/api/arena/coach/recruit","/api/arena/coach/save","/api/arena/coach/delete","/api/arena/coach/activate","/api/arena/voice/speak"):
             self.send_error(404);return
         host=self.headers.get('Host','').lower().strip()
         origin=self.headers.get('Origin','')
@@ -448,6 +451,23 @@ class Handler(BaseHTTPRequestHandler):
             elif path=="/api/repertoire/takeaway":
                 from opening_repertoire import save_takeaway
                 self.respond(save_takeaway(payload.get("fen",""),payload.get("note","")))
+            elif path in ("/api/chess/knowledge/evidence","/api/chess/knowledge/verify"):
+                from sparring import status as chess_game
+                from chess_knowledge import retrieve,mastery
+                # The board is sourced from the server's saved game, never
+                # a client-submitted arbitrary move or an untrusted FEN.
+                game=chess_game(payload.get("gameId",""))
+                if path.endswith("/evidence"):
+                    result=retrieve(game["fen"],str(payload.get("query",""))[:300],limit=6)
+                    result["learning"]=mastery()
+                    self.respond(result)
+                else:
+                    if game["state"]=="active":
+                        self.respond({"error":"Engine alternatives unlock after the game ends."},403)
+                    else:
+                        from verified_chess import verify
+                        self.respond(verify(game["fen"],depth=int(payload.get("depth",10)),
+                                            multipv=int(payload.get("multipv",3))))
             elif path in ("/api/sparring/chat","/api/sparring/dialogue"):
                 from conversational_chess import respond
                 from rival_dialogue import reply
