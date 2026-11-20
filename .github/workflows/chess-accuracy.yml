@@ -59,6 +59,18 @@ jobs:
     steps:
       - name: Check out app
         uses: actions/checkout@v4
+      - name: Validate Pinokio sync launchers
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path ./sync-pinokio.ps1), [ref]$tokens, [ref]$parseErrors) | Out-Null
+          if ($parseErrors.Count) {
+            $parseErrors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+          node --check update.js
+          node --check pinokio/update.js
       - name: Set up Python on Windows
         uses: actions/setup-python@v5
         with:
