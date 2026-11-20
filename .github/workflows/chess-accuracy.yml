@@ -39,10 +39,16 @@ jobs:
           python -m unittest discover -s tests -p "test_endgame_lab_tablebase.py" -v
       - name: Check legal variations at two engine depths
         run: python chess_quality_benchmark.py
+      - name: Validate expanded source and tactical evaluation suites
+        run: |
+          python -m unittest discover -s tests -p "test_chess_accuracy_suite.py" -v
+          python chess_accuracy_suite.py
       - name: Upload human-readable benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: chess-quality-benchmark
-          path: docs/CHESS_QUALITY_BASELINE.json
+          path: |
+            docs/CHESS_QUALITY_BASELINE.json
+            docs/CHESS_ACCURACY_SUITE_REPORT.json
           if-no-files-found: ignore
