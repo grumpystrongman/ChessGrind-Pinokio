@@ -84,7 +84,18 @@ jobs:
           New-Item -ItemType Directory -Force -Path $tmp | Out-Null
           "CHESS_GRIND_HOME=$tmp" >> $env:GITHUB_ENV
       - name: Check Windows source compilation
-        run: python -m compileall -q pinokio/bootstrap.py chess_knowledge.py verified_chess.py endgame_lab.py install_syzygy.py academy_quality_audit.py conversational_chess.py web_app.py
+        run: python -m compileall -q pinokio/bootstrap.py chess_knowledge.py verified_chess.py endgame_lab.py install_syzygy.py academy_quality_audit.py conversational_chess.py web_app.py local_ai_setup.py coach_voice.py
+      - name: Mock first-time Ollama and neural voice installation
+        run: python -m unittest discover -s tests -p "test_local_ai_setup.py" -v
+      - name: Verify both Pinokio menu layouts and repair actions
+        run: |
+          node --check pinokio.js
+          node --check pinokio/pinokio.js
+          node --check install-ai.js
+          node --check pinokio/install-ai.js
+          node --check install-voices.js
+          node --check pinokio/install-voices.js
+          node -e "const names=['./pinokio.js','./pinokio/pinokio.js']; Promise.all(names.map(async x=>{const m=require(x);const links=await m.menu({}, {exists:()=>true,running:()=>false});if(!links.some(k=>k.href==='install-ai.js'))throw Error(x+' lacks AI repair');if(!links.some(k=>k.href==='install-voices.js'))throw Error(x+' lacks voice repair')})).catch(e=>{console.error(e);process.exit(1)})"
       - name: Check all Academy teaching examples
         run: python academy_quality_audit.py
       - name: Check conversation chess-claim rules
