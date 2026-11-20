@@ -432,7 +432,7 @@ class Handler(BaseHTTPRequestHandler):
             elif path=="/api/sparring/start":
                 from sparring import start
                 self.respond(start(payload.get("color","White"),payload.get("difficulty","casual"),
-                                   payload.get("style","balanced"),payload.get("botId")))
+                                   payload.get("style","balanced"),payload.get("botId"),payload.get("coachOpponentId")))
             elif path=="/api/sparring/move":
                 from sparring import move
                 self.respond(move(payload.get("gameId",""),payload.get("uci","")))

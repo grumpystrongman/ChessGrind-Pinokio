@@ -31,3 +31,7 @@ The 3,000 Academy positions are validated variants of authored positions,
 not 3,000 externally sourced, unique human-level puzzles. Before claiming
 puzzle-quality certification, add adversarial ambiguity tests, independent
 difficulty calibration and held-out source positions.
+
+## Playable custom coaches and home entry point
+
+Each of the five locally saved coach cards now carries its own Stockfish skill (0-20) and style (balanced, active, solid). Saved profiles from earlier builds automatically receive skill 8 and balanced style without overwriting names or voice settings. From the home page, choose a coach card to open the Coach Arena with that exact coach selected as the opponent. Coaches also appear at the top of Play & Review, above the 22 fictional preset rivals. The opponent is Stockfish, while the same coach may narrate educational feedback; a voice model does not choose chess moves.

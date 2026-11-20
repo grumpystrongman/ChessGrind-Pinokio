@@ -53,6 +53,21 @@ select{width:100%;max-width:340px;background:#243137;color:var(--ink);border:1px
 footer{color:#819795;font-size:11px;margin-top:26px}.progress-rail{display:flex;gap:4px;margin-top:12px}.seg{height:11px;background:#334541;flex:1;border-radius:3px}.seg.done{background:var(--accent)}
 @media(max-width:1050px){.grid2{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.grid-wide{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 @media(max-width:750px){.layout{display:block}aside{padding:12px 16px;display:block;position:sticky;top:0;z-index:5}.brand{font-size:19px;padding:0}.brand small{display:none}nav{display:flex;overflow:auto;margin-top:9px}.nav{white-space:nowrap;padding:8px 12px}.sidebar-note{display:none}main{padding:25px 16px}.metrics{grid-template-columns:repeat(2,1fr);gap:9px}.grid-wide{grid-template-columns:1fr}.top{flex-direction:column}.card{padding:16px}}
+
+.coach-home-feature{border:1px solid #6f9761;border-radius:19px;padding:23px;margin:16px 0 24px;background:linear-gradient(122deg,#243e32,#18272c 75%);box-shadow:0 12px 36px #0002}
+.coach-home-heading{display:flex;gap:15px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:8px 0 16px}
+.coach-home-heading h2{font-size:clamp(21px,2.7vw,30px);margin:0 0 8px}
+.coach-home-heading p{max-width:690px;font-size:13px;line-height:1.6;color:#c1d3c8}
+.home-coach-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:11px;margin:15px 0}
+.home-coach-card{display:flex;align-items:center;gap:11px;text-align:left;color:#eef5eb;background:#263f39;border:1px solid #557a61;border-radius:13px;padding:10px;min-width:0}
+.home-coach-card:hover,.home-coach-card.selected{border-color:#d0ef90;background:#375b45}
+.home-coach-card img{width:62px;height:62px;border-radius:11px;flex:none}
+.home-coach-card strong,.home-coach-card small{display:block}
+.home-coach-card small{font-size:11px;color:#bbd6c2;line-height:1.4}
+.coach-home-quick{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:15px}
+.coach-home-quick a{text-decoration:none}
+@media(max-width:750px){.coach-home-feature{padding:16px}.home-coach-cards{grid-template-columns:1fr 1fr}.home-coach-card{gap:7px;padding:7px}.home-coach-card img{width:45px;height:45px}}
+@media(max-width:430px){.home-coach-cards{grid-template-columns:1fr}}
 </style>
 <style id="CHESS_GRIND_TRAINER_V2">
 #refresh-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
@@ -127,6 +142,7 @@ footer{color:#819795;font-size:11px;margin-top:26px}.progress-rail{display:flex;
 <button class="nav active" data-view="overview" aria-label="Overview"><span class="nav-icon" aria-hidden="true">◫</span><span>Home</span></button>
 <button class="nav" data-view="reviews" aria-label="Game reviews"><span class="nav-icon" aria-hidden="true">♟</span><span>Games</span></button>
 <button class="nav" data-view="training" aria-label="Daily training"><span class="nav-icon" aria-hidden="true">◎</span><span>Train</span></button>
+<a class="nav" href="/arena?tab=play" aria-label="My playable chess coaches" style="text-decoration:none;background:#28483a;color:#d0ef94;font-weight:850"><span aria-hidden="true">♟</span><span>MY COACHES & PLAY</span></a>
 <button class="nav" data-view="coach" aria-label="Ask Coach"><span class="nav-icon" aria-hidden="true">✦</span><span>Coach</span></button>
 <button class="nav" data-view="library" aria-label="Book library"><span class="nav-icon" aria-hidden="true">▤</span><span>Books</span></button>
 </nav>
@@ -138,6 +154,19 @@ footer{color:#819795;font-size:11px;margin-top:26px}.progress-rail{display:flex;
   <h2>Connect your own Chess.com account</h2><p class="sub">Enter your username once, then Chess Grind can analyze your public games and tailor your chess lessons.</p>
   <a href="/settings" class="button" style="display:inline-block;text-decoration:none;margin-top:8px">Set up my account →</a>
 </div>
+<section class="coach-home-feature" id="home-coaching" aria-labelledby="home-coach-heading">
+ <div class="eyebrow">YOUR PERSONAL CHESS COACHING TEAM</div>
+ <div class="coach-home-heading"><div>
+   <h2 id="home-coach-heading">Learn with your coach. Challenge your coach.</h2>
+   <p>Choose a custom coach, hear their advice, train together, or play against their Stockfish skill setting. Your saved coaches are available right here.</p>
+ </div><a class="button" href="/arena?tab=play#coach-studio" id="home-edit-coaches">Manage my coaches</a></div>
+ <div id="home-coach-cards" class="home-coach-cards" aria-label="Your saved chess coaches"><p>Loading your coaches...</p></div>
+ <div id="home-coach-status" class="small muted" aria-live="polite"></div>
+ <div class="coach-home-quick"><a class="button" href="/arena?tab=play" id="home-coach-play">Play with a coach</a>
+ <a class="button alt" href="/arena?tab=play#coach-studio">Create or edit a coach</a>
+ <button type="button" class="button alt" onclick="setView('coach')">Ask a chess question</button>
+ <a class="button alt" href="/academy">Practice tactical puzzles</a></div>
+</section>
 <div id="refresh-actions"><button class="button" id="refresh-btn" onclick="refreshAll()">↻ Sync & analyze new games</button><span id="refresh-status">Refresh after playing chess on any time control.</span></div>
 <div class="card" style="background:linear-gradient(120deg,#243f32,#1b2a30);border-color:#506f57;margin-bottom:16px"><div class="row" style="display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap"><div><div class="eyebrow">NEW · ADAPTIVE LEARNING</div><h2 style="margin:5px 0">Learn to see the board without hints.</h2><div class="small muted">Find threats → calculate moves → understand the principle → prove it on a new position.</div></div><a class="button" href="/learn" style="display:inline-block;text-decoration:none">Open Learning Lab →</a></div></div><div id="topic-stats" aria-label="Recurring mistake themes"></div><div id="metrics" class="metrics"></div><div class="card" style="margin-bottom:18px"><div class="card-title"><h2>All your chess, by time control</h2><span class="muted small">Rapid remains the rating benchmark</span></div><div id="mode-summary" style="display:flex;gap:10px;flex-wrap:wrap"></div></div>
 <div class="grid2"><div class="card"><div class="card-title"><h2>Where you're losing points</h2><span class="muted small">Stockfish analysis</span></div><div id="breakdown"></div><div id="topmistakes" class="stack"></div></div>
@@ -702,5 +731,29 @@ for(const area of ["puzzle","review"]){
   if(!settings.configured)$("refresh-status").textContent="Connect your Chess.com account in Settings to enable syncing.";
   else if(!settings.syncEnabled)$("refresh-status").textContent="Chess.com syncing is paused. Enable it in Settings.";
  }catch(e){$("current-chesscom-profile").textContent="Open Settings to configure Chess.com"}
+})();
+</script><script>
+(async function coachHome(){
+ const list=document.getElementById("home-coach-cards");
+ const info=document.getElementById("home-coach-status");
+ try{
+  const response=await fetch("/api/arena/roster");
+  if(!response.ok)throw Error("Could not load your coaching team");
+  const roster=await response.json();
+  const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const pictures=["sage","plum","copper","arctic","gold"];
+  list.innerHTML=roster.coaches.map((coach,i)=>'<button type="button" class="home-coach-card'+(roster.activeCoach===coach.id?" selected":"")+'" data-coach-id="'+safe(coach.id)+'">'+
+    '<img src="/icons/coaches/'+pictures[i%5]+'.svg" alt="Coach portrait"/><span><strong>'+safe(coach.name)+'</strong><small>'+safe(coach.specialty)+'<br>Stockfish skill '+Number(coach.skill??8)+'/20</small></span></button>').join("")||
+    '<div class="small muted">No coaches yet. Create your first custom coach in the Coach Arena.</div>';
+  const count=roster.coaches.length;
+  info.textContent=count+" of 5 coaching profiles saved. Select one to play against, or create another.";
+  for(const card of list.querySelectorAll("[data-coach-id]")){
+   card.onclick=()=>{
+    const coachId=card.getAttribute("data-coach-id");
+    window.location.href="/arena?tab=play&coach="+encodeURIComponent(coachId);
+   };
+  }
+  document.getElementById("home-coach-play").textContent=count?"Choose a coach to play":"Create my first coach";
+ }catch(error){list.textContent="Your coaching team could not load: "+error.message;}
 })();
 </script></body></html>

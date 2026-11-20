@@ -104,7 +104,7 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
 .profile-feature{display:flex;gap:15px;align-items:center;border:1px solid #557b62;border-radius:13px;background:linear-gradient(120deg,#2b4c42,#233a3e);padding:13px;margin:9px 0}
 .profile-feature img{width:68px;height:68px;border-radius:12px;object-fit:cover;flex:none}
 .profile-feature strong{display:block;font-size:19px}.profile-feature span{font-size:12px;color:#cce6c2}.profile-feature p{font-size:12px;color:#d3e4d7;margin-top:4px}
-.coach-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin:13px 0}
+.coach-match-pick{border:1px solid #789973;background:linear-gradient(125deg,#294a3e,#1e3437);padding:16px;border-radius:16px;margin:16px 0}.coach-match-pick .coach-card{min-height:74px}.coach-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin:13px 0}
 .coach-card img{width:58px;height:58px;border-radius:10px;object-fit:cover}
 .coach-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:13px 0}
 .coach-fields label{font-size:12px;font-weight:700;color:#bfd4c4;display:grid;gap:4px}
@@ -156,6 +156,14 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
       <div class="formfield"><label for="game-difficulty">Difficulty</label><select id="game-difficulty"><option value="beginner">Beginner</option><option value="casual" selected>Casual</option><option value="club">Club</option><option value="advanced">Advanced</option></select></div>
       <div class="formfield"><label for="game-style">Style</label><select id="game-style"><option value="balanced">Balanced</option><option value="active">Active / tactical</option><option value="solid">Solid / quiet</option></select></div>
      </div>
+     <div class="coach-match-pick">
+       <div class="kicker">Play your custom coach</div>
+       <h3 style="margin:5px 0 8px">Your coaching team is also available as Stockfish opponents</h3>
+       <p class="muted small">Choose a saved coach below to challenge their configured strength. Or select one of the ready-made rivals farther down. Your chosen mentor's voice remains available during reviews.</p>
+       <div id="coach-opponents" class="coach-grid" aria-label="Your playable coaches"></div>
+       <div id="coach-match-selection" class="notice" role="status">Choose a coach, or select a rival below.</div>
+       <a class="btn alt" href="#coach-studio" style="display:inline-block;margin-top:9px;text-decoration:none">Create or edit my coaches</a>
+     </div>
      <div class="kicker">Choose a rival</div>
      <p class="muted small" style="margin-top:5px">22 fictional opponents: 21 skill steps, plus MAX with unrestricted Stockfish skill and a longer thinking budget. Their biographies are storytelling, not Elo certifications.</p>
      <div class="profile-feature" id="bot-selected" role="status">Loading opponents...</div>
@@ -197,6 +205,14 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
       <div class="coach-fields">
        <label>Coach name<input id="coach-name" maxlength="48" placeholder="Coach name"></label>
        <label>Specialty<input id="coach-specialty" maxlength="70" placeholder="Tactics, endgames, openings..."></label>
+       <label>Opponent strength (Stockfish 0-20)<select id="coach-skill">
+       <option value="0">0 - learning the moves</option><option value="2">2 - newcomer</option>
+       <option value="4">4 - beginner</option><option value="6">6 - developing</option>
+       <option value="8">8 - intermediate</option><option value="10">10 - capable club</option>
+       <option value="12">12 - experienced club</option><option value="14">14 - strong</option>
+       <option value="16">16 - expert challenge</option><option value="18">18 - very strong</option>
+       <option value="20">20 - maximum skill</option></select></label>
+       <label>Opponent playing style<select id="coach-style"><option value="balanced">Balanced</option><option value="active">Active / tactical</option><option value="solid">Solid / quiet</option></select></label>
        <label>Coaching tone<select id="coach-tone"><option value="supportive">Encouraging</option><option value="challenging">Demanding</option><option value="analytical">Analytical</option><option value="playful">Playful</option><option value="calm">Calm</option></select></label>
        <label>Voice<select id="coach-voice"></select></label>
        <label class="wide">Backstory / approach<textarea id="coach-bio" maxlength="300" placeholder="What kind of chess coach are they?"></textarea></label>
@@ -292,7 +308,8 @@ function chooseTab(which){
  $("tab-play").setAttribute("aria-selected",String(play));$("tab-plan").setAttribute("aria-selected",String(!play));
  if(play)refreshGames();
 }
-$("tab-play").onclick=()=>chooseTab("play");$("tab-plan").onclick=()=>chooseTab("plan");
+$("tab-play").onclick=()=>chooseTab("play");
+if(new URLSearchParams(location.search).get("tab")==="play")chooseTab("play");$("tab-plan").onclick=()=>chooseTab("plan");
 $("plan-to-game").onclick=()=>chooseTab("play");
 $("review-plan").onclick=()=>{chooseTab("plan");loadPlan()};
 async function loadPlan(){
@@ -324,7 +341,14 @@ function setCoach(message){const text=window.ChessGrindCoachFormat?.(message)||m
 function renderGame(g){
  game=g;orientation=g.color;selected=null;replayPly=null;
  $("game-board-panel").classList.remove("hidden");
- $("game-title").textContent="Playing "+g.color+" · "+g.difficulty;
+ $("game-title").textContent="Playing "+g.color+" vs "+(g.coachOpponent?.name||g.bot?.name||g.difficulty);
+ const rival=$("match-rival");
+ const opponent=g.coachOpponent||g.bot;
+ if(opponent){
+  rival.classList.remove("hidden");
+  const avatar=g.bot?g.bot.avatar:"/icons/coaches/sage.svg";
+  rival.innerHTML='<img src="'+esc(avatar)+'" alt=""><div><strong>'+esc(opponent.name)+'</strong><span>'+esc(opponent.role||opponent.specialty)+' · '+esc(opponent.title||("Stockfish skill "+opponent.skill))+'</span><p>'+esc(opponent.bio||opponent.biography)+'</p></div>';
+ }else{rival.classList.add("hidden");rival.textContent="";}
  $("game-state-pill").textContent=g.state==="active"?"In progress":"Finished";
  $("resign-game").classList.toggle("hidden",g.state!=="active");
  $("claim-draw").classList.toggle("hidden",!g.canClaimDraw||!g.yourTurn||g.state!=="active");
@@ -388,7 +412,7 @@ $("start-game").onclick=async()=>{
  const btn=$("start-game");btn.disabled=true;btn.textContent="Starting the local opponent…";
  try{
   const g=await api("/api/sparring/start",{color:$("game-color").value,
-   difficulty:$("game-difficulty").value,style:$("game-style").value,botId:window.ChessGrindSelectedBot});
+   difficulty:$("game-difficulty").value,style:$("game-style").value,botId:window.ChessGrindSelectedCoachOpponent?null:window.ChessGrindSelectedBot,coachOpponentId:window.ChessGrindSelectedCoachOpponent});
   review=null;$("review-panel").classList.add("hidden");renderGame(g);refreshGames();
   $("game-board-panel").scrollIntoView({behavior:"smooth",block:"nearest"});
   $("start-error").textContent="";

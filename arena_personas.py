@@ -65,15 +65,26 @@ def _check(record):
     if voice not in KOKORO_VOICES:raise ValueError("Choose an available voice preset")
     rate=record.get("rate",1.0)
     if isinstance(rate,bool) or not isinstance(rate,(int,float)) or not 0.7<=rate<=1.4:raise ValueError("Voice speed must be 0.7-1.4")
-    return dict(name=name,specialty=specialty,biography=biography,tone=tone,voice=voice,rate=float(rate))
+    skill=record.get("skill",8)
+    if isinstance(skill,bool) or not isinstance(skill,int) or not 0<=skill<=20:
+        raise ValueError("Choose Stockfish skill 0-20 for coach challenges")
+    style=record.get("style","balanced")
+    if style not in ("balanced","active","solid"):
+        raise ValueError("Choose a supported play style")
+    return dict(name=name,specialty=specialty,biography=biography,tone=tone,
+                voice=voice,rate=float(rate),skill=skill,style=style)
+def normalized_coach(coach):
+    # Preserve profiles created before playable coaches were introduced.
+    return {"skill":8,"style":"balanced",**coach}
+
 def coaches():
     with LOCK:
         if FILE.exists():
             try:
                 raw=json.loads(FILE.read_text("utf8"))
-                if isinstance(raw,list):return raw[:COACH_LIMIT]
+                if isinstance(raw,list):return [normalized_coach(x) for x in raw[:COACH_LIMIT]]
             except (ValueError,OSError):pass
-        return [dict(x) for x in DEFAULTS]
+        return [normalized_coach(x) for x in DEFAULTS]
 def save_coach(payload):
     checked=_check(payload)
     with LOCK:

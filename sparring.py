@@ -15,7 +15,7 @@ import chess.engine
 from chess_grind import db
 from game_analysis import find_engine
 from lesson_explainer import move_reasons
-from arena_personas import BOT_INDEX
+from arena_personas import BOT_INDEX,coaches
 
 USER = "player"
 GAME_LOCK = threading.RLock()
@@ -91,6 +91,8 @@ def _response(row, board, detail=None):
     return {"id":row["id"],"fen":board.fen(),"startFen":row["start_fen"],
         "color":row["user_color"],"difficulty":row["difficulty"],"style":row["style"],
        "bot":BOT_INDEX.get(row["difficulty"][4:]) if row["difficulty"].startswith("bot:") else None,
+       "coachOpponent":next((c for c in coaches() if c["id"]==row["difficulty"][6:]),None)
+                      if row["difficulty"].startswith("coach:") else None,
        "turn":"White" if side_white else "Black",
        "yourTurn":bool(user_white==side_white),
        "legalMoves":board.legal_moves.count(),"moves":moves,
@@ -107,9 +109,10 @@ def _engine():
 
 def _bot_move(board,difficulty,style):
     persona=BOT_INDEX.get(difficulty[4:]) if difficulty.startswith("bot:") else None
+    coach=next((c for c in coaches() if c["id"]==difficulty[6:]),None) if difficulty.startswith("coach:") else None
     maximum=bool(persona and persona["maxStrength"])
-    skill=persona["skill"] if persona else LEVELS[difficulty]
-    budget=(1.8 if maximum else .15+skill*.027) if persona else (
+    skill=persona["skill"] if persona else (coach["skill"] if coach else LEVELS.get(difficulty,8))
+    budget=(1.8 if maximum else .15+skill*.027) if (persona or coach) else (
         .11 if difficulty in ("beginner","casual") else .22)
     with chess.engine.SimpleEngine.popen_uci(_engine(),timeout=35) as eng:
         eng.configure({"Threads":2 if maximum else 1,"Hash":96 if maximum else 32,
@@ -163,14 +166,25 @@ def _persist(con,row):
         row["updated_at"],row["id"],USER))
     con.commit()
 
-def start(color="White",difficulty="casual",style="balanced",bot_id=None):
+def start(color="White",difficulty="casual",style="balanced",bot_id=None,coach_opponent_id=None):
     if color not in ("White","Black"):raise ValueError("Choose White or Black")
+    if coach_opponent_id is not None:
+        if not isinstance(coach_opponent_id,str):
+            raise ValueError("Select a saved chess coach")
+        selected=next((c for c in coaches() if c["id"]==coach_opponent_id),None)
+        if selected is None:raise ValueError("Coach not found; choose a saved coach")
+        difficulty="coach:"+coach_opponent_id
+        style=selected["style"]
+    if bot_id is not None and coach_opponent_id is not None:
+        raise ValueError("Choose either a coach or a rival")
     if bot_id is not None:
         if not isinstance(bot_id,str) or bot_id not in BOT_INDEX:
             raise ValueError("Unknown chess opponent")
         difficulty="bot:"+bot_id
         style=BOT_INDEX[bot_id]["style"]
-    if difficulty not in LEVELS and not (difficulty.startswith("bot:") and difficulty[4:] in BOT_INDEX):
+    if difficulty not in LEVELS and not (
+        difficulty.startswith("bot:") and difficulty[4:] in BOT_INDEX
+    ) and not (difficulty.startswith("coach:") and difficulty[6:] in {x["id"] for x in coaches()}):
         raise ValueError("Unknown opponent difficulty")
     if style not in STYLES:raise ValueError("Unknown sparring style")
     with GAME_LOCK:

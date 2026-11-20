@@ -8,6 +8,7 @@ const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"
 let bots=[],coaches=[],selectedCoach=null,voiceStatus={available:false};
 let lastAudio=null;
 window.ChessGrindSelectedBot=null;
+window.ChessGrindSelectedCoachOpponent=null;
 async function request(path,data){
  const result=await fetch(path,data===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
  if(!result.ok){let obj;try{obj=await result.json()}catch(e){}throw Error(obj?.error||"Request failed");}
@@ -20,6 +21,7 @@ function showBots(){
  $("bot-gallery").innerHTML=bots.map(b=>'<button type="button" class="rival-card'+(window.ChessGrindSelectedBot===b.id?" chosen":"")+'" data-rival="'+safe(b.id)+'" aria-pressed="'+(window.ChessGrindSelectedBot===b.id)+'"><img loading="lazy" src="'+b.avatar+'" alt="Illustration of '+safe(b.name)+'"/><span><strong>'+safe(b.name)+'</strong><small>'+safe(b.title)+'</small></span></button>').join("");
  $("bot-gallery").querySelectorAll("[data-rival]").forEach(button=>button.onclick=()=>{
    const bot=bots.find(x=>x.id===button.dataset.rival);
+   window.ChessGrindSelectedCoachOpponent=null;
    window.ChessGrindSelectedBot=bot.id;
    $("game-style").value=bot.style;
    detail(bot);showBots();
@@ -27,11 +29,32 @@ function showBots(){
  if(window.ChessGrindSelectedBot)detail(bots.find(x=>x.id===window.ChessGrindSelectedBot));
  else $("bot-selected").innerHTML='<p>Using the manual Stockfish difficulty above.</p>';
 }
+function showPlayableCoaches(){
+ const choice=window.ChessGrindSelectedCoachOpponent;
+ $("coach-opponents").innerHTML=coaches.map((c,i)=>
+  '<button type="button" class="coach-card'+(choice===c.id?" chosen":"")+
+  '" data-play-coach="'+safe(c.id)+'" aria-pressed="'+(choice===c.id)+'">'+
+  '<img src="/icons/coaches/'+["sage","plum","copper","arctic","gold"][i%5]+'.svg" alt=""/>'+
+  '<span><strong>'+safe(c.name)+'</strong><small>'+safe(c.specialty)+' · Skill '+c.skill+'/20</small></span></button>'
+ ).join("")||'<p class="muted small">No coaches saved. Create one below.</p>';
+ $("coach-opponents").querySelectorAll("[data-play-coach]").forEach(el=>el.onclick=()=>{
+  const c=coaches.find(c=>c.id===el.dataset.playCoach);
+  window.ChessGrindSelectedCoachOpponent=c.id;
+  window.ChessGrindSelectedBot=null;
+  selectCoach(c.id);
+  showBots();showPlayableCoaches();
+  $("coach-match-selection").textContent="Ready to play against "+c.name+" at Stockfish skill "+c.skill+"/20. Select Start a new game.";
+ });
+ if(choice&&!coaches.some(c=>c.id===choice))window.ChessGrindSelectedCoachOpponent=null;
+ if(!window.ChessGrindSelectedCoachOpponent)
+  $("coach-match-selection").textContent="Select one of your coaches to play, or choose a rival from the roster.";
+}
 function showCoaches(){
  $("coach-count").textContent=coaches.length+" / 5 coaches";
  $("coach-gallery").innerHTML=coaches.map((c,i)=>'<button type="button" class="coach-card'+(selectedCoach===c.id?" chosen":"")+'" data-coach="'+safe(c.id)+'"><img src="/icons/coaches/'+["sage","plum","copper","arctic","gold"][i%5]+'.svg" alt="" width="58" height="58"/><span><strong>'+safe(c.name)+'</strong><small>'+safe(c.specialty)+'</small></span></button>').join("");
  $("coach-gallery").querySelectorAll("[data-coach]").forEach(b=>b.onclick=selectCoach.bind(null,b.dataset.coach));
  $("new-coach").disabled=coaches.length>=5;
+ showPlayableCoaches();
  if(!selectedCoach||!coaches.some(c=>c.id===selectedCoach)){
    selectedCoach=coaches[0]?.id||null;
  }
@@ -51,6 +74,8 @@ function fill(coach){
  $("coach-tone").value=coach.tone||"supportive";
  $("coach-voice").value=coach.voice||"af_sarah";
  $("coach-rate").value=coach.rate||1;
+ $("coach-skill").value=String(coach.skill??8);
+ $("coach-style").value=coach.style||"balanced";
  $("coach-rate-value").textContent=Number(coach.rate||1).toFixed(2)+"x";
  $("delete-coach").disabled=false;
 }
@@ -68,6 +93,8 @@ function clearCoachEditor(){
  $("coach-tone").value="supportive";
  $("coach-voice").value="af_sarah";
  $("coach-rate").value="1";
+ $("coach-skill").value="8";
+ $("coach-style").value="balanced";
  $("coach-rate-value").textContent="1.00x";
  $("delete-coach").disabled=true;
 }
@@ -84,7 +111,7 @@ $("save-coach").onclick=async()=>{
  try{
    const data={
      name:$("coach-name").value,specialty:$("coach-specialty").value,biography:$("coach-bio").value,
-     tone:$("coach-tone").value,voice:$("coach-voice").value,rate:Number($("coach-rate").value)
+     tone:$("coach-tone").value,voice:$("coach-voice").value,rate:Number($("coach-rate").value),skill:Number($("coach-skill").value),style:$("coach-style").value
    };
    const id=$("coach-editor").dataset.id;
    if(id)data.id=id;
@@ -100,7 +127,7 @@ $("delete-coach").onclick=async()=>{
  const id=$("coach-editor").dataset.id;
  if(!id||!confirm("Delete this coach profile? Saved games and scores remain untouched."))return;
  try{const result=await request("/api/arena/coach/delete",{id});
-  coaches=result.coaches;selectedCoach=null;showCoaches();
+  coaches=result.coaches;selectedCoach=null;window.ChessGrindSelectedCoachOpponent=null;showCoaches();
   if(!coaches.length)clearCoachEditor();
   $("coach-status").textContent="Coach removed.";
  }catch(e){$("coach-status").textContent=e.message;}
@@ -148,15 +175,23 @@ window.ChessGrindCoachAuto=(message)=>{
  if($("coach-autospeak").checked)say(message);
 };
 $("game-difficulty").addEventListener("change",()=>{
- window.ChessGrindSelectedBot=null;showBots();
+ window.ChessGrindSelectedBot=null;
+window.ChessGrindSelectedCoachOpponent=null;showBots();
 });
 async function initialize(){
  try{
   const roster=await request("/api/arena/roster");
   bots=roster.bots;coaches=roster.coaches;selectedCoach=roster.activeCoach;
   $("coach-voice").innerHTML=roster.voices.map(v=>'<option value="'+safe(v)+'">'+safe(v)+'</option>').join("");
-  window.ChessGrindSelectedBot=bots[0]?.id||null;
+  window.ChessGrindSelectedBot=null;
+  const requested=new URLSearchParams(location.search).get("coach");
+  window.ChessGrindSelectedCoachOpponent=coaches.some(c=>c.id===requested)?requested:null;
+  if(window.ChessGrindSelectedCoachOpponent)selectedCoach=window.ChessGrindSelectedCoachOpponent;
   showBots();showCoaches();
+  if(window.ChessGrindSelectedCoachOpponent){
+   const chosen=coaches.find(c=>c.id===window.ChessGrindSelectedCoachOpponent);
+   $("coach-match-selection").textContent="Ready to play "+chosen.name+" at Stockfish skill "+chosen.skill+"/20. Choose your color and Start a new game.";
+  }
   voiceStatus=await request("/api/arena/voice/status");
   $("voice-backend").textContent=voiceStatus.available?"Local neural Kokoro ready":"Browser voice available · Install optional Kokoro for neural speech";
  }catch(error){
