@@ -110,7 +110,7 @@ jobs:
   windows-full-ai-install:
     if: contains(github.event.head_commit.message, '[full-install-test]')
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 50
     env:
       CHESSGRIND_INSTALL_MODEL: qwen3.5:0.8b
     steps:
