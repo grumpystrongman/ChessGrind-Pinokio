@@ -83,7 +83,11 @@ def install(piece_count=4):
     manifest_file=DEST/"installed-manifest.json"
     try:old={x["name"]:x for x in json.loads(manifest_file.read_text("utf8")).get("files",[])}
     except (FileNotFoundError,ValueError,KeyError):old={}
-    lengths={f["name"]:file_size(f["url"]) for f in entries}
+    # Parallel metadata checks keep the 70-file install responsive while
+    # limiting the mirror to three simultaneous HEAD requests.
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as checker:
+        observed=list(checker.map(lambda row:file_size(row["url"]),entries))
+    lengths={row["name"]:size for row,size in zip(entries,observed)}
     total=sum(lengths.values())
     if total>MAX_TOTAL:raise RuntimeError("Refusing unexpectedly large tablebase download.")
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
