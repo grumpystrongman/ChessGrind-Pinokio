@@ -6,7 +6,7 @@ import urllib.request
 from http.server import ThreadingHTTPServer
 
 from web_app import Handler
-from tests.test_portrait_packaging import BOTS,COACHES
+from test_portrait_packaging import BOTS,COACHES
 
 class PortraitServerTests(unittest.TestCase):
     @classmethod
