@@ -102,20 +102,38 @@ def _signed_windows_install():
     if sys.platform!="win32":
         raise RuntimeError("Ollama automatic installation is available only on Windows.")
     if executable():return
-    if hardware()["freeInstallDiskGiB"]<6:
-        raise RuntimeError("At least 6 GiB free space is required to install Ollama and a local model.")
+    # The signed official Windows installer contains sizeable runtime assets.
+    # Check both the installation drive and Windows' TEMP drive (which may
+    # differ when Pinokio itself is installed on D:).
+    install_free=hardware()["freeInstallDiskGiB"]
+    temp_free=shutil.disk_usage(Path(tempfile.gettempdir())).free/(1024**3)
+    if install_free<7 or temp_free<9:
+        raise RuntimeError(
+            "Ollama setup needs at least 7 GiB on the application drive and "
+            "9 GiB free on the Windows temporary drive. "
+            "Currently available: "+str(round(install_free,1))+" / "+
+            str(round(temp_free,1))+" GiB.")
     print("Downloading the official Windows Ollama installer...",flush=True)
     with tempfile.TemporaryDirectory(prefix="ChessGrind-Ollama-") as folder:
         destination=Path(folder)/"OllamaSetup.exe"
         request=urllib.request.Request(INSTALLER,
                         headers={"User-Agent":"ChessGrind-Pinokio/1.0"})
+        # Ollama's Windows release can exceed 1.5 GB; this bounded limit
+        # still prevents accepting a runaway or unexpected payload.
+        maximum=5_000_000_000
         size=0
-        with urllib.request.urlopen(request,timeout=90) as response,destination.open("wb") as out:
+        with urllib.request.urlopen(request,timeout=120) as response,destination.open("wb") as out:
+            announced=int(response.headers.get("Content-Length") or 0)
+            if announced>maximum:
+                raise RuntimeError("Ollama installer exceeds the 5 GB safety limit")
+            if announced:
+                print("Official installer size:",round(announced/(1024**3),2),"GiB",flush=True)
             while True:
                 chunk=response.read(1024*1024)
                 if not chunk:break
                 size+=len(chunk)
-                if size>1_500_000_000:raise RuntimeError("Ollama installer exceeds safe maximum download size")
+                if size>maximum:
+                    raise RuntimeError("Ollama installer exceeds the 5 GB safety limit")
                 out.write(chunk)
         if size<2_000_000:raise RuntimeError("Downloaded Ollama installer is unexpectedly small")
         # Verify the Authenticode signature AND certificate publisher as
