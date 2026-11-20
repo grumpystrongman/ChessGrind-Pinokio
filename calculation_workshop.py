@@ -38,6 +38,8 @@ def ensure(con):
     con.commit()
 
 def _games(con):
+    from game_analysis import ensure_analysis
+    ensure_analysis(con)
     rows=con.execute("SELECT data FROM game_analysis WHERE username=?",(current_username(),)).fetchall()
     return [json.loads(r[0]) for r in rows]
 

@@ -1,0 +1,266 @@
+{
+  "forks": {
+    "total": 500,
+    "unique": 434,
+    "ambiguous": 66,
+    "wrong": 0,
+    "ambiguitySamples": [
+      {
+        "id": "forks-extra-024",
+        "validSquares": [
+          "e5",
+          "g5"
+        ]
+      },
+      {
+        "id": "forks-extra-027",
+        "validSquares": [
+          "b5",
+          "d5"
+        ]
+      },
+      {
+        "id": "forks-extra-028",
+        "validSquares": [
+          "e5",
+          "g5"
+        ]
+      },
+      {
+        "id": "forks-extra-029",
+        "validSquares": [
+          "e5",
+          "g5"
+        ]
+      },
+      {
+        "id": "forks-extra-036",
+        "validSquares": [
+          "e5",
+          "g5"
+        ]
+      },
+      {
+        "id": "forks-extra-054",
+        "validSquares": [
+          "e5",
+          "g5"
+        ]
+      }
+    ],
+    "wrongSamples": []
+  },
+  "pins": {
+    "total": 500,
+    "unique": 493,
+    "ambiguous": 7,
+    "wrong": 0,
+    "ambiguitySamples": [
+      {
+        "id": "pins-extra-163",
+        "validSquares": [
+          "b4",
+          "h6"
+        ]
+      },
+      {
+        "id": "pins-extra-179",
+        "validSquares": [
+          "b6",
+          "f6"
+        ]
+      },
+      {
+        "id": "pins-extra-257",
+        "validSquares": [
+          "b6",
+          "h4"
+        ]
+      },
+      {
+        "id": "pins-extra-273",
+        "validSquares": [
+          "d6",
+          "h6"
+        ]
+      },
+      {
+        "id": "pins-extra-285",
+        "validSquares": [
+          "c5",
+          "g5"
+        ]
+      },
+      {
+        "id": "pins-extra-451",
+        "validSquares": [
+          "c5",
+          "g5"
+        ]
+      }
+    ],
+    "wrongSamples": []
+  },
+  "loose-pieces": {
+    "total": 500,
+    "unique": 426,
+    "ambiguous": 74,
+    "wrong": 0,
+    "ambiguitySamples": [
+      {
+        "id": "loose-pieces-extra-100",
+        "validSquares": [
+          "a6",
+          "g2"
+        ]
+      },
+      {
+        "id": "loose-pieces-extra-104",
+        "validSquares": [
+          "e6",
+          "g2"
+        ]
+      },
+      {
+        "id": "loose-pieces-extra-105",
+        "validSquares": [
+          "c6",
+          "h6"
+        ]
+      },
+      {
+        "id": "loose-pieces-extra-113",
+        "validSquares": [
+          "b7",
+          "e6"
+        ]
+      },
+      {
+        "id": "loose-pieces-extra-116",
+        "validSquares": [
+          "c2",
+          "h6"
+        ]
+      },
+      {
+        "id": "loose-pieces-extra-122",
+        "validSquares": [
+          "c7",
+          "h6"
+        ]
+      }
+    ],
+    "wrongSamples": []
+  },
+  "center": {
+    "total": 500,
+    "unique": 467,
+    "ambiguous": 33,
+    "wrong": 0,
+    "ambiguitySamples": [
+      {
+        "id": "center-extra-107",
+        "validSquares": [
+          "d5",
+          "e5"
+        ]
+      },
+      {
+        "id": "center-extra-119",
+        "validSquares": [
+          "d4",
+          "e4"
+        ]
+      },
+      {
+        "id": "center-extra-120",
+        "validSquares": [
+          "d4",
+          "e4"
+        ]
+      },
+      {
+        "id": "center-extra-131",
+        "validSquares": [
+          "d5",
+          "e5"
+        ]
+      },
+      {
+        "id": "center-extra-142",
+        "validSquares": [
+          "d5",
+          "e5"
+        ]
+      },
+      {
+        "id": "center-extra-150",
+        "validSquares": [
+          "d4",
+          "e4"
+        ]
+      }
+    ],
+    "wrongSamples": []
+  },
+  "passed-pawns": {
+    "total": 500,
+    "unique": 242,
+    "ambiguous": 258,
+    "wrong": 0,
+    "ambiguitySamples": [
+      {
+        "id": "passed-pawns-extra-002",
+        "validSquares": [
+          "b2",
+          "h6"
+        ]
+      },
+      {
+        "id": "passed-pawns-extra-004",
+        "validSquares": [
+          "a6",
+          "h2"
+        ]
+      },
+      {
+        "id": "passed-pawns-extra-005",
+        "validSquares": [
+          "a2",
+          "a6"
+        ]
+      },
+      {
+        "id": "passed-pawns-extra-008",
+        "validSquares": [
+          "a2",
+          "h6"
+        ]
+      },
+      {
+        "id": "passed-pawns-extra-011",
+        "validSquares": [
+          "a2",
+          "b2",
+          "h6"
+        ]
+      },
+      {
+        "id": "passed-pawns-extra-017",
+        "validSquares": [
+          "h2",
+          "h6"
+        ]
+      }
+    ],
+    "wrongSamples": []
+  },
+  "opposition": {
+    "total": 500,
+    "unique": 500,
+    "ambiguous": 0,
+    "wrong": 0,
+    "ambiguitySamples": [],
+    "wrongSamples": []
+  }
+}

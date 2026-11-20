@@ -79,7 +79,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("X-Frame-Options","DENY")
         self.send_header("Referrer-Policy","no-referrer")
         self.send_header("Content-Security-Policy",
-          "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'")
+          "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'")
         self.send_header("Content-Length",str(len(data)))
         self.end_headers()
         self.wfile.write(data)
@@ -104,6 +104,31 @@ class Handler(BaseHTTPRequestHandler):
             if path in ('/icons/icon-192.png','/icons/icon-512.png'):
                 self.send_bytes((ROOT/path.lstrip('/')).read_bytes(),mime='image/png')
                 return
+            if path=="/arena-personas.js":
+                self.send_bytes((ROOT/"arena_personas_ui.js").read_bytes(),mime="application/javascript; charset=utf-8")
+                return
+            if path.startswith("/icons/coaches/"):
+                from pathlib import PurePosixPath
+                filename=PurePosixPath(path).name
+                if filename not in ("sage.svg","plum.svg","copper.svg","arctic.svg","gold.svg"):
+                    self.send_error(404);return
+                self.send_bytes((ROOT/"icons"/"coaches"/filename).read_bytes(),mime="image/svg+xml")
+                return
+            if path.startswith("/icons/bots/"):
+                from arena_personas import BOT_INDEX
+                from pathlib import PurePosixPath
+                filename=PurePosixPath(path).name
+                bot_id=filename.removesuffix(".svg")
+                if not filename.endswith(".svg") or bot_id not in BOT_INDEX:
+                    self.send_error(404);return
+                self.send_bytes((ROOT/"icons"/"bots"/filename).read_bytes(),mime="image/svg+xml")
+                return
+            if path=="/api/arena/roster":
+                from arena_personas import roster
+                self.respond(roster());return
+            if path=="/api/arena/voice/status":
+                from coach_voice import status
+                self.respond(status());return
             if path=="/":
                 self.send_bytes((ROOT/"dashboard.html").read_bytes(),mime="text/html; charset=utf-8")
             elif path=="/learn":
@@ -337,7 +362,7 @@ class Handler(BaseHTTPRequestHandler):
                         "/api/repertoire/save","/api/repertoire/takeaway","/api/repertoire/grade","/api/endgame/play",
                         "/api/opening-course/submit","/api/opening-course/knowledge","/api/opening-course/concept-grade",
                         "/api/masters/analyze","/api/masters/predict","/api/masters/ask",
-                        "/api/settings/chesscom","/api/sparring/start","/api/sparring/move","/api/sparring/resign","/api/sparring/review","/api/sparring/draw","/api/sparring/continue"):
+                        "/api/settings/chesscom","/api/sparring/start","/api/sparring/move","/api/sparring/resign","/api/sparring/review","/api/sparring/draw","/api/sparring/continue","/api/arena/coach/save","/api/arena/coach/delete","/api/arena/coach/activate","/api/arena/voice/speak"):
             self.send_error(404);return
         host=self.headers.get('Host','').lower().strip()
         origin=self.headers.get('Origin','')
@@ -391,10 +416,23 @@ class Handler(BaseHTTPRequestHandler):
             elif path=="/api/repertoire/takeaway":
                 from opening_repertoire import save_takeaway
                 self.respond(save_takeaway(payload.get("fen",""),payload.get("note","")))
+            elif path=="/api/arena/coach/save":
+                from arena_personas import save_coach
+                self.respond(save_coach(payload))
+            elif path=="/api/arena/coach/activate":
+                from arena_personas import select_active_coach
+                self.respond(select_active_coach(payload.get("id","")))
+            elif path=="/api/arena/coach/delete":
+                from arena_personas import delete_coach
+                self.respond(delete_coach(payload.get("id","")))
+            elif path=="/api/arena/voice/speak":
+                from coach_voice import speak
+                audio=speak(payload.get("text",""),payload.get("voice","af_sarah"),payload.get("rate",1.0))
+                self.send_bytes(audio,mime="audio/wav")
             elif path=="/api/sparring/start":
                 from sparring import start
                 self.respond(start(payload.get("color","White"),payload.get("difficulty","casual"),
-                                   payload.get("style","balanced")))
+                                   payload.get("style","balanced"),payload.get("botId")))
             elif path=="/api/sparring/move":
                 from sparring import move
                 self.respond(move(payload.get("gameId",""),payload.get("uci","")))

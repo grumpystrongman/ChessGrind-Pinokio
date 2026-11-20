@@ -31,6 +31,8 @@ def current_username():
 def items(c,user=None):
  user=user or current_username()
  ensure(c)
+ from game_analysis import ensure_analysis
+ ensure_analysis(c)
  progress={(r["game_id"],r["ply"]):dict(r) for r in c.execute("SELECT * FROM lab_mastery WHERE username=?",(user,))}
  out=[];today=dt.date.today().isoformat()
  for r in c.execute("SELECT data FROM game_analysis WHERE username=?",(user,)):

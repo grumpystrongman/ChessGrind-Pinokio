@@ -56,6 +56,8 @@ def _game_record(row):
    "opponent":row["black_username"] if white else row["white_username"]}
 
 def _data(con):
+ from chesscom_api import ensure_schema
+ ensure_schema(con)
  rows=con.execute("""SELECT game_id,pgn,white_username,black_username,result,
      time_class FROM chesscom_games WHERE username=?""",(current_username(),)).fetchall()
  games=[]

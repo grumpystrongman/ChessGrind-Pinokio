@@ -19,6 +19,7 @@ module.exports = {
     return [
       {default:true, icon:"fa-solid fa-play", text:"Start Chess Grind", href:"start.js"},
       {icon:"fa-solid fa-stethoscope", text:"Check installation", href:"doctor.js"},
+      {icon:"fa-solid fa-volume-high", text:"Install optional neural coach voices", href:"install-voices.js"},
       {icon:"fa-solid fa-wrench", text:"Repair dependencies", href:"install.js"},
       {icon:"fa-solid fa-rotate", text:"Update application (preserves games)", href:"update.js"}
     ];

@@ -94,6 +94,28 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
 #game-move-list .movetag{cursor:pointer}
 #game-move-list .movetag.active{background:#d7e9aa;color:#1c3025}
 @media(max-width:520px){.archive-filters{grid-template-columns:minmax(0,1fr)}}
+
+.rival-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px;max-height:420px;overflow-y:auto;padding:3px;margin:15px 0}
+.rival-card,.coach-card{display:flex;align-items:center;text-align:left;background:#223838;border:1px solid #48685d;color:#edf6e9;border-radius:13px;overflow:hidden;padding:6px;gap:9px;min-width:0}
+.rival-card{display:grid;justify-items:center;text-align:center;padding:8px}
+.rival-card img{width:100%;max-width:130px;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#355145}
+.rival-card strong,.coach-card strong{display:block;font-size:13px}.rival-card small,.coach-card small{display:block;font-size:10px;color:#bdcfc4;line-height:1.35}
+.rival-card.chosen,.coach-card.chosen{border-color:#d2eba2;background:#325548;box-shadow:0 0 0 1px #d2eba2}
+.profile-feature{display:flex;gap:15px;align-items:center;border:1px solid #557b62;border-radius:13px;background:linear-gradient(120deg,#2b4c42,#233a3e);padding:13px;margin:9px 0}
+.profile-feature img{width:68px;height:68px;border-radius:12px;object-fit:cover;flex:none}
+.profile-feature strong{display:block;font-size:19px}.profile-feature span{font-size:12px;color:#cce6c2}.profile-feature p{font-size:12px;color:#d3e4d7;margin-top:4px}
+.coach-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin:13px 0}
+.coach-card img{width:58px;height:58px;border-radius:10px;object-fit:cover}
+.coach-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:13px 0}
+.coach-fields label{font-size:12px;font-weight:700;color:#bfd4c4;display:grid;gap:4px}
+.coach-fields input,.coach-fields textarea,.coach-fields select{width:100%;min-height:43px;border-radius:9px;background:#284040;border:1px solid #58776a;color:#eff6ef;font:inherit;padding:9px}
+.coach-fields textarea{min-height:75px;resize:vertical}.coach-fields .wide{grid-column:1/-1}
+.coach-fields input[type=range]{min-height:30px;padding:3px}
+.coach-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.voice-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:#bed5c4;font-size:12px}
+.voice-line label{display:flex;gap:6px;align-items:center}
+@media(max-width:650px){.coach-fields{grid-template-columns:1fr}.rival-board{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.rival-card{padding:4px}}
+
 </style></head>
 <body>
 <header><a class="brand" href="/learn">CHESS<b>GRIND</b></a><span class="header-label">Your personal Coach Arena</span><div class="header-actions"><a href="/workshop">Calculation Workshop</a><a href="/learn">← Learning Lab</a></div></header>
@@ -134,11 +156,16 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
       <div class="formfield"><label for="game-difficulty">Difficulty</label><select id="game-difficulty"><option value="beginner">Beginner</option><option value="casual" selected>Casual</option><option value="club">Club</option><option value="advanced">Advanced</option></select></div>
       <div class="formfield"><label for="game-style">Style</label><select id="game-style"><option value="balanced">Balanced</option><option value="active">Active / tactical</option><option value="solid">Solid / quiet</option></select></div>
      </div>
+     <div class="kicker">Choose a rival</div>
+     <p class="muted small" style="margin-top:5px">22 fictional opponents: 21 skill steps, plus MAX with unrestricted Stockfish skill and a longer thinking budget. Their biographies are storytelling, not Elo certifications.</p>
+     <div class="profile-feature" id="bot-selected" role="status">Loading opponents...</div>
+     <div class="rival-board" id="bot-gallery" aria-label="Chess opponent roster"></div>
      <div class="notice" id="adaptive-note" style="margin-bottom:12px">Start with Casual difficulty. After several analyzed games, your coach may suggest adjusting it.</div>
      <button class="btn" id="start-game">Start a new game →</button>
      <div id="start-error" class="muted small" role="status" style="margin-top:9px"></div></div>
     <div class="panel hidden" id="game-board-panel">
      <div class="row between"><h2 id="game-title">Your training game</h2><span id="game-state-pill" class="pill">Playing</span></div>
+     <div class="profile-feature hidden" id="match-rival" aria-label="Current opponent"></div>
      <div class="boardwrap" style="margin-top:12px"><div class="board" id="arena-board" aria-label="Clickable game chessboard"></div></div>
      <div class="boardmeta"><span id="board-side">White to move</span><span id="board-move-count">Move 1</span></div>
      <div class="movehistory" id="game-move-list" aria-label="Moves played"></div>
@@ -161,7 +188,34 @@ select{background:#284040;color:var(--ink);border:1px solid #58776a;border-radiu
     </div>
    </div>
    <div>
-    <div class="panel"><div class="row"><div class="avatar">♞</div><div><div class="kicker">Your local chess coach</div><h2>Play, then understand.</h2></div></div>
+    <div class="panel" id="coach-studio">
+     <div class="row between"><div><div class="kicker">Your private coaching staff</div><h2>Meet your chess coaches</h2></div><span class="pill" id="coach-count">0 / 5 coaches</span></div>
+     <p class="muted small" style="margin-top:7px">Customize up to five coaches with a name, specialty, coaching tone, biography and speaking voice. Profiles stay on this PC. Spoken coaching never reveals a puzzle's solution before grading.</p>
+     <div id="coach-gallery" class="coach-grid" aria-label="Saved chess coaches"></div>
+     <div class="row"><button class="btn alt" id="new-coach" type="button">+ Create coach</button><span class="small muted" id="voice-backend">Checking voice engine...</span></div>
+     <div id="coach-editor">
+      <div class="coach-fields">
+       <label>Coach name<input id="coach-name" maxlength="48" placeholder="Coach name"></label>
+       <label>Specialty<input id="coach-specialty" maxlength="70" placeholder="Tactics, endgames, openings..."></label>
+       <label>Coaching tone<select id="coach-tone"><option value="supportive">Encouraging</option><option value="challenging">Demanding</option><option value="analytical">Analytical</option><option value="playful">Playful</option><option value="calm">Calm</option></select></label>
+       <label>Voice<select id="coach-voice"></select></label>
+       <label class="wide">Backstory / approach<textarea id="coach-bio" maxlength="300" placeholder="What kind of chess coach are they?"></textarea></label>
+       <label class="wide">Speaking speed: <span id="coach-rate-value">1.00x</span><input id="coach-rate" type="range" min="0.7" max="1.4" step="0.05" value="1"></label>
+      </div>
+      <div class="coach-actions">
+       <button class="btn" id="save-coach" type="button">Save coach</button>
+       <button class="btn alt" id="coach-preview" type="button">Hear voice sample</button>
+       <button class="btn alt" id="delete-coach" type="button">Delete</button>
+      </div>
+     </div>
+     <div class="voice-line">
+       <label><input type="checkbox" id="coach-autospeak"> Speak coaching automatically</label>
+       <button class="btn alt" id="coach-speak" type="button">Speak latest coaching</button>
+       <button class="btn alt" id="coach-stop" type="button">Stop voice</button>
+     </div>
+     <div class="muted small" role="status" id="coach-status" style="margin-top:11px">Choose a coach and listen to a sample.</div>
+    </div>
+    <div class="panel"><div class="row"><div class="avatar">♞</div><div><div class="kicker" id="active-coach-specialty">Your local chess coach</div><h2 id="active-coach-name">Play, then understand.</h2></div></div>
      <p class="muted small" style="margin-top:13px">I won't reveal the engine's preferred move while you're deciding. After the game, we'll review what you chose, your opponent's replies, and any missed opportunities.</p>
      <div id="coach-live" class="notice" style="margin-top:15px">Start a game when you're ready. You can choose a gentler difficulty and change the setting in your next game.</div>
     </div>
@@ -266,7 +320,7 @@ async function loadPlan(){
 $("daily-minutes").onchange=loadPlan;
 $("game-difficulty").onchange=()=>{difficultyTouched=true};
 function setMessage(message,error=false){$("move-status").textContent=message;$("move-status").classList.toggle("error",error)}
-function setCoach(message){$("coach-live").textContent=message}
+function setCoach(message){const text=window.ChessGrindCoachFormat?.(message)||message;$("coach-live").textContent=text;window.ChessGrindCoachAuto?.(text)}
 function renderGame(g){
  game=g;orientation=g.color;selected=null;replayPly=null;
  $("game-board-panel").classList.remove("hidden");
@@ -334,7 +388,7 @@ $("start-game").onclick=async()=>{
  const btn=$("start-game");btn.disabled=true;btn.textContent="Starting the local opponent…";
  try{
   const g=await api("/api/sparring/start",{color:$("game-color").value,
-   difficulty:$("game-difficulty").value,style:$("game-style").value});
+   difficulty:$("game-difficulty").value,style:$("game-style").value,botId:window.ChessGrindSelectedBot});
   review=null;$("review-panel").classList.add("hidden");renderGame(g);refreshGames();
   $("game-board-panel").scrollIntoView({behavior:"smooth",block:"nearest"});
   $("start-error").textContent="";
@@ -486,4 +540,5 @@ $("review-chat").onclick=()=>{
 loadPlan();refreshGames();
 const q=new URLSearchParams(location.search);if(q.get("tab")==="play")chooseTab("play");
 </script>
+<script src="/arena-personas.js"></script>
 </body></html>

@@ -259,6 +259,11 @@ def _session_ids(unit,events):
                                   seen.get(x["id"],{}).get("last","")))
     return [x["id"] for x in candidates[:SESSION_SIZE]]
 
+# Validated alternative squares are packaged with the original exercise bank.
+# Accepting every valid pattern answer avoids penalizing correct chess reasoning.
+ANSWER_KEYS=Path(__file__).resolve().parent/"data"/"academy_answer_keys_v1.json"
+VALID_ANSWERS=json.loads(ANSWER_KEYS.read_text("utf8")) if ANSWER_KEYS.is_file() else {}
+
 INDEX={unit["id"]:unit for unit in UNITS}
 COUNT=0  # Filled after verified bank expansion
 
@@ -449,7 +454,31 @@ def answer(unit_id,challenge_id,chosen,assisted=False,seconds=0):
     if not isinstance(assisted,bool):raise ValueError("Invalid assistance flag")
     try:duration=float(seconds)
     except (TypeError,ValueError):raise ValueError("Invalid duration")
-    correct=chosen==item["answer"]
+    candidates=VALID_ANSWERS.get(challenge_id,[item["answer"]])
+    correct=chosen in candidates
+    display_item=item
+    if correct and chosen!=item["answer"]:
+        display_item=dict(item)
+        display_item["answer"]=chosen
+        kind=unit["kind"]
+        messages={
+          "fork":"Another legal knight move also attacks two enemy pieces. This is a valid fork.",
+          "pin":"Another legal bishop move also pins an enemy piece against its king.",
+          "loose":"That enemy piece is also attacked and not defended by its own side.",
+          "center":"That central pawn advance is also legal and contests an important square.",
+          "passed":"That pawn is also passed: no opposing pawn is ahead on its file or adjacent files.",
+          "opposition":"This square also demonstrates direct opposition."
+        }
+        display_item["why"]=messages[kind]
+        display_item["targets"]=[]
+        if kind in ("fork","pin","center"):
+            piece_type={"fork":chess.KNIGHT,"pin":chess.BISHOP,"center":chess.PAWN}[kind]
+            board=chess.Board(item["fen"])
+            candidate=next((m for m in board.legal_moves
+                if chess.square_name(m.to_square)==chosen and
+                board.piece_at(m.from_square).piece_type==piece_type),None)
+            if candidate is not None:
+                display_item["origin"]=chess.square_name(candidate.from_square)
     con=db();ensure(con)
     con.execute("INSERT INTO academy_attempts(lesson_id,challenge_id,answer,correct,assisted,seconds,at) VALUES(?,?,?,?,?,?,?)",
         (unit_id,challenge_id,chosen,int(correct),int(assisted),max(0,min(duration,3600)),
@@ -457,15 +486,15 @@ def answer(unit_id,challenge_id,chosen,assisted=False,seconds=0):
     con.commit()
     current=status(unit,_rows(con,unit_id))
     con.close()
-    shown=_presentation(item,unit["kind"],True)
-    return {"correct":correct,"assisted":assisted,"answer":item["answer"],
-        "why":item["why"],"targets":item["targets"],
-        "origin":item.get("origin"),"afterFen":shown.get("afterFen"),
+    shown=_presentation(display_item,unit["kind"],True)
+    return {"correct":correct,"assisted":assisted,"answer":display_item["answer"],
+        "why":display_item["why"],"targets":display_item["targets"],
+        "origin":display_item.get("origin"),"afterFen":shown.get("afterFen"),
         "candidateSan":shown.get("candidateSan"),
         "state":current["state"],
         "progress":current,
-        "message":("Exactly. "+item["why"] if correct else
-                   "Not quite. "+item["why"]),
+        "message":("Exactly. "+display_item["why"] if correct else
+                   "Not quite. "+display_item["why"]),
         "nextHabit":unit["habit"]}
 
 def hint(unit_id,number):

@@ -15,6 +15,7 @@ import chess.engine
 from chess_grind import db
 from game_analysis import find_engine
 from lesson_explainer import move_reasons
+from arena_personas import BOT_INDEX
 
 USER = "player"
 GAME_LOCK = threading.RLock()
@@ -88,7 +89,8 @@ def _response(row, board, detail=None):
         moves.append({"san":san,"uci":uci,"fen":replay.fen(),
                       "by":"White" if not replay.turn else "Black"})
     return {"id":row["id"],"fen":board.fen(),"startFen":row["start_fen"],
-       "color":row["user_color"],"difficulty":row["difficulty"],"style":row["style"],
+        "color":row["user_color"],"difficulty":row["difficulty"],"style":row["style"],
+       "bot":BOT_INDEX.get(row["difficulty"][4:]) if row["difficulty"].startswith("bot:") else None,
        "turn":"White" if side_white else "Black",
        "yourTurn":bool(user_white==side_white),
        "legalMoves":board.legal_moves.count(),"moves":moves,
@@ -104,9 +106,15 @@ def _engine():
     return path
 
 def _bot_move(board,difficulty,style):
+    persona=BOT_INDEX.get(difficulty[4:]) if difficulty.startswith("bot:") else None
+    maximum=bool(persona and persona["maxStrength"])
+    skill=persona["skill"] if persona else LEVELS[difficulty]
+    budget=(1.8 if maximum else .15+skill*.027) if persona else (
+        .11 if difficulty in ("beginner","casual") else .22)
     with chess.engine.SimpleEngine.popen_uci(_engine(),timeout=35) as eng:
-        eng.configure({"Threads":1,"Hash":32,"Skill Level":LEVELS[difficulty]})
-        limit=chess.engine.Limit(time=.11 if difficulty in ("beginner","casual") else .22)
+        eng.configure({"Threads":2 if maximum else 1,"Hash":96 if maximum else 32,
+                       "Skill Level":20 if maximum else skill,"UCI_LimitStrength":False})
+        limit=chess.engine.Limit(time=budget)
         result=eng.play(board,limit)
         move=result.move
         if not move or move not in board.legal_moves:
@@ -114,7 +122,7 @@ def _bot_move(board,difficulty,style):
         # "Active" and "solid" are modest move-selection preferences, NOT
         # guaranteed human-like personalities. Never sacrifice >0.8 pawn
         # according to a shallow comparison just to fulfill a style label.
-        if style!="balanced" and board.legal_moves.count()>1:
+        if not maximum and style!="balanced" and board.legal_moves.count()>1:
             info=eng.analyse(board,chess.engine.Limit(depth=7),
                              multipv=min(4,board.legal_moves.count()))
             if isinstance(info,dict):info=[info]
@@ -155,9 +163,15 @@ def _persist(con,row):
         row["updated_at"],row["id"],USER))
     con.commit()
 
-def start(color="White",difficulty="casual",style="balanced"):
+def start(color="White",difficulty="casual",style="balanced",bot_id=None):
     if color not in ("White","Black"):raise ValueError("Choose White or Black")
-    if difficulty not in LEVELS:raise ValueError("Unknown opponent difficulty")
+    if bot_id is not None:
+        if not isinstance(bot_id,str) or bot_id not in BOT_INDEX:
+            raise ValueError("Unknown chess opponent")
+        difficulty="bot:"+bot_id
+        style=BOT_INDEX[bot_id]["style"]
+    if difficulty not in LEVELS and not (difficulty.startswith("bot:") and difficulty[4:] in BOT_INDEX):
+        raise ValueError("Unknown opponent difficulty")
     if style not in STYLES:raise ValueError("Unknown sparring style")
     with GAME_LOCK:
         con=db()
