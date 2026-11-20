@@ -148,7 +148,11 @@ def _signed_windows_install():
             "if($sig.Status -ne 'Valid'){exit 11}\n"
             "if($sig.SignerCertificate.Subject -notmatch '(^|, )O=Ollama Inc\\.(,|$)'){exit 12}\n",
             encoding="utf-8")
-        signed=subprocess.run(["powershell.exe","-NoProfile",
+        # GitHub-hosted Windows images and newer systems can expose only
+        # PowerShell 7's Security module; prefer pwsh when present.
+        ps=shutil.which("pwsh") or shutil.which("pwsh.exe") or shutil.which("powershell.exe")
+        if not ps:raise RuntimeError("No Windows PowerShell signature verifier available")
+        signed=subprocess.run([ps,"-NoProfile",
                                "-ExecutionPolicy","Bypass","-File",
                                str(verifier),str(destination)],
                  capture_output=True,text=True,timeout=35,creationflags=CREATE_NO_WINDOW)
