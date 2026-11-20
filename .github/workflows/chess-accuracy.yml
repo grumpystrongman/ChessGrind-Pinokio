@@ -24,7 +24,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq stockfish
-          python -m pip install --disable-pip-version-check "chess>=1.11" "requests>=2.31"
+          python -m pip install --disable-pip-version-check "chess>=1.11" "requests>=2.31" "PyJWT[crypto]>=2.9,<3"
       - name: Isolate test data
         run: echo "CHESS_GRIND_HOME=$(mktemp -d)" >> "$GITHUB_ENV"
       - name: Verify all 27 bundled portrait images are distinct and referenced
@@ -80,7 +80,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install Windows test dependencies
-        run: python -m pip install --disable-pip-version-check "chess>=1.11" "requests>=2.31"
+        run: python -m pip install --disable-pip-version-check "chess>=1.11" "requests>=2.31" "PyJWT[crypto]>=2.9,<3"
       - name: Set isolated test data location
         shell: pwsh
         run: |
