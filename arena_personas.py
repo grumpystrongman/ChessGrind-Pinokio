@@ -37,7 +37,7 @@ BOT_ROSTER=[]
 for n,(name,role,bio,style,a,b) in enumerate(ARCHETYPES):
     slug=re.sub(r"[^a-z0-9]+","-",name.lower()).strip("-")
     BOT_ROSTER.append(dict(id=slug,name=name,role=role,bio=bio,style=style,
-       skill=min(n,20),maxStrength=n==21,avatar=f"/icons/bots/{slug}.svg",
+       skill=min(n,20),maxStrength=n==21,avatar=f"/icons/portraits/{slug}.png",
        title=("MAXIMUM" if n==21 else f"Stockfish skill {n}/20")))
 BOT_INDEX={p["id"]:p for p in BOT_ROSTER}
 COACH_LIMIT=5

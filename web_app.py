@@ -107,6 +107,23 @@ class Handler(BaseHTTPRequestHandler):
             if path=="/arena-personas.js":
                 self.send_bytes((ROOT/"arena_personas_ui.js").read_bytes(),mime="application/javascript; charset=utf-8")
                 return
+            if path.startswith("/icons/portraits/"):
+                from arena_personas import BOT_INDEX,CAST_INDEX
+                from pathlib import PurePosixPath
+                filename=PurePosixPath(path).name
+                if not filename.endswith(".png") or path != "/icons/portraits/"+filename:
+                    self.send_error(404);return
+                key=filename[:-4]
+                if key in BOT_INDEX:
+                    image=ROOT/"icons"/"bots"/filename
+                elif key in CAST_INDEX:
+                    image=ROOT/"icons"/"coaches"/filename
+                else:
+                    self.send_error(404);return
+                if not image.is_file():
+                    self.send_error(404);return
+                self.send_bytes(image.read_bytes(),mime="image/png")
+                return
             if path.startswith("/icons/coaches/"):
                 from pathlib import PurePosixPath
                 filename=PurePosixPath(path).name

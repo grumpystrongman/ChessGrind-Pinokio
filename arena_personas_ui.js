@@ -8,10 +8,12 @@ const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"
 let bots=[],coaches=[],cast=[],selectedCoach=null,voiceStatus={available:false};
 let lastAudio=null;
 function coachPortrait(coach){
- const fixed={"coach-mentor":"sage","coach-tactics":"copper","coach-iris":"plum","coach-rook":"gold","coach-vera":"arctic"};
- const list=["sage","plum","copper","arctic","gold"];
- const id=coach?.id||"";
- return "/icons/coaches/"+(fixed[id]||list[[...id].reduce((sum,c)=>sum+c.charCodeAt(0),0)%list.length])+".svg";
+ const identity=coach?.id||"";
+ const illustrated=["coach-mentor","coach-tactics","coach-iris","coach-rook","coach-vera"];
+ if(illustrated.includes(identity))return "/icons/portraits/"+identity+".png";
+ const variants=["sage","plum","copper","arctic","gold"];
+ const idx=[...identity].reduce((sum,c)=>sum+c.charCodeAt(0),0)%variants.length;
+ return "/icons/coaches/"+variants[idx]+".svg";
 }
 window.ChessGrindSelectedBot=null;
 window.ChessGrindSelectedCoachOpponent=null;

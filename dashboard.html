@@ -743,7 +743,9 @@ for(const area of ["puzzle","review"]){
   const roster=await response.json();
   const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const pictures=["sage","plum","copper","arctic","gold"];
-const portrait=c=>{
+const coachImage=c=>["coach-mentor","coach-tactics","coach-iris","coach-rook","coach-vera"].includes(c.id)?
+       "/icons/portraits/"+c.id+".png":"/icons/coaches/sage.svg";
+  const portrait=c=>{
  const fixed={"coach-mentor":"sage","coach-tactics":"copper","coach-iris":"plum","coach-rook":"gold","coach-vera":"arctic"};
  return fixed[c.id]||pictures[[...c.id].reduce((a,x)=>a+x.charCodeAt(0),0)%pictures.length];
 };
