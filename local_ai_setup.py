@@ -116,12 +116,18 @@ def _signed_windows_install():
         if size<2_000_000:raise RuntimeError("Downloaded Ollama installer is unexpectedly small")
         # Verify the Authenticode signature AND certificate publisher as
         # recommended by Ollama's own Windows installation script.
-        check=(
-            "$sig=Get-AuthenticodeSignature -LiteralPath $args[0];"
+        # Use -File with an explicit PowerShell param: Windows PowerShell
+        # -Command does not reliably pass a trailing path via $args.
+        verifier=Path(folder)/"verify-signature.ps1"
+        verifier.write_text(
+            "param([Parameter(Mandatory=$true)][string]$InstallerPath)\n"
+            "$sig=Get-AuthenticodeSignature -LiteralPath $InstallerPath\n"
             "if($sig.Status -ne 'Valid' -or "
-            "$sig.SignerCertificate.Subject -notmatch '(^|, )O=Ollama Inc\\.(,|$)'){exit 12}"
-        )
-        signed=subprocess.run(["powershell.exe","-NoProfile","-Command",check,str(destination)],
+            "$sig.SignerCertificate.Subject -notmatch '(^|, )O=Ollama Inc\\.(,|$)'){exit 12}\n",
+            encoding="utf-8")
+        signed=subprocess.run(["powershell.exe","-NoProfile",
+                               "-ExecutionPolicy","Bypass","-File",
+                               str(verifier),str(destination)],
                  capture_output=True,text=True,timeout=35,creationflags=CREATE_NO_WINDOW)
         if signed.returncode:
             raise RuntimeError("Ollama installer signature or publisher verification failed")
